@@ -6,6 +6,7 @@ import {
   statistics,
   stopCounts,
   visibleTree,
+  preferredSearchResults,
   type Chain,
   type DeviceNode,
   type ChainEdge,
@@ -70,6 +71,14 @@ const chain: Chain = {
   flags: [],
 };
 describe("Predicate ancestry rules", () => {
+  it('shows the two Interwedge matches without unrelated spelling suggestions', () => {
+    const rows = [{knumber:'K261809',device_name:'Interwedge Standalone Lateral',applicant:'Globus',decision_date:null,match:'partial'}, {knumber:'K241487',device_name:'Interwedge Standalone Lateral',applicant:'Globus',decision_date:null,match:'partial'}, {knumber:'K241468',device_name:'Vertiwedge Intraosseous System',applicant:'Globus',decision_date:null,match:'close spelling'}];
+    expect(preferredSearchResults(rows).map(row => row.knumber)).toEqual(['K261809','K241487']);
+  });
+  it('keeps close spelling matches when there are no direct matches', () => {
+    const rows = [{knumber:'K241487',device_name:'Interwedge Standalone Lateral',applicant:'Globus',decision_date:null,match:'close spelling'}];
+    expect(preferredSearchResults(rows)).toEqual(rows);
+  });
   it("follows only primary edges reachable from subject devices", () => {
     expect(visibleTree(chain, true).nodes.map((n) => n.knumber)).toEqual([
       "K241487",

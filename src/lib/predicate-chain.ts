@@ -7,6 +7,10 @@ export interface SearchResult {
   in_starting_set?: boolean;
   match?: string;
 }
+export function preferredSearchResults(rows: SearchResult[]) {
+  const direct = rows.filter(row => row.match !== 'close spelling');
+  return direct.length ? direct : rows;
+}
 export interface DeviceNode extends SearchResult {
   generation: number;
   product_code: string | null;
