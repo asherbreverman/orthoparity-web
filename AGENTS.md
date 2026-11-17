@@ -29,8 +29,11 @@ use the editor.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
 
-- Keep predicate data access in the read-only adapter using the three existing RPCs and a single metadata read; this prevents per-device request loops and schema coupling.
+- Keep predicate data access in the read-only adapter using only the existing research RPCs, a single metadata read, and a batched product-code read; this prevents per-device request loops and schema coupling.
 - Cache chain promises by normalized subject set and generation limit for the browser session; this avoids repeated ancestry requests without persistent storage.
 - Keep tree rendering lazy and exports inside user actions; this isolates browser visualization and download libraries from server rendering.
 - Keep ancestry calculations in pure helpers with concrete tests; this protects generation, confidence and reachability semantics across views and exports.
 - Escape raw NUL separators in streamed HTML responses; HTML parsing otherwise corrupts serialized route IDs and prevents hydration.
+
+- Share navigation and release metadata in the root shell, with separate reviewer routes and a lazy evidence workspace; this keeps evidence requests out of the default brief.
+- Keep reviewer payload types and parsing/filter helpers in browser-safe modules, and import PDF/Excel generators only inside download actions; this preserves SSR safety and testable rules.

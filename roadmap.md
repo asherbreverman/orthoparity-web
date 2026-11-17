@@ -1,6 +1,5 @@
-# Predicate Chain
-- [x] Build the read-only search, family selection, summary and five data views.
-- [x] Add tree visualization, client-side downloads, methodology and limitations.
-- [x] Test ancestry rules and verify desktop/tablet interactions.
-- [x] Wire the connected read-only client and verify K241487, Interwedge, CONCORDE family and release metadata.
-- [x] Verify workbook and full-chain tree downloads with real records, including missing device names.
+# Predicate Chain reviewer redesign
+- [x] Add Device Brief, Compare, Batch, and About navigation with shared release information.
+- [x] Render existing brief data, reviewer questions, category charts, and collapsed evidence.
+- [x] Add browser PDF and batch CSV/Excel downloads.
+- [x] Test parsing and confidence rules; verify real-data flows on desktop and mobile.

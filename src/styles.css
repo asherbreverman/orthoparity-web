@@ -884,3 +884,86 @@
     transition: none !important;
   }
 }
+
+/* Reviewer workspace: existing fonts and semantic research palette. */
+.reviewer-nav { display: flex; gap: 4px; }
+.reviewer-nav a[aria-current="page"] { color: var(--primary); border-bottom: 2px solid var(--predicate); border-radius: 0; }
+.release-bar { display: flex; justify-content: space-between; gap: 12px; padding: 13px 0; font-size: 11px; color: var(--muted-foreground); border-bottom: 1px solid var(--border); }
+.release-bar > span { display: flex; align-items: center; gap: 7px; }
+.page-title { padding: 27px 0 22px; }
+.page-title h1 { font-size: 30px; font-weight: 600; margin-top: 9px; }
+.reviewer-shell .search-label > span { display: block; margin-bottom: 10px; }
+.at-glance { border: 1px solid var(--border); border-left: 4px solid var(--predicate); border-radius: 6px; padding: 24px 28px; background: var(--card); }
+.glance-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+.glance-heading h2 { font-size: 28px; font-weight: 600; margin-top: 12px; }
+.plain-description { font-size: 16px; line-height: 1.6; margin: 10px 0; max-width: 900px; }
+.review-tag { font-size: 10px; color: var(--muted-foreground); display: inline-block; background: var(--muted); padding: 4px 7px; border-radius: 3px; }
+.device-facts { display: grid; grid-template-columns: 2fr 1.6fr 1fr; gap: 18px 26px; margin: 22px 0; }
+.device-facts > div { min-width: 0; }
+.device-facts dt { color: var(--muted-foreground); font-size: 11px; margin-bottom: 5px; }
+.device-facts dd { font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+.pattern-line { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; border-top: 1px solid var(--border); padding-top: 16px; }
+.pattern-line p { font-size: 13px; }
+.pattern-badge { border: 1px solid var(--predicate); background: var(--muted); color: var(--primary); border-radius: 3px; padding: 4px 9px; font-size: 11px; font-weight: 600; text-transform: capitalize; }
+.info-tip { position: relative; cursor: help; color: var(--muted-foreground); }
+.info-tip > span { display: none; position: absolute; right: 0; top: 23px; width: 260px; background: var(--popover); color: var(--foreground); border: 1px solid var(--border); box-shadow: var(--shadow-popover); padding: 12px; font-size: 12px; z-index: 20; }
+.info-tip:hover > span, .info-tip:focus > span { display: block; }
+.brief-section { padding: 26px 0; border-bottom: 1px solid var(--border); }
+.brief-section h2 { font-size: 19px; font-weight: 600; margin-bottom: 16px; }
+.brief-section h3 { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+.brief-section .section-heading { padding: 0; margin-bottom: 16px; }
+.brief-section .section-heading h2 { margin-bottom: 0; }
+.ifu-quote { border-left: 3px solid var(--reference); padding: 0 0 0 18px; font-size: 14px; line-height: 1.75; white-space: pre-line; }
+.ifu-quote.clamped { display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
+.section-note { display: flex; align-items: center; gap: 12px; font-size: 11px; color: var(--muted-foreground); margin-top: 10px; }
+.section-caption { font-size: 11px; line-height: 1.7; color: var(--muted-foreground); margin-top: 13px; }
+.section-lead { font-size: 14px; line-height: 1.6; margin-bottom: 18px; }
+.brief-table-scroll { overflow: auto; max-width: 100%; }
+.brief-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; }
+.brief-table th { font-size: 11px; font-weight: 500; color: var(--muted-foreground); background: var(--muted); padding: 12px; white-space: nowrap; }
+.brief-table td { padding: 13px 12px; border-bottom: 1px solid var(--border); vertical-align: top; min-width: 90px; max-width: 370px; overflow-wrap: anywhere; }
+.brief-table td:nth-child(2) { min-width: 220px; }
+.brief-table tr:hover td { background: var(--accent); }
+.brief-link { color: var(--primary); text-decoration: underline; text-underline-offset: 3px; display: inline-flex; gap: 5px; align-items: center; font-size: 12px; }
+.glance-heading > .brief-link { flex-shrink: 0; margin-top: 8px; }
+.cell-tags { display: flex; flex-wrap: wrap; gap: 6px; min-width: 120px; font-size: 10px; }
+.data-tag { background: var(--muted); border: 1px solid var(--border); padding: 3px 6px; border-radius: 3px; white-space: nowrap; }
+.technology-line { display: flex; overflow-x: auto; padding: 12px 0; }
+.technology-line li { position: relative; flex: 0 0 235px; padding: 14px 28px 14px 14px; border-top: 2px solid var(--reference); display: flex; flex-direction: column; gap: 9px; font-size: 11px; }
+.technology-line li:first-child { border-color: var(--predicate); }
+.technology-line strong { font-size: 12px; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.step-generation { color: var(--muted-foreground); font-size: 10px; }
+.step-arrow { position: absolute; right: 8px; top: 32px; color: var(--muted-foreground); }
+.technology-line li:last-child .step-arrow { display: none; }
+.stop-label { font-size: 12px; margin-top: 12px; color: var(--muted-foreground); }
+.peer-filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 16px 0; }
+.peer-filters .section-note { margin: 0 0 0 auto; }
+.peer-table { max-height: 430px; }
+.peer-table th { position: sticky; top: 0; z-index: 1; }
+.category-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.category-chart { height: 250px; width: 100%; margin: 24px 0; }
+.two-columns { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 26px; }
+.vendor-questions { padding-left: 24px; list-style: decimal; font-size: 14px; line-height: 1.7; }
+.vendor-questions li { padding-left: 5px; margin-bottom: 13px; max-width: 1000px; }
+.brief-actions { display: flex; flex-wrap: wrap; gap: 10px; padding: 25px 0; }
+.brief-actions button { height: auto; min-height: 36px; white-space: normal; }
+.brief-empty { min-height: 330px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 18px; color: var(--muted-foreground); }
+.brief-empty h2 { font-size: 17px; }
+.selection-label { display: flex; flex-wrap: wrap; gap: 10px; font-size: 13px; margin: -14px 0 22px; }
+.comparison-verdict { font-family: var(--font-heading); font-size: 26px; line-height: 1.45; margin: 20px 0; max-width: 1060px; }
+.comparison-device { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 22px; }
+.comparison-device h2 { font-size: 19px; font-weight: 600; margin: 14px 0 9px; overflow-wrap: anywhere; }
+.comparison-device p { font-size: 13px; color: var(--muted-foreground); }
+.comparison-device .device-facts { grid-template-columns: 1fr 1fr; }
+.shared-predicates { display: flex; gap: 20px; flex-wrap: wrap; }
+.batch-input { width: 100%; padding: 16px; background: var(--card); border: 1px solid var(--border); border-radius: 6px; font-family: var(--font-mono); font-size: 14px; resize: vertical; }
+.batch-input:focus { outline: 2px solid var(--ring); }
+.batch-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 15px; padding: 14px 0 24px; font-size: 12px; }
+.about-content { max-width: 1020px; }
+.about-content ul, .about-content ol { font-size: 14px; line-height: 1.8; padding-left: 22px; margin: 22px 0; }
+.about-content ul { list-style: disc; }
+.about-content ol { list-style: decimal; }
+.about-content li { margin-bottom: 14px; }
+.evidence-view { padding: 20px 0; }
+@media (max-width: 900px) { .reviewer-shell .topbar { flex-wrap: wrap; height: auto; min-height: 82px; gap: 10px; padding: 15px 0; } .reviewer-nav { order: 3; flex-basis: 100%; } .device-facts { grid-template-columns: repeat(2,minmax(0,1fr)); } .release-bar { flex-wrap: wrap; } }
+@media (max-width: 640px) { .reviewer-nav { justify-content: space-between; gap: 0; } .reviewer-nav a { padding: 7px 8px; font-size: 12px; } .page-title h1 { font-size: 27px; } .two-columns { grid-template-columns: minmax(0,1fr); gap: 18px; } .at-glance { padding: 20px 17px; } .glance-heading { flex-direction: column; gap: 6px; } .glance-heading h2 { font-size: 24px; } .plain-description { font-size: 14px; } .device-facts { gap: 16px; } .category-metrics { grid-template-columns: minmax(0,1fr); } .category-metrics .metric { min-height: 80px; } .category-metrics .metric:last-child { grid-column: auto; } .brief-section .section-heading { flex-wrap: wrap; gap: 12px; } .comparison-verdict { font-size: 22px; } .brief-table { min-width: 620px; } .section-note { flex-wrap: wrap; } .reviewer-shell .search-box .search-submit span { display: none; } .brief-section h2 { line-height: 1.5; } }

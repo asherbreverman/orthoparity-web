@@ -1,10 +1,27 @@
 import { describe, expect, it } from 'vitest';
-import { getMeta, searchDevices, getFamily, lookupChain } from '@/lib/predicate-data';
+import { getMeta, searchDevices, getFamily, lookupChain, getBrief, compareDevices, batchDevices } from '@/lib/predicate-data';
 import { statistics } from '@/lib/predicate-chain';
 
 // Public read-only integration checks against the connected research dataset.
-// Only SELECT pc_meta and the three existing research RPCs are invoked.
+// Only the existing read-only research RPCs and metadata SELECT are invoked.
 describe('Connected Predicate Chain acceptance checks', () => {
+  it('loads K110694 reviewer brief from the existing brief function', async () => {
+    const brief = await getBrief('K110694');
+    expect(brief.found).toBe(true);
+    expect(brief.product_code?.plain_name).toBe('Lumbar interbody cage');
+    expect(brief.peers.total).toBe(126);
+    expect(brief.ifu?.found).toBe(true);
+  }, 30000);
+  it('compares K110694 and K241487 through shared ancestry', async () => {
+    const comparison = await compareDevices('K110694', 'K241487');
+    expect(comparison.shared_count).toBe(18);
+    expect(comparison.shared_ancestors.find(row => row.knumber === 'K081917')).toMatchObject({gen_a: 1, gen_b: 3});
+  }, 30000);
+  it('batch keeps missing clearance results visible', async () => {
+    const rows = await batchDevices(['K110694','K999999']);
+    expect(rows.find(row=>row.knumber==='K110694')?.found).toBe(true);
+    expect(rows.find(row=>row.knumber==='K999999')?.found).toBe(false);
+  }, 30000);
   it('K241487 reaches 715 devices', async () => {
     const meta = await getMeta();
     const chain = await lookupChain(['K241487'], Number(meta.max_generations));
@@ -32,7 +49,7 @@ describe('Connected Predicate Chain acceptance checks', () => {
   }, 30000);
   it('loads the release metadata used by the header', async () => {
     const meta = await getMeta();
-    expect(meta.exported_utc).toBe('2026-11-17 18:23');
+    expect(meta.exported_utc).toBe('2026-11-17 20:13');
     expect(meta.parser_version).toBe('1.3.1');
     expect(meta.max_generations).toBe('10');
   }, 30000);
