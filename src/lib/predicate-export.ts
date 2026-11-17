@@ -98,7 +98,7 @@ export async function exportWorkbook(
   append("Companies", [
     ["Applicant", "Number of devices", "First generation", "Last generation", "K-numbers"],
     ...[...companies]
-      .sort(([a], [b]) => a.localeCompare(b))
+      .sort(([a], [b]) => (a ?? '').localeCompare(b ?? ''))
       .map(([applicant, nodes]) => [
         applicant,
         nodes.length,

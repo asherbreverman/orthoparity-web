@@ -3,3 +3,4 @@
 - [x] Add tree visualization, client-side downloads, methodology and limitations.
 - [x] Test ancestry rules and verify desktop/tablet interactions.
 - [x] Wire the connected read-only client and verify K241487, Interwedge, CONCORDE family and release metadata.
+- [x] Verify workbook and full-chain tree downloads with real records, including missing device names.

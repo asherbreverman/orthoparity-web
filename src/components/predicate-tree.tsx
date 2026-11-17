@@ -25,7 +25,7 @@ function DeviceCard({ data }: NodeProps<CardNode>) {
       ? "unextracted"
       : n.role === "primary + reference" || n.role === "primary+reference"
         ? "combined"
-        : n.role === "primary"
+        : n.role === "primary" || n.role === "primary predicate"
           ? "primary"
           : "reference";
   return (
@@ -37,11 +37,11 @@ function DeviceCard({ data }: NodeProps<CardNode>) {
         <span>{n.knumber}</span>
         <span>{n.decision_date?.slice(0, 4) ?? "—"}</span>
       </div>
-      <div className="node-line" title={n.applicant}>
-        {n.applicant}
+      <div className="node-line" title={n.applicant ?? undefined}>
+        {n.applicant ?? '—'}
       </div>
-      <div className="node-line" title={n.device_name}>
-        {n.device_name.length > 30 ? `${n.device_name.slice(0, 30)}…` : n.device_name}
+      <div className="node-line" title={n.device_name ?? undefined}>
+        {(n.device_name?.length ?? 0) > 30 ? `${n.device_name?.slice(0, 30)}…` : n.device_name ?? '—'}
       </div>
       {n.stop && (
         <div className="node-stop" title={n.stop}>
@@ -116,7 +116,7 @@ export default function PredicateTree({
           zoomable
           nodeColor={(n) => {
             const device = n.data["device"] as DeviceNode;
-            return `var(--${chain.roots.includes(n.id) ? "subject" : device.stop?.toLowerCase().includes("not yet extracted") ? "unextracted" : device.role === "primary" ? "predicate" : device.role?.includes("primary") && device.role?.includes("reference") ? "combined" : "reference"})`;
+            return `var(--${chain.roots.includes(n.id) ? "subject" : device.stop?.toLowerCase().includes("not yet extracted") ? "unextracted" : device.role === "primary" || device.role === "primary predicate" ? "predicate" : device.role?.includes("primary") && device.role?.includes("reference") ? "combined" : "reference"})`;
           }}
         />
       </ReactFlow>
