@@ -143,6 +143,30 @@ export type Database = {
         }
         Relationships: []
       }
+      pc_ifu: {
+        Row: {
+          found: boolean
+          ifu_text: string | null
+          knumber: string
+          page: string | null
+          source: string | null
+        }
+        Insert: {
+          found?: boolean
+          ifu_text?: string | null
+          knumber: string
+          page?: string | null
+          source?: string | null
+        }
+        Update: {
+          found?: boolean
+          ifu_text?: string | null
+          knumber?: string
+          page?: string | null
+          source?: string | null
+        }
+        Relationships: []
+      }
       pc_meta: {
         Row: {
           key: string
@@ -158,14 +182,89 @@ export type Database = {
         }
         Relationships: []
       }
+      pc_product_codes: {
+        Row: {
+          anatomy: string | null
+          clearances: number | null
+          device_class: string | null
+          fda_definition: string | null
+          fda_name: string | null
+          kind: string | null
+          plain_description: string | null
+          plain_name: string | null
+          procedures: string | null
+          product_code: string
+          regulation_number: string | null
+          reviewed: boolean
+          segment: string | null
+        }
+        Insert: {
+          anatomy?: string | null
+          clearances?: number | null
+          device_class?: string | null
+          fda_definition?: string | null
+          fda_name?: string | null
+          kind?: string | null
+          plain_description?: string | null
+          plain_name?: string | null
+          procedures?: string | null
+          product_code: string
+          regulation_number?: string | null
+          reviewed?: boolean
+          segment?: string | null
+        }
+        Update: {
+          anatomy?: string | null
+          clearances?: number | null
+          device_class?: string | null
+          fda_definition?: string | null
+          fda_name?: string | null
+          kind?: string | null
+          plain_description?: string | null
+          plain_name?: string | null
+          procedures?: string | null
+          product_code?: string
+          regulation_number?: string | null
+          reviewed?: boolean
+          segment?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      pc_batch: { Args: { ks: string[] }; Returns: Json }
       pc_brand_family: { Args: { k: string }; Returns: Json }
+      pc_brief: { Args: { k: string }; Returns: Json }
+      pc_category: { Args: { code: string }; Returns: Json }
       pc_clean_blanks: { Args: never; Returns: string }
+      pc_compare: { Args: { a: string; b: string }; Returns: Json }
+      pc_direct: {
+        Args: { k: string }
+        Returns: {
+          applicant: string
+          confidence: string
+          decision_year: string
+          device_name: string
+          kind: string
+          list_order: number
+          number_as_printed: string
+          predicate: string
+          product_code: string
+          review_source: string
+          role: string
+          same_code: boolean
+          same_company: boolean
+        }[]
+      }
       pc_lookup: { Args: { max_gen?: number; roots: string[] }; Returns: Json }
+      pc_peers: { Args: { k: string; lim?: number }; Returns: Json }
+      pc_primary_lineage: {
+        Args: { k: string; max_gen?: number }
+        Returns: Json
+      }
       pc_search: {
         Args: { lim?: number; q: string }
         Returns: {
