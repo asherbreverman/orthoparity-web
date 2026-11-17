@@ -316,7 +316,7 @@ function Index() {
             <input
               ref={queryRef}
               id="device-search"
-              placeholder="K-number, product name, or company (for example K241487, Interwedge, Globus)"
+              placeholder="K110694, Concorde, Globus"
               value={query}
               onChange={(e) => {
                 setQuery(e.target.value);
