@@ -28,3 +28,9 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+- Keep predicate data access in the read-only adapter using the three existing RPCs and a single metadata read; this prevents per-device request loops and schema coupling.
+- Cache chain promises by normalized subject set and generation limit for the browser session; this avoids repeated ancestry requests without persistent storage.
+- Keep tree rendering lazy and exports inside user actions; this isolates browser visualization and download libraries from server rendering.
+- Keep ancestry calculations in pure helpers with concrete tests; this protects generation, confidence and reachability semantics across views and exports.
+- Escape raw NUL separators in streamed HTML responses; HTML parsing otherwise corrupts serialized route IDs and prevents hydration.

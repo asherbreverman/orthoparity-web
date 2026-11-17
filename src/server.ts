@@ -52,7 +52,27 @@ export default {
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
+      const normalized = await normalizeCatastrophicSsrResponse(response);
+      // Serialized route IDs can contain NUL separators. HTML parsing replaces raw
+      // NUL bytes with U+FFFD, corrupting the bootstrap IDs and stalling hydration.
+      // Keep the stream intact while encoding those separators as JavaScript escapes.
+      if (!normalized.body || !normalized.headers.get("content-type")?.includes("text/html"))
+        return normalized;
+      const body = normalized.body
+        .pipeThrough(new TextDecoderStream())
+        .pipeThrough(
+          new TransformStream<string, string>({
+            transform(chunk, controller) {
+              controller.enqueue(chunk.replace(/\u0000/g, "\\u0000"));
+            },
+          }),
+        )
+        .pipeThrough(new TextEncoderStream());
+      return new Response(body, {
+        status: normalized.status,
+        statusText: normalized.statusText,
+        headers: normalized.headers,
+      });
     } catch (error) {
       console.error(error);
       return new Response(renderErrorPage(), {
