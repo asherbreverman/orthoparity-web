@@ -131,7 +131,7 @@ describe("Predicate ancestry rules", () => {
   });
   it("uses the requested sanitized product and dated export name", () => {
     expect(filename("Interwedge / family", "2026-11-17")).toBe(
-      "Predicate_Chain_Interwedge_family_2026-11-17",
+      "Open_Ortho_Benchmark_Interwedge_family_2026-11-17",
     );
   });
   it("caches per subject set and generation limit independent of ordering", () => {

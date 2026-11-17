@@ -1,5 +1,6 @@
-# Predicate Chain reviewer redesign
-- [x] Add Device Brief, Compare, Batch, and About navigation with shared release information.
-- [x] Render existing brief data, reviewer questions, category charts, and collapsed evidence.
-- [x] Add browser PDF and batch CSV/Excel downloads.
-- [x] Test parsing and confidence rules; verify real-data flows on desktop and mobile.
+# Open Ortho Benchmark single-page rebrand
+- [x] Replace branding, favicon, share image, and metadata; remove secondary pages.
+- [x] Add centered Step 1 search, Step 2 scroll, and footer About and limitations.
+- [x] Add grouped standard VAC questions, memory-only selection, and copy actions.
+- [x] Update branded PDF with question continuation and per-page disclosures.
+- [x] Test question rules and verify real-data flows, downloads, desktop and mobile.

@@ -1,7 +1,9 @@
-import { Link, useRouterState } from '@tanstack/react-router';
+import { Link } from '@tanstack/react-router';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Search, X, ArrowRight, LoaderCircle, Moon, Sun, GitBranch, ShieldCheck, CalendarDays, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { logoDataUrl } from '@/lib/benchmark-brand';
+import { limitations, methodology } from '@/lib/predicate-chain';
 import { getMeta, searchDevices } from '@/lib/predicate-data';
 import { dateLabel, type Meta, type SearchResult } from '@/lib/predicate-chain';
 
@@ -13,24 +15,22 @@ export function useRelease() {
 }
 export function ReviewerShell({ children }: { children: ReactNode }) {
   const [dark, setDark] = useState(false);
-  const path = useRouterState({ select: s => s.location.pathname });
+  const [about, setAbout] = useState(false);
   const { meta, error } = useRelease();
   useEffect(() => { document.documentElement.classList.toggle('dark', dark); }, [dark]);
   return <div className="app-shell reviewer-shell">
     <header className="topbar">
-      <Link to="/" className="brandmark"><GitBranch className="text-primary" />Predicate Chain</Link>
-      <nav aria-label="Main navigation" className="reviewer-nav">
-        {([{ to: '/', label: 'Device Brief' }, { to: '/compare', label: 'Compare' }, { to: '/batch', label: 'Batch' }, { to: '/about', label: 'About' }] as const).map(item =>
-          <Button key={item.to} asChild variant="ghost"><Link to={item.to} aria-current={path === item.to ? 'page' : undefined}>{item.label}</Link></Button>)}
-      </nav>
+      <Button asChild variant="ghost" className="benchmark-home"><Link to="/" search={{}} onClick={() => { window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' }); }} aria-label="Open Ortho Benchmark — clear selected device"><img src={logoDataUrl} alt="" width="32" height="32" /><span className="benchmark-wordmark"><strong>Open Ortho</strong> <span>Benchmark</span></span></Link></Button>
       <Button size="icon" variant="ghost" aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'} title={dark ? 'Switch to light mode' : 'Switch to dark mode'} onClick={() => setDark(!dark)}>{dark ? <Sun /> : <Moon />}</Button>
     </header>
     <div className="release-bar"><span><ShieldCheck size={13} />Public data · Independent research</span><span><CalendarDays size={13} />{meta.exported_utc ? `Data as of ${meta.exported_utc}. Parser ${meta.parser_version ?? '—'}.` : error ? 'Data release information unavailable.' : 'Loading data release information…'}</span></div>
     <main>{children}</main>
-    <footer className="footer"><p>Independent research tool built from public FDA data, provided as is, not regulatory advice, and the author's personal work and views. Open source under the MIT License, Copyright (c) 2026 Asher Breverman.</p><span><ShieldCheck size={13} />Public · Read-only · No account needed</span></footer>
+    <footer className="footer benchmark-footer"><div><p>Open Ortho Benchmark · Free and open source · Built from public FDA data · Not affiliated with FDA · Not regulatory advice · <Button variant="link" onClick={() => setAbout(!about)} aria-expanded={about} aria-controls="about-limitations">About and limitations</Button></p><p>Independent research tool built from public FDA data, provided as is, not regulatory advice, and the author's personal work and views. Open source under the MIT License, Copyright (c) 2026 Asher Breverman.</p></div></footer>
+    {about && <section id="about-limitations" className="brief-section about-content" aria-label="About and limitations"><h2>About</h2><h3>Methodology</h3><ul>{methodology.map(text => <li key={text}>{text}</li>)}</ul><ul><li>Plain-English descriptions are drafted from FDA's product-code definitions and marked until an orthopedic industry reviewer confirms them.</li><li>FDA-cleared use is quoted from each 510(k) summary's Indications for Use, read by software; check the PDF for the exact text.</li><li>Pattern, peers and category counts compare applicant names as printed, with no parent-company roll-up.</li></ul><h3>Limitations</h3><Status error={error} busy={!meta.exported_utc && !error} /><ol>{limitations(meta).map((text,i) => <li key={i}>{text}</li>)}</ol></section>}
+
   </div>;
 }
-export function DeviceSearch({ label = 'Find a device', onSelect }: { label?: string; onSelect: (row: SearchResult) => void }) {
+export function DeviceSearch({ label = 'Identify an orthopedic device to benchmark', resetKey = '', onSelect }: { label?: string; resetKey?: string; onSelect: (row: SearchResult) => void }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [busy, setBusy] = useState(false);
@@ -38,6 +38,7 @@ export function DeviceSearch({ label = 'Find a device', onSelect }: { label?: st
   const [done, setDone] = useState(false);
   const [error, setError] = useState('');
   const ref = useRef<HTMLInputElement>(null);
+  useEffect(() => { setQuery(''); setOpen(false); if (!resetKey) ref.current?.focus(); }, [resetKey]);
   useEffect(() => {
     setResults([]); setDone(false); setBusy(false); setError('');
     if (!query.trim()) return;
@@ -52,11 +53,11 @@ export function DeviceSearch({ label = 'Find a device', onSelect }: { label?: st
   }, [query]);
   function choose(row: SearchResult) { setOpen(false); setQuery(''); onSelect(row); }
   return <section className="search-area">
-    <label className="search-label"><span>{label}</span><div className="search-box"><Search size={20} className="text-muted-foreground" />
-      <input ref={ref} aria-label={label} placeholder="K110694, Concorde, Globus" value={query} autoComplete="off" onChange={e => { setQuery(e.target.value); setOpen(true); }} onFocus={() => setOpen(true)} onKeyDown={e => { if (e.key === 'Escape') setOpen(false); if (e.key === 'Enter') { e.preventDefault(); if (results.length === 1 && results[0]) choose(results[0]); else setOpen(true); } }} />
+    <div className="search-box"><Search size={20} className="text-muted-foreground" />
+      <input ref={ref} aria-label={label} autoFocus placeholder="e.g. a 510(k) number, product name, or company" value={query} autoComplete="off" onChange={e => { setQuery(e.target.value); setOpen(true); }} onFocus={() => setOpen(true)} onKeyDown={e => { if (e.key === 'Escape') setOpen(false); if (e.key === 'Enter') { e.preventDefault(); if (results.length === 1 && results[0]) choose(results[0]); else setOpen(true); } }} />
       {query && <Button size="icon" variant="ghost" aria-label={`Clear ${label.toLowerCase()}`} onClick={() => { setQuery(''); ref.current?.focus(); }}><X /></Button>}
       <Button type="button" className="search-submit" aria-label={`Search ${label.toLowerCase()}`} onClick={() => { setOpen(true); ref.current?.focus(); }}>{busy ? <LoaderCircle className="animate-spin" /> : <><span>Search</span><ArrowRight /></>}</Button>
-    </div></label>
+    </div>
     {open && query && (busy || done || error) && <div className="search-results" aria-live="polite">
       {error ? <p role="alert" className="p-5 text-sm">{error}</p> : busy ? <p className="p-5 text-sm text-muted-foreground">Searching clearances…</p> : results.length ? results.map(row => <Button variant="ghost" className="search-result" key={row.knumber} onClick={() => choose(row)}><span className="font-mono text-primary">{row.knumber}</span><span className="result-name"><span>{row.device_name ?? '—'}{row.match === 'close spelling' && <small className="ml-2">close spelling</small>}</span><small>{row.applicant ?? '—'}</small></span><time>{dateLabel(row.decision_date)}</time></Button>) : <p className="p-5 text-sm text-muted-foreground">No matching devices. Try fewer words or a K-number.</p>}
     </div>}

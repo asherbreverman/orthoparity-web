@@ -32,6 +32,7 @@ export interface Brief {
     by_year: { year: number; n: number }[]; top_companies: { applicant: string; clearances: number; last5: number }[];
     top_companies_last5: { applicant: string; clearances: number }[] } | null;
   questions: string[];
+  vac_questions?: { topic: string; question: string }[];
 }
 export interface Comparison {
   a: Device | null; b: Device | null; same_product_code: boolean; same_company: boolean; verdict: string;
@@ -64,4 +65,21 @@ export function patternExplanation(pattern: string, stop: string | null) {
     case 'mixed': return "Cleared against both the company's own and other companies' devices.";
     default: return `No numbered predicate on file (${stop ?? 'stop reason not available'}).`;
   }
+}
+export interface QuestionGroup { topic: string; items: { id: number; question: string }[] }
+export function questionGroups(brief: Pick<Brief, 'questions' | 'vac_questions'>): QuestionGroup[] {
+  const groups: QuestionGroup[] = [{ topic: 'Specific to this device', items: (brief.questions ?? []).map((question, id) => ({ id, question })) }];
+  let id = groups[0]?.items.length ?? 0;
+  for (const row of brief.vac_questions ?? []) {
+    const last = groups.at(-1);
+    if (last?.topic === row.topic) last.items.push({ id: id++, question: row.question });
+    else groups.push({ topic: row.topic, items: [{ id: id++, question: row.question }] });
+  }
+  return groups;
+}
+export function questionsText(groups: QuestionGroup[], selected?: ReadonlySet<number>) {
+  return groups.map(group => {
+    const items = selected ? group.items.filter(item => selected.has(item.id)) : group.items;
+    return items.length ? `${group.topic}\n${items.map(item => `${item.id + 1}. ${item.question}`).join('\n')}` : '';
+  }).filter(Boolean).join('\n\n');
 }

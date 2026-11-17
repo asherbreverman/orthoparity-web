@@ -5,6 +5,12 @@ import { statistics } from '@/lib/predicate-chain';
 // Public read-only integration checks against the connected research dataset.
 // Only the existing read-only research RPCs and metadata SELECT are invoked.
 describe('Connected Predicate Chain acceptance checks', () => {
+  it('loads device-tailored VAC questions from the existing brief RPC', async () => {
+    const brief = await getBrief('K253876');
+    expect(brief.vac_questions).toHaveLength(16);
+    expect(brief.vac_questions?.[0]?.topic).toBe('Coding and reimbursement');
+    expect(brief.vac_questions?.[0]?.question).toContain('Anterior cervical discectomy and fusion (ACDF)');
+  }, 30000);
   it('loads K110694 reviewer brief from the existing brief function', async () => {
     const brief = await getBrief('K110694');
     expect(brief.found).toBe(true);

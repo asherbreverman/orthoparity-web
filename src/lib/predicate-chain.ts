@@ -118,7 +118,7 @@ export function stopCounts(chain: Chain) {
   return [...counts].map(([stop, count]) => ({ stop, count })).sort((a, b) => b.count - a.count);
 }
 export function filename(product: string, date: string) {
-  return `Predicate_Chain_${product.replace(/[^a-zA-Z0-9]+/g, "_").replace(/^_+|_+$/g, "") || "devices"}_${date}`;
+  return `Open_Ortho_Benchmark_${product.replace(/[^a-zA-Z0-9]+/g, "_").replace(/^_+|_+$/g, "") || "devices"}_${date}`;
 }
 export function cacheKey(roots: string[], max: number) {
   return `${[...new Set(roots)].sort().join(",")}:${max}`;

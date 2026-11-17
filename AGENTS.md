@@ -35,5 +35,6 @@ use the editor.
 - Keep ancestry calculations in pure helpers with concrete tests; this protects generation, confidence and reachability semantics across views and exports.
 - Escape raw NUL separators in streamed HTML responses; HTML parsing otherwise corrupts serialized route IDs and prevents hydration.
 
-- Share navigation and release metadata in the root shell, with separate reviewer routes and a lazy evidence workspace; this keeps evidence requests out of the default brief.
+- Keep the single shareable brief route and release metadata in the root shell, with footer methodology and a lazy evidence workspace; this keeps evidence requests out of the default brief.
 - Keep reviewer payload types and parsing/filter helpers in browser-safe modules, and import PDF/Excel generators only inside download actions; this preserves SSR safety and testable rules.
+- Reuse the exact logo source for the on-page mark and browser PDF rasterization; this keeps branding consistent without server-side rendering libraries.
