@@ -44,3 +44,4 @@ use the editor.
 - Render only explicitly selected aggregate fields in vendor/payment views and exports; never enumerate raw payload fields, preserving recipient privacy.
 - Keep vendor, ownership and comparison state on the single index route; isolate chart imports behind lazy client rendering and downloads inside user actions.
 - Render result-page decision briefs from the signal RPCs through shared decision components, with evidence sections addressed by stable ids and the view kept in the URL; print-only brief markup plus print CSS produces the PDF so no export library is needed for briefs.
+- Stress-test result pages by intercepting read-only RPC responses in browser checks, never through shipped fixtures or adapter overrides; this keeps synthetic research data out of published pages.

@@ -3,6 +3,8 @@ import {money,natureLabel,paymentSeries,filterPortfolio,studyNumbers,ratio,empty
 import {portfolioCsv} from '@/lib/vendor-export';
 describe('Vendor and payment rules',()=>{
  it('formats compact dollars as requested',()=>{expect(money(1200000)).toBe('$1.2M');expect(money(45000)).toBe('$45K');});
+ it('preserves cent-sized positive payments instead of displaying zero',()=>{expect(money(0.01)).toBe('$0.01');expect(money(0.49)).toBe('$0.49');expect(money(0.99)).toBe('$0.99');expect(money(0)).toBe('None');});
+ it('keeps billion-dollar payments finite in compact and exact displays',()=>{expect(money(1234567890.12)).toBe('$1234.6M');});
  it('keeps the fixed payment labels consistent',()=>{expect(natureLabel('royalty')).toBe('Royalties');expect(natureLabel('services')).toBe('Services (non-consulting)');expect(natureLabel('debt_forgiveness')).toBe('Debt forgiveness');});
  it('separates device-ID and brand amounts and includes 2019 through 2025',()=>{const rows=paymentSeries([{year:2021,nature_group:'royalty',amount:120}],2019,2025,[{year:2021,nature_group:'royalty',amount:45}]);expect(rows).toHaveLength(7);expect(rows[0]?.['year']).toBe(2019);expect(rows[6]?.['year']).toBe(2025);expect(rows[2]?.['royalty']).toBe(120);expect(rows[2]?.['royalty_brand']).toBe(45);});
  it('applies anatomy kind and product-code filters together',()=>{const rows=[{knumber:'K253876',device_name:'HEDRON',product_code:'MAX',decision_date:null,anatomy:'Spine',kind:'implant'},{knumber:'K110694',device_name:'CONCORDE',product_code:'MAX',decision_date:null,anatomy:'Spine',kind:'instrument'}];expect(filterPortfolio(rows,'Spine','implant','MAX','hedron').map(r=>r.knumber)).toEqual(['K253876']);expect(filterPortfolio(rows,'Hip','','','')).toEqual([]);});
