@@ -19,7 +19,7 @@ export function longDate(value: string | null | undefined) {
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   return `${months[Number(m[2]) - 1]} ${Number(m[3])}, ${m[1]}`;
 }
-export function evidenceIsOpen(view: View, opened: ReadonlySet<string>, id: string) { return view === 'analyst' || opened.has(id); }
+export function evidenceIsOpen(view: View, opened: ReadonlySet<string>, id: string) { return (view === 'analyst' && id !== 'recalls') || opened.has(id); }
 /** Brands that have GUDID devices but none currently in commercial distribution. */
 export function brandsOutOfDistribution(rows: { gudid_brand?: string | null; gudid_devices?: number; gudid_in_distribution?: number }[]) {
   const brands = new Map<string, { devices: number; inDistribution: number }>();

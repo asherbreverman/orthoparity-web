@@ -12,3 +12,8 @@
 # Interaction polish
 - [x] Refine hover, press, focus, decision cards, evidence sections, and view selection without layout, wording, or data changes.
 - [x] Verify product and vendor interactions with pointer, keyboard, reduced motion, and narrow screens.
+
+# FDA recall history
+- [x] Add read-only recall data, shared event tables, and on-demand product/vendor evidence.
+- [x] Include provided recall cards in print and add the recall limitation.
+- [x] Verify live recall evidence, ownership changes, links, print, and tests.

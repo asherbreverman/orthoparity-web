@@ -46,3 +46,5 @@ use the editor.
 - Render result-page decision briefs from the signal RPCs through shared decision components, with evidence sections addressed by stable ids and the view kept in the URL; print-only brief markup plus print CSS produces the PDF so no export library is needed for briefs.
 - Stress-test result pages by intercepting read-only RPC responses in browser checks, never through shipped fixtures or adapter overrides; this keeps synthetic research data out of published pages.
 - Keep interaction motion in shared CSS, suppress movement for reduced motion and keyboard actions, and leave evidence contents lazy; this preserves fast, accessible controls without extra evidence requests.
+- Load recall history only inside opened evidence sections through the read-only adapter, with ownership-dependent vendor reads and a lazy chart; this keeps default briefs free of recall requests.
+- When a deployed signal RPC omits recalls, append the existing recall-card RPC result verbatim only if missing; this supports older deployments without inventing wording or duplicating cards.

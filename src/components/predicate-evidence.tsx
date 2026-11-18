@@ -15,6 +15,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { recallLimitation } from '@/lib/recalls';
 import { PredicateTable, type Column } from "@/components/predicate-table";
 import {
   dateLabel,
@@ -268,6 +269,7 @@ export function PredicateEvidence({ selected, meta }: { selected: SearchResult; 
                   : "The published limitations will appear when the research data is connected."}
               </p>
             )}
+            <p className="section-caption">{recallLimitation}</p>
           </details>
         </section>
         <section className="workspace" aria-label="Chain details">

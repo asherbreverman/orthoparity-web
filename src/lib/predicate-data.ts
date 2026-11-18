@@ -2,7 +2,8 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Brief, Comparison, BatchRow, ProductCode } from "./reviewer-data";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Vendor, VendorBrief, VendorComparison, PortfolioRow, ProductPayments, OwnershipMode } from './vendor-data';
-import type { Signals, VendorSignals } from './signals';
+import type { DecisionCard, Signals, VendorSignals } from './signals';
+import type { DeviceRecalls, VendorRecalls } from './recalls';
 import { vendorCoverage, type VendorCoverage } from './vendor-coverage';
 import {
   cacheKey,
@@ -47,10 +48,27 @@ export function getVendorCoverage() {
   return coverage;
 }
 export async function getSignals(k: string): Promise<Signals> {
-  const { data, error } = await researchClient.rpc('pc_signals', { k }); if (error) throw error; return data as Signals;
+  const { data, error } = await researchClient.rpc('pc_signals', { k }); if (error) throw error;
+  const signals = data as Signals;
+  if (!signals.found || signals.cards.some(c => c.key === 'recalls')) return signals;
+  // Older deployed signal RPCs omit the card; preserve the existing FDA-authored card verbatim.
+  const recall = await researchClient.rpc('pc_recall_card_product', {kn: k, company: signals.header.company});
+  if (recall.error) throw recall.error;
+  return {...signals, cards: [...signals.cards, recall.data as DecisionCard]};
 }
 export async function getVendorSignals(v: string, m: OwnershipMode): Promise<VendorSignals> {
-  const { data, error } = await researchClient.rpc('pc_vendor_signals', { v, m }); if (error) throw error; return data as VendorSignals;
+  const { data, error } = await researchClient.rpc('pc_vendor_signals', { v, m }); if (error) throw error;
+  const signals = data as VendorSignals;
+  if (!signals.found || signals.cards.some(c => c.key === 'recalls')) return signals;
+  const recall = await researchClient.rpc('pc_recall_card_vendor', {v, md: m});
+  if (recall.error) throw recall.error;
+  return {...signals, cards: [...signals.cards, recall.data as DecisionCard]};
+}
+export async function getDeviceRecalls(k: string): Promise<DeviceRecalls> {
+  const { data, error } = await researchClient.rpc('pc_device_recalls', { k }); if (error) throw error; return data as DeviceRecalls;
+}
+export async function getVendorRecalls(v: string, m: OwnershipMode): Promise<VendorRecalls> {
+  const { data, error } = await researchClient.rpc('pc_vendor_recalls', { v, m, lim: 50 }); if (error) throw error; return data as VendorRecalls;
 }
 const portfolios = new Map<string, Promise<PortfolioRow[]>>();
 export function getCachedPortfolio(v: string, m: OwnershipMode) {

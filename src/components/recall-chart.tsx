@@ -1,0 +1,5 @@
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { recallYears, type VendorRecalls } from '@/lib/recalls';
+export default function RecallChart({rows}: {rows: VendorRecalls['by_year']}) {
+  return <div className="recall-chart" role="img" aria-label="Recall events by year initiated"><ResponsiveContainer width="100%" height="100%"><BarChart data={recallYears(rows,new Date().getUTCFullYear())} margin={{top:12,right:16,bottom:12,left:0}}><CartesianGrid vertical={false} stroke="var(--border)"/><XAxis dataKey="year" tick={{fill:'var(--muted-foreground)',fontSize:12}} axisLine={false} tickLine={false} minTickGap={24}/><YAxis tick={{fill:'var(--muted-foreground)',fontSize:12}} axisLine={false} tickLine={false} allowDecimals={false}/><Tooltip contentStyle={{background:'var(--card)',color:'var(--foreground)',borderColor:'var(--border)',borderRadius:4}} cursor={{fill:'var(--muted)'}}/><Bar dataKey="events" name="Recall events" fill="var(--predicate)" radius={[2,2,0,0]} isAnimationActive={false}/></BarChart></ResponsiveContainer></div>;
+}
