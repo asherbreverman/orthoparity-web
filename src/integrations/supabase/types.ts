@@ -605,6 +605,63 @@ export type Database = {
         }
         Relationships: []
       }
+      pc_recalls: {
+        Row: {
+          event_id: string | null
+          initiated: string | null
+          knumbers: string | null
+          posted: string | null
+          product: string | null
+          product_code: string | null
+          quantity: string | null
+          reason: string | null
+          recall_class: string | null
+          recall_number: string | null
+          recalling_firm: string | null
+          root_cause: string | null
+          status: string | null
+          terminated: string | null
+          vendor_basis: string | null
+          vendor_id: string | null
+        }
+        Insert: {
+          event_id?: string | null
+          initiated?: string | null
+          knumbers?: string | null
+          posted?: string | null
+          product?: string | null
+          product_code?: string | null
+          quantity?: string | null
+          reason?: string | null
+          recall_class?: string | null
+          recall_number?: string | null
+          recalling_firm?: string | null
+          root_cause?: string | null
+          status?: string | null
+          terminated?: string | null
+          vendor_basis?: string | null
+          vendor_id?: string | null
+        }
+        Update: {
+          event_id?: string | null
+          initiated?: string | null
+          knumbers?: string | null
+          posted?: string | null
+          product?: string | null
+          product_code?: string | null
+          quantity?: string | null
+          reason?: string | null
+          recall_class?: string | null
+          recall_number?: string | null
+          recalling_firm?: string | null
+          root_cause?: string | null
+          status?: string | null
+          terminated?: string | null
+          vendor_basis?: string | null
+          vendor_id?: string | null
+        }
+        Relationships: []
+      }
       pc_vendor_lineage: {
         Row: {
           note: string | null
@@ -735,6 +792,7 @@ export type Database = {
       pc_clean_blanks: { Args: never; Returns: string }
       pc_compare: { Args: { a: string; b: string }; Returns: Json }
       pc_data_end: { Args: never; Returns: string }
+      pc_device_recalls: { Args: { k: string }; Returns: Json }
       pc_direct: {
         Args: { k: string }
         Returns: {
@@ -762,6 +820,15 @@ export type Database = {
         Returns: Json
       }
       pc_product_payments: { Args: { k: string }; Returns: Json }
+      pc_recall_card_product: {
+        Args: { company: string; kn: string }
+        Returns: Json
+      }
+      pc_recall_card_vendor: { Args: { md: string; v: string }; Returns: Json }
+      pc_recall_event_rows: {
+        Args: { ids: string[]; lim?: number }
+        Returns: Json
+      }
       pc_refresh_research_scope: { Args: never; Returns: string }
       pc_search: {
         Args: { lim?: number; q: string }
@@ -800,6 +867,10 @@ export type Database = {
           p_kind?: string
           v: string
         }
+        Returns: Json
+      }
+      pc_vendor_recalls: {
+        Args: { lim?: number; m?: string; v: string }
         Returns: Json
       }
       pc_vendor_search: { Args: { lim?: number; q: string }; Returns: Json }
