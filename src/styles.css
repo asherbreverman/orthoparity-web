@@ -968,14 +968,15 @@
 @media (max-width: 900px) { .reviewer-shell .topbar { flex-wrap: wrap; height: auto; min-height: 82px; gap: 10px; padding: 15px 0; } .reviewer-nav { order: 3; flex-basis: 100%; } .device-facts { grid-template-columns: repeat(2,minmax(0,1fr)); } .release-bar { flex-wrap: wrap; } }
 @media (max-width: 640px) { .reviewer-nav { justify-content: space-between; gap: 0; } .reviewer-nav a { padding: 7px 8px; font-size: 12px; } .page-title h1 { font-size: 27px; } .two-columns { grid-template-columns: minmax(0,1fr); gap: 18px; } .at-glance { padding: 20px 17px; } .glance-heading { flex-direction: column; gap: 6px; } .glance-heading h2 { font-size: 24px; } .plain-description { font-size: 14px; } .device-facts { gap: 16px; } .category-metrics { grid-template-columns: minmax(0,1fr); } .category-metrics .metric { min-height: 80px; } .category-metrics .metric:last-child { grid-column: auto; } .brief-section .section-heading { flex-wrap: wrap; gap: 12px; } .comparison-verdict { font-size: 22px; } .brief-table { min-width: 620px; } .section-note { flex-wrap: wrap; } .reviewer-shell .search-box .search-submit span { display: none; } .brief-section h2 { line-height: 1.5; } }
 
-:root { --wordmark-main: oklch(0.208 0.042 265.755); --wordmark-muted: oklch(0.554 0.046 257.417); }
-.dark { --wordmark-main: oklch(0.984 0.003 247.858); --wordmark-muted: oklch(0.704 0.04 256.788); }
+:root { --wordmark-main: #0A0A0A; --wordmark-muted: #6B7280; --brand-tile-border: transparent; }
+.dark { --wordmark-main: #FFFFFF; --wordmark-muted: #9CA3AF; --brand-tile-border: #3F3F46; }
 .benchmark-home { padding: 0; height: auto; gap: 10px; }
-.benchmark-home img { width: 32px; height: 32px; flex-shrink: 0; }
+.brand-tile { width: 32px; height: 32px; flex-shrink: 0; border: 1px solid var(--brand-tile-border); border-radius: 8px; }
+.reviewer-shell .topbar { border-bottom: 0; }
 .benchmark-wordmark { font-family: Inter, sans-serif; font-size: 18px; letter-spacing: 0; white-space: nowrap; }
 .benchmark-wordmark strong { font-weight: 700; color: var(--wordmark-main); }
 .benchmark-wordmark > span { font-weight: 500; color: var(--wordmark-muted); }
-.identify-step { max-width: 950px; margin: 0 auto; text-align: center; padding: 46px 0 28px; }
+.identify-step { max-width: 950px; margin: 0 auto; text-align: center; padding: 0 0 28px; }
 .identify-step .eyebrow { justify-content: center; }
 .identify-step h1 { font-size: 30px; font-weight: 600; line-height: 1.4; margin: 14px 0; }
 .identify-step > p { font-size: 14px; color: var(--muted-foreground); line-height: 1.7; max-width: 760px; margin: 0 auto 24px; }
@@ -993,7 +994,7 @@
 .benchmark-footer p { max-width: 1100px; }
 .benchmark-footer p + p { margin-top: 8px; }
 .benchmark-footer button { font-size: 11px; padding: 0; height: auto; vertical-align: baseline; }
-@media (max-width: 640px) { .benchmark-wordmark { font-size: 18px; } .reviewer-shell .topbar { flex-wrap: nowrap; } .identify-step { padding: 30px 0 20px; } .identify-step h1 { font-size: 24px; } .identify-step .search-box input { font-size: 13px; } .question-actions button { white-space: normal; height: auto; min-height: 32px; } }
+@media (max-width: 640px) { .benchmark-wordmark { font-size: 18px; } .reviewer-shell .topbar { flex-wrap: nowrap; } .identify-step { padding: 0 0 20px; } .identify-step h1 { font-size: 24px; } .identify-step .search-box input { font-size: 13px; } .question-actions button { white-space: normal; height: auto; min-height: 32px; } }
 
 /* Shared nature-group palette, unchanged across charts and downloads. */
 :root, .dark {

@@ -5,13 +5,14 @@ import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Copy, Check, Download, FileSpreadsheet, ChevronDown, Info, GitBranch, ArrowRight } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { benchmarkTitle, benchmarkDescription, benchmarkOrigin } from '@/lib/benchmark-brand';
-import shareImage from '@/assets/open-ortho-share.png.asset.json';
+import shareImage from '@/assets/orthoparity-share.png.asset.json';
 import { Button } from '@/components/ui/button';
 import { DeviceSearch, BriefLink, PdfLink, Status, PageTitle, pageHead, useRelease } from '@/components/reviewer-shared';
-import { getBrief, getFamily, lookupChain, getProductPayments } from '@/lib/predicate-data';
+import { getBrief, getFamily, lookupChain, getProductPayments, getVendorCoverage } from '@/lib/predicate-data';
 import { VendorSearch } from '@/components/vendor-search';
 import { ProductPaymentSection } from '@/components/payment-shared';
 import { withPaymentQuestions, type ProductPayments } from '@/lib/vendor-data';
+import { fallbackVendorCoverage } from '@/lib/vendor-coverage';
 import { dateLabel } from '@/lib/predicate-chain';
 import { filterPeers, lineageSentence, patternExplanation, unreviewedLow, questionGroups, questionsText, type Brief } from '@/lib/reviewer-data';
 const CategoryChart = lazy(() => import('@/components/category-chart'));
@@ -27,6 +28,8 @@ function DeviceBrief() {
   const vendorMode = !!v || mode === 'vendor';
   const navigate = useNavigate();
   const { meta } = useRelease();
+  const [coverage, setCoverage] = useState(fallbackVendorCoverage);
+  useEffect(() => { let active = true; getVendorCoverage().then(data => { if (active) setCoverage(data); }).catch(() => {}); return () => { active = false; }; }, []);
   const [brief, setBrief] = useState<Brief | null>(null);
   const [payments, setPayments] = useState<ProductPayments | null>(null);
   const [paymentError, setPaymentError] = useState('');
@@ -66,7 +69,7 @@ function DeviceBrief() {
   function tick(id: number, checked: boolean) { setSelectedQuestions(previous => { const next = new Set(previous); if (checked) next.add(id); else next.delete(id); return next; }); setCopied(''); }
   const peers = brief ? filterPeers(brief.peers?.peers ?? [], other, sameCode) : [];
   return <>
-    <section className="identify-step"><div className="mode-tabs" role="tablist" aria-label="Benchmark mode"><Button role="tab" aria-selected={!vendorMode} variant="ghost" onClick={() => void navigate({to:'/',search:{}})}>Benchmark a product</Button><Button role="tab" aria-selected={vendorMode} variant="ghost" onClick={() => void navigate({to:'/',search:{mode:'vendor'}})}>Benchmark a vendor</Button></div><div className="eyebrow">Step 1</div><h1>{vendorMode ? 'Identify a vendor to benchmark' : 'Identify an orthopedic device to benchmark'}</h1>{vendorMode ? <VendorSearch key={v ?? 'vendor'} onSelect={row => void navigate({to:'/',search:{v:row.vendor_id}})} /> : <><p>Search by 510(k) number, product name or company. Covers {meta.starting_set_clearances ? Number(meta.starting_set_clearances).toLocaleString('en-US') : '—'} orthopedic 510(k) clearances from 1976 to 2026.</p><DeviceSearch resetKey={k ?? ''} onSelect={row => void navigate({ to: '/', search: { k: row.knumber } })} /></>}</section>
+    <section className="identify-step"><div className="mode-tabs" role="tablist" aria-label="Benchmark mode"><Button role="tab" aria-selected={!vendorMode} variant="ghost" onClick={() => void navigate({to:'/',search:{}})}>Benchmark a product</Button><Button role="tab" aria-selected={vendorMode} variant="ghost" onClick={() => void navigate({to:'/',search:{mode:'vendor'}})}>Benchmark a vendor</Button></div><h1>{vendorMode ? 'Identify an orthopedic vendor to benchmark' : 'Identify an orthopedic device to benchmark'}</h1>{vendorMode ? <><p>Search by orthopedic vendor company name. Covers {coverage.count.toLocaleString('en-US')} orthopedic vendors with 510(k) clearances from {coverage.first} to {coverage.last}.</p><VendorSearch key={v ?? 'vendor'} onSelect={row => void navigate({to:'/',search:{v:row.vendor_id}})} /></> : <><p>Search by 510(k) number, product name or company. Covers {meta.starting_set_clearances ? Number(meta.starting_set_clearances).toLocaleString('en-US') : '—'} orthopedic 510(k) clearances from 1976 to 2026.</p><DeviceSearch resetKey={k ?? ''} onSelect={row => void navigate({ to: '/', search: { k: row.knumber } })} /></>}</section>
     {vendorMode ? <ClientOnly><Suspense fallback={<Status busy />}><VendorWorkspace v={v} compare={compare} mode={own === 'current' ? 'current' : 'pit'} meta={meta} onOwnership={m => void navigate({to:'/',search: prev => ({...prev,own:m === 'current' ? 'current' : undefined})})} onCompare={value => void navigate({to:'/',search:prev => ({...prev,compare:value})})} /></Suspense></ClientOnly> : <>
     <Status error={error} busy={busy} />
     {!k && <div className="brief-empty"><GitBranch size={42} className="text-primary" /><h2>No clearance selected</h2></div>}

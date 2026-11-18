@@ -24,8 +24,8 @@ export async function exportBriefPdf(brief: Brief, meta: Meta) {
   const context = canvas.getContext('2d'); if (!context) throw new Error('The PDF logo could not be prepared.');
   context.drawImage(image, 0, 0, 128, 128);
   doc.addImage(canvas.toDataURL('image/png'), 'PNG', 48, 32, 28, 28);
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(17); doc.text('Open Ortho', 85, 51);
-  const wordWidth = doc.getTextWidth('Open Ortho '); doc.setFont('helvetica', 'normal'); doc.text('Benchmark', 85 + wordWidth, 51);
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(17); doc.text('Ortho', 85, 51);
+  const wordWidth = doc.getTextWidth('Ortho'); doc.setFont('helvetica', 'normal'); doc.text('Parity', 85 + wordWidth, 51);
   let y = 84;
   for (const section of layouts) {
     doc.setFont('helvetica', 'bold'); doc.setFontSize(9 * scale); doc.text(section.title, 48, y); y += 13 * scale;
@@ -66,7 +66,7 @@ export async function exportBriefPdf(brief: Brief, meta: Meta) {
   for (let page = 1; page <= doc.getNumberOfPages(); page++) {
     doc.setPage(page); doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
     doc.text(`Data as of ${meta.exported_utc ?? '—'} | Parser ${meta.parser_version ?? '—'} | Page ${page}`, 48, 742);
-    doc.text('Open Ortho Benchmark. Independent research from public FDA data. Not affiliated with FDA. Not regulatory advice.', 48, 755);
+    doc.text('OrthoParity. Independent research from public FDA data. Not affiliated with FDA. Not regulatory advice.', 48, 755);
   }
   doc.save(`${filename(device.knumber, new Date().toISOString().slice(0, 10))}_Brief.pdf`);
 }
@@ -75,7 +75,7 @@ const batchFields = ['knumber', 'found', 'plain_name', 'device_name', 'applicant
 export function csvCell(value: unknown) { const text = String(value ?? ''); return `"${text.match(/^[=+@\-\t\r]/) ? "'" : ''}${text.replace(/"/g, '""')}"`; }
 export function batchCsv(rows: BatchRow[]) { return [batchFields.join(','), ...rows.map(row => batchFields.map(key => csvCell(row[key])).join(','))].join('\r\n'); }
 export async function exportBatch(rows: BatchRow[], type: 'csv' | 'xlsx') {
-  const name = `Predicate_Chain_Batch_${new Date().toISOString().slice(0, 10)}`;
+  const name = `OrthoParity_Batch_${new Date().toISOString().slice(0, 10)}`;
   if (type === 'xlsx') {
     const XLSX = await import('xlsx'); const book = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(book, XLSX.utils.aoa_to_sheet([Array.from(batchFields), ...rows.map(row => batchFields.map(key => row[key] ?? ''))]), 'Device Briefs');

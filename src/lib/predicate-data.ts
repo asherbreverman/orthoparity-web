@@ -2,6 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Brief, Comparison, BatchRow, ProductCode } from "./reviewer-data";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Vendor, VendorBrief, VendorComparison, PortfolioRow, ProductPayments, OwnershipMode } from './vendor-data';
+import { vendorCoverage, type VendorCoverage } from './vendor-coverage';
 import {
   cacheKey,
   preferredSearchResults,
@@ -31,6 +32,19 @@ export async function getProductPayments(k: string): Promise<ProductPayments> {
 }
 // Existing research RPCs may precede regeneration of the generated schema types.
 const researchClient: SupabaseClient = supabase;
+let coverage: Promise<VendorCoverage> | undefined;
+export function getVendorCoverage() {
+  coverage ??= (async () => {
+    const [count, first, last] = await Promise.all([
+      researchClient.from('pc_vendors').select('vendor_id', {count:'exact',head:true}),
+      researchClient.from('pc_vendors').select('first_clearance_year').not('first_clearance_year','is',null).order('first_clearance_year',{ascending:true}).limit(1),
+      researchClient.from('pc_vendors').select('last_clearance_year').not('last_clearance_year','is',null).order('last_clearance_year',{ascending:false}).limit(1),
+    ]);
+    if (count.error || first.error || last.error) throw count.error || first.error || last.error;
+    return vendorCoverage(count.count, first.data?.[0]?.first_clearance_year, last.data?.[0]?.last_clearance_year);
+  })();
+  return coverage;
+}
 export async function getBrief(k: string): Promise<Brief> {
   const { data, error } = await researchClient.rpc("pc_brief", { k });
   if (error) throw error;

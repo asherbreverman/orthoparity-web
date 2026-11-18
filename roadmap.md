@@ -1,6 +1,5 @@
-# Vendor benchmarking and industry payments
-- [x] Add single-page product/vendor modes and shareable ownership/comparison state.
-- [x] Add vendor portfolio, categories, payment charts, research and questions.
-- [x] Add vendor comparisons, selected-product benchmarking and PDF/CSV downloads.
-- [x] Add product payments and questions, preserving existing limitations and privacy.
-- [x] Test rules and verify real-data flows, downloads, desktop and mobile.
+# OrthoParity rebrand
+- [x] Update shared mark, wordmark, icons, metadata and download branding.
+- [x] Remove header release bar and Step 1 label; preserve dates in About and PDFs.
+- [x] Add vendor subtitle with read-only coverage count and year bounds plus fallback.
+- [x] Verify product/vendor views, dark mode, mobile, downloads and coverage tests.
