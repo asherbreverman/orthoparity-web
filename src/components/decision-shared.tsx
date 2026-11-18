@@ -45,7 +45,7 @@ function CopyAsk({ text }: { text: string }) {
 
 export function cardHue(card: DecisionCard, index: number) { return `question-hue-${card.key === 'recalls' ? 7 : index + 1}`; }
 export function GlanceTiles({ cards }: { cards: DecisionCard[] }) {
-  return <section className="result-glance" aria-label="Questions at a glance"><p className="glance-caption">{cards.length} questions, each with its evidence and a question for the vendor. Select one to go to it.</p><div className="glance-tiles">{cards.map((c, i) => <Button asChild variant="ghost" key={c.key} className={`glance-tile ${cardHue(c, i)}`}><a href={`#chapter-${c.key}`}><span className="glance-label">{c.tone === 'attention' && <i className="warning-dot" />}{c.short ?? c.question}</span><strong>{c.badge}</strong></a></Button>)}</div></section>;
+  return <section className="result-glance" aria-label="Questions at a glance"><p className="glance-caption">{cards.length} questions, each with its evidence and a question for the vendor. Select one to go to it.</p><div className={`glance-tiles glance-count-${cards.length}`}>{cards.map((c, i) => <Button asChild variant="ghost" key={c.key} className={`glance-tile ${cardHue(c, i)}`}><a href={`#chapter-${c.key}`}><span className="glance-label">{c.tone === 'attention' && <i className="warning-dot" />}{c.short ?? c.question}</span><strong>{c.badge}</strong></a></Button>)}</div></section>;
 }
 export function DecisionCards({ cards, onEvidence, evidence }: { cards: DecisionCard[]; onEvidence: (id: string, keyboard?: boolean) => void; evidence?: ReactNode }) {
   const sections=evidenceItems(evidence);
@@ -54,7 +54,6 @@ export function DecisionCards({ cards, onEvidence, evidence }: { cards: Decision
     <div className="chapter-content"><p className="decision-finding">{c.finding}</p>
       {!!c.figs?.length && <div className="chapter-stats">{c.figs.map((fig,i) => <div className="chapter-stat" key={i}><strong>{fig.value}</strong><span>{fig.label}</span></div>)}</div>}
       <div className="chapter-context"><div className="decision-why"><h3>Why it matters</h3><p>{c.why}</p></div><div className="decision-ask"><h3>Ask the vendor</h3><p>{c.ask}</p><CopyAsk text={c.ask} /></div></div>
-      {c.evidence && <Button variant="link" size="sm" className="see-evidence no-print" onClick={event => onEvidence(c.evidence, event.detail === 0)}>See the evidence ›</Button>}
     </div></StoryReveal>
     {cards.findIndex(card=>card.evidence===c.evidence)===index && sections.filter(node=>isValidElement<{id?:string}>(node)&&(node.props.id===c.evidence || (c.evidence==='alternatives' && node.props.id==='category')))}
   </article>)}</section>;

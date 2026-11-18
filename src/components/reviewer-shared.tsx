@@ -1,3 +1,4 @@
+import { LOAD_FAILED } from '@/lib/predicate-data';
 import { Link, useNavigate, useSearch } from '@tanstack/react-router';
 import { useEffect, useState, type ReactNode } from 'react';
 import { LoaderCircle, Moon, Sun } from 'lucide-react';
@@ -53,6 +54,12 @@ export function DeviceSearch({ label = 'Identify an orthopedic device to benchma
 }
 export function BriefLink({ k }: { k: string }) { return <Link to="/" search={{ k }} className="brief-link font-mono">{k}</Link>; }
 export function PdfLink({ url }: { url?: string | null }) { return url && /^https:\/\//.test(url) ? <a href={url} target="_blank" rel="noopener noreferrer" className="brief-link">FDA summary ›</a> : <span className="text-muted-foreground">PDF unavailable</span>; }
-export function Status({ error, busy }: { error?: string | undefined; busy?: boolean | undefined }) { return error ? <div className="notice" role="alert">{error}</div> : busy ? <div className="notice" role="status"><LoaderCircle size={16} className="animate-spin" />Loading research…</div> : null; }
+export function Status({ error, busy }: { error?: string | undefined; busy?: boolean | undefined }) {
+  const [retrying, setRetrying] = useState(false);
+  useEffect(() => { if (!busy) { setRetrying(false); return; } const on = () => setRetrying(true); window.addEventListener('pc-retrying', on); return () => window.removeEventListener('pc-retrying', on); }, [busy]);
+  if (error === LOAD_FAILED) return <div className="notice" role="alert">{error}<Button size="sm" variant="secondary" onClick={() => window.dispatchEvent(new Event('pc-refetch'))}>Try again</Button></div>;
+  return error ? <div className="notice" role="alert">{error}</div> : busy ? <div className="notice" role="status"><LoaderCircle size={16} className="animate-spin" />{retrying ? 'Still loading this brief…' : 'Loading research…'}</div> : null;
+}
+export function useRefetch() { const [n, setN] = useState(0); useEffect(() => { const on = () => setN(x => x + 1); window.addEventListener('pc-refetch', on); return () => window.removeEventListener('pc-refetch', on); }, []); return n; }
 export function PageTitle({ name }: { name: string }) { return <div className="page-title"><div className="eyebrow">FDA 510(k) · Orthopedic devices</div><h1>{name}</h1></div>; }
 export function pageHead(name: string, description: string) { const title = `${name} — OrthoParity`; return { meta: [{ title }, { name: 'description', content: description }, { property: 'og:title', content: title }, { property: 'og:description', content: description }, { property: 'og:type', content: 'website' }, { name: 'twitter:card', content: 'summary_large_image' }] }; }

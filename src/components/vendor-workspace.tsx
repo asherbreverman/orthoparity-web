@@ -7,7 +7,7 @@ import {askLines,positionClass,longDate,brandsOutOfDistribution,type View,type V
 import {BottomLine,GlanceTiles,DecisionCards,EvidenceSection,Notes,PrintBrief,useEvidence} from './decision-shared';
 import {emptyProfile,money,dollars,percent,ratio,type OwnershipMode,type VendorBrief,type VendorComparison} from '@/lib/vendor-data';
 import type {Meta} from '@/lib/predicate-chain';
-import {Status} from './reviewer-shared';
+import {Status, useRefetch} from './reviewer-shared';
 import {PaymentMix,Metrics,Studies,Questions,ProfileSummary} from './payment-shared';
 import {VendorSearch} from './vendor-search';
 import {VendorPortfolio} from './vendor-portfolio';
@@ -18,8 +18,8 @@ const Reach=lazy(()=>import('./payment-charts').then(m=>({default:m.ReachChart})
 const Research=lazy(()=>import('./payment-charts').then(m=>({default:m.ResearchYears})));
 function Chart({children}:{children:React.ReactNode}){return <ClientOnly><Suspense fallback={<div className="payment-chart skeleton"/>}>{children}</Suspense></ClientOnly>;}
 export function VendorWorkspace({v,mode,compare,meta,view,onView,onOwnership,onCompare}:{v?:string | undefined;mode:OwnershipMode;compare?:string | undefined;meta:Meta;view:View;onView:(v:View)=>void;onOwnership:(m:OwnershipMode)=>void;onCompare:(v:string)=>void}) {
- const [brief,setBrief]=useState<VendorBrief|null>(null);const [signals,setSignals]=useState<VendorSignals|null>(null);const [busy,setBusy]=useState(false);const [error,setError]=useState('');const [compareOpen,setCompareOpen]=useState(!!compare);const [allRows,setAllRows]=useState(false);const [allStudies,setAllStudies]=useState(false);const ref=useRef<HTMLDivElement>(null);const navigate=useNavigate();const ev=useEvidence(view);
- useEffect(()=>{let active=true;setBrief(null);setSignals(null);setError('');setAllRows(false);setAllStudies(false);if(!v)return;setBusy(true);Promise.all([getVendorBrief(v,mode),getVendorSignals(v,mode).catch(()=>null)]).then(([b,s])=>{if(active){setBrief(b);setSignals(s);}}).catch(e=>{if(active)setError(e.message);}).finally(()=>{if(active)setBusy(false);});return()=>{active=false;};},[v,mode]);
+ const [brief,setBrief]=useState<VendorBrief|null>(null);const [signals,setSignals]=useState<VendorSignals|null>(null);const [busy,setBusy]=useState(false);const [error,setError]=useState('');const [compareOpen,setCompareOpen]=useState(!!compare);const [allRows,setAllRows]=useState(false);const [allStudies,setAllStudies]=useState(false);const ref=useRef<HTMLDivElement>(null);const navigate=useNavigate();const ev=useEvidence(view);const reload=useRefetch();
+ useEffect(()=>{let active=true;setBrief(null);setSignals(null);setError('');setAllRows(false);setAllStudies(false);if(!v)return;setBusy(true);Promise.all([getVendorBrief(v,mode),getVendorSignals(v,mode).catch(()=>null)]).then(([b,s])=>{if(active){setBrief(b);setSignals(s);}}).catch(e=>{if(active)setError(e.message);}).finally(()=>{if(active)setBusy(false);});return()=>{active=false;};},[v,mode,reload]);
  useEffect(()=>{if(brief?.found)window.dispatchEvent(new CustomEvent('benchmark-name',{detail:brief.vendor.display_name}));},[brief]);
  const scrolled=useRef('');
  useEffect(()=>{if(brief?.found&&v&&scrolled.current!==v){scrolled.current=v;ref.current?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});}},[brief,v]);

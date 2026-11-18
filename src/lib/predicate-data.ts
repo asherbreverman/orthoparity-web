@@ -15,28 +15,52 @@ import {
 } from "./predicate-chain";
 
 function getClient() { return supabase; }
-export async function searchVendors(q: string, signal?: AbortSignal): Promise<Vendor[]> {
+export const LOAD_FAILED = "This brief didn't load. Try again in a moment.";
+const TIMEOUT_MS = 8000;
+function attempt<T>(run: () => Promise<T>): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(`Request exceeded ${TIMEOUT_MS}ms`)), TIMEOUT_MS);
+    run().then(resolve, reject).finally(() => clearTimeout(timer));
+  });
+}
+const aborted = (args: unknown[]) => args.some(a => a instanceof AbortSignal && a.aborted);
+/** Retries a failed or slow read once; raw database errors go to the console only. */
+export function resilient<A extends unknown[], T>(fn: (...args: A) => Promise<T>): (...args: A) => Promise<T> {
+  return async (...args: A) => {
+    try { return await attempt(() => fn(...args)); } catch (first) {
+      if (aborted(args)) throw first;
+      console.error('Research request failed; retrying once.', first);
+      if (typeof window !== 'undefined') window.dispatchEvent(new Event('pc-retrying'));
+      try { return await attempt(() => fn(...args)); } catch (second) {
+        if (aborted(args)) throw second;
+        console.error('Research request failed after retry.', second);
+        throw new Error(LOAD_FAILED);
+      }
+    }
+  };
+}
+async function searchVendorsRaw(q: string, signal?: AbortSignal): Promise<Vendor[]> {
   const {data, error} = await researchClient.rpc('pc_vendor_search', {q, lim: 50}).abortSignal(signal ?? new AbortController().signal);
   if (error) throw error;
   return data ?? [];
 }
-export async function getVendorBrief(v: string, m: OwnershipMode): Promise<VendorBrief> {
+async function getVendorBriefRaw(v: string, m: OwnershipMode): Promise<VendorBrief> {
   const {data, error} = await researchClient.rpc('pc_vendor_brief', {v, m}); if (error) throw error; return data as VendorBrief;
 }
-export async function getVendorPortfolio(v: string, m: OwnershipMode): Promise<PortfolioRow[]> {
+async function getVendorPortfolioRaw(v: string, m: OwnershipMode): Promise<PortfolioRow[]> {
   const {data, error} = await researchClient.rpc('pc_vendor_portfolio', {v, m, p_anatomy: null, p_kind: null, p_code: null, lim: 500}); if (error) throw error; return data ?? [];
 }
-export async function getVendorComparison(a: string, b: string, m: OwnershipMode): Promise<VendorComparison> {
+async function getVendorComparisonRaw(a: string, b: string, m: OwnershipMode): Promise<VendorComparison> {
   const {data, error} = await researchClient.rpc('pc_vendor_compare', {a, b, m}); if (error) throw error; return data as VendorComparison;
 }
-export async function getProductPayments(k: string): Promise<ProductPayments> {
+async function getProductPaymentsRaw(k: string): Promise<ProductPayments> {
   const {data, error} = await researchClient.rpc('pc_product_payments', {k}); if (error) throw error; return data as ProductPayments;
 }
 // Existing research RPCs may precede regeneration of the generated schema types.
 const researchClient: SupabaseClient = supabase;
 let coverage: Promise<VendorCoverage> | undefined;
 export function getVendorCoverage() {
-  coverage ??= (async () => {
+  coverage ??= resilient(async () => {
     const [count, first, last] = await Promise.all([
       researchClient.from('pc_vendors').select('vendor_id', {count:'exact',head:true}),
       researchClient.from('pc_vendors').select('first_clearance_year').not('first_clearance_year','is',null).order('first_clearance_year',{ascending:true}).limit(1),
@@ -45,9 +69,10 @@ export function getVendorCoverage() {
     if (count.error || first.error || last.error) throw count.error || first.error || last.error;
     return vendorCoverage(count.count, first.data?.[0]?.first_clearance_year, last.data?.[0]?.last_clearance_year);
   })();
+  coverage.catch(() => { coverage = undefined; });
   return coverage;
 }
-export async function getSignals(k: string): Promise<Signals> {
+async function getSignalsRaw(k: string): Promise<Signals> {
   const { data, error } = await researchClient.rpc('pc_signals', { k }); if (error) throw error;
   const signals = data as Signals;
   if (!signals.found || signals.cards.some(c => c.key === 'recalls')) return signals;
@@ -56,7 +81,7 @@ export async function getSignals(k: string): Promise<Signals> {
   if (recall.error) throw recall.error;
   return {...signals, cards: [...signals.cards, recall.data as DecisionCard]};
 }
-export async function getVendorSignals(v: string, m: OwnershipMode): Promise<VendorSignals> {
+async function getVendorSignalsRaw(v: string, m: OwnershipMode): Promise<VendorSignals> {
   const { data, error } = await researchClient.rpc('pc_vendor_signals', { v, m }); if (error) throw error;
   const signals = data as VendorSignals;
   if (!signals.found || signals.cards.some(c => c.key === 'recalls')) return signals;
@@ -64,10 +89,10 @@ export async function getVendorSignals(v: string, m: OwnershipMode): Promise<Ven
   if (recall.error) throw recall.error;
   return {...signals, cards: [...signals.cards, recall.data as DecisionCard]};
 }
-export async function getDeviceRecalls(k: string): Promise<DeviceRecalls> {
+async function getDeviceRecallsRaw(k: string): Promise<DeviceRecalls> {
   const { data, error } = await researchClient.rpc('pc_device_recalls', { k }); if (error) throw error; return data as DeviceRecalls;
 }
-export async function getVendorRecalls(v: string, m: OwnershipMode): Promise<VendorRecalls> {
+async function getVendorRecallsRaw(v: string, m: OwnershipMode): Promise<VendorRecalls> {
   const { data, error } = await researchClient.rpc('pc_vendor_recalls', { v, m, lim: 50 }); if (error) throw error; return data as VendorRecalls;
 }
 const portfolios = new Map<string, Promise<PortfolioRow[]>>();
@@ -76,22 +101,22 @@ export function getCachedPortfolio(v: string, m: OwnershipMode) {
   if (!p) { p = getVendorPortfolio(v, m); portfolios.set(key, p); p.catch(() => portfolios.delete(key)); }
   return p;
 }
-export async function getBrief(k: string): Promise<Brief> {
+async function getBriefRaw(k: string): Promise<Brief> {
   const { data, error } = await researchClient.rpc("pc_brief", { k });
   if (error) throw error;
   return data as Brief;
 }
-export async function compareDevices(a: string, b: string): Promise<Comparison> {
+async function compareDevicesRaw(a: string, b: string): Promise<Comparison> {
   const { data, error } = await researchClient.rpc("pc_compare", { a, b });
   if (error) throw error;
   return data as Comparison;
 }
-export async function batchDevices(ks: string[]): Promise<BatchRow[]> {
+async function batchDevicesRaw(ks: string[]): Promise<BatchRow[]> {
   const { data, error } = await researchClient.rpc("pc_batch", { ks });
   if (error) throw error;
   return (data ?? []) as BatchRow[];
 }
-export async function getProductCodes(codes: string[]): Promise<ProductCode[]> {
+async function getProductCodesRaw(codes: string[]): Promise<ProductCode[]> {
   if (!codes.length) return [];
   const { data, error } = await researchClient.from("pc_product_codes").select("product_code,plain_name,fda_name").in("product_code", [...new Set(codes)]);
   if (error) throw error;
@@ -102,21 +127,22 @@ export function isDataConnected() {
 }
 let metadata: Promise<Meta> | undefined;
 export function getMeta() {
-  metadata ??= (async () => {
+  metadata ??= resilient(async () => {
     const { data, error } = await getClient().from("pc_meta").select("key,value");
     if (error) throw error;
     return Object.fromEntries((data ?? []).map((row) => [row.key, row.value ?? ""]));
   })();
+  metadata.catch(() => { metadata = undefined; });
   return metadata;
 }
-export async function searchDevices(q: string, signal?: AbortSignal): Promise<SearchResult[]> {
+async function searchDevicesRaw(q: string, signal?: AbortSignal): Promise<SearchResult[]> {
   const { data, error } = await getClient()
     .rpc("pc_search", { q, lim: 50 })
     .abortSignal(signal ?? new AbortController().signal);
   if (error) throw error;
   return preferredSearchResults(data ?? []);
 }
-export async function getFamily(k: string): Promise<BrandFamily> {
+async function getFamilyRaw(k: string): Promise<BrandFamily> {
   const { data, error } = await getClient().rpc("pc_brand_family", { k });
   if (error) throw error;
   return data as unknown as BrandFamily;
@@ -126,7 +152,7 @@ export function lookupChain(roots: string[], max_gen: number) {
   const key = cacheKey(roots, max_gen);
   let pending = chains.get(key);
   if (!pending) {
-    pending = (async () => {
+    pending = resilient(async () => {
       const { data, error } = await getClient().rpc("pc_lookup", { roots, max_gen });
       if (error) throw error;
       return data as unknown as Chain;
@@ -136,3 +162,19 @@ export function lookupChain(roots: string[], max_gen: number) {
   }
   return pending;
 }
+
+export const searchVendors = resilient(searchVendorsRaw);
+export const getVendorBrief = resilient(getVendorBriefRaw);
+export const getVendorPortfolio = resilient(getVendorPortfolioRaw);
+export const getVendorComparison = resilient(getVendorComparisonRaw);
+export const getProductPayments = resilient(getProductPaymentsRaw);
+export const getSignals = resilient(getSignalsRaw);
+export const getVendorSignals = resilient(getVendorSignalsRaw);
+export const getDeviceRecalls = resilient(getDeviceRecallsRaw);
+export const getVendorRecalls = resilient(getVendorRecallsRaw);
+export const getBrief = resilient(getBriefRaw);
+export const compareDevices = resilient(compareDevicesRaw);
+export const batchDevices = resilient(batchDevicesRaw);
+export const getProductCodes = resilient(getProductCodesRaw);
+export const searchDevices = resilient(searchDevicesRaw);
+export const getFamily = resilient(getFamilyRaw);

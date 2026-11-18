@@ -3,7 +3,7 @@ import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Copy, Check, Download, FileSpreadsheet, ChevronDown, Info, ExternalLink } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { BriefLink, PdfLink, Status } from './reviewer-shared';
+import { BriefLink, PdfLink, Status, useRefetch } from './reviewer-shared';
 import { Metrics, Studies } from './payment-shared';
 import { ProductRecallEvidence } from './recall-evidence';
 import { BottomLine, GlanceTiles, DecisionCards, EvidenceSection, Notes, PrintBrief, useEvidence } from './decision-shared';
@@ -35,6 +35,7 @@ export function ProductResult({ k, view, meta, onView }: { k: string; view: View
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [downloading, setDownloading] = useState(false);
   const ev = useEvidence(view);
+  const reload = useRefetch();
   const top = useRef<HTMLDivElement>(null);
   useEffect(() => {
     let active = true;
@@ -43,7 +44,7 @@ export function ProductResult({ k, view, meta, onView }: { k: string; view: View
     Promise.all([getBrief(k), getSignals(k)]).then(([b, s]) => { if (active) { setBrief(b); setSignals(s); } }).catch(e => { if (active) setError(e.message); }).finally(() => { if (active) setBusy(false); });
     getProductPayments(k).then(p => { if (active) setPayments(p); }).catch(e => { if (active) setPaymentError(e.message); });
     return () => { active = false; };
-  }, [k]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [k, reload]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (brief?.found) top.current?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' }); }, [brief]);
 
   useEffect(() => { const title = signals?.header?.device_name ?? brief?.device?.device_name; if (title) window.dispatchEvent(new CustomEvent('benchmark-name', { detail: title })); }, [brief, signals]);
