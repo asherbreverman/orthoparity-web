@@ -38,3 +38,6 @@ use the editor.
 - Keep the single shareable brief route and release metadata in the root shell, with footer methodology and a lazy evidence workspace; this keeps evidence requests out of the default brief.
 - Keep reviewer payload types and parsing/filter helpers in browser-safe modules, and import PDF/Excel generators only inside download actions; this preserves SSR safety and testable rules.
 - Reuse the exact logo source for the on-page mark and browser PDF rasterization; this keeps branding consistent without server-side rendering libraries.
+- Keep vendor and payment reads in the existing read-only adapter; load portfolios on opening and selected-device reads only on explicit benchmarking to avoid request loops.
+- Render only explicitly selected aggregate fields in vendor/payment views and exports; never enumerate raw payload fields, preserving recipient privacy.
+- Keep vendor, ownership and comparison state on the single index route; isolate chart imports behind lazy client rendering and downloads inside user actions.

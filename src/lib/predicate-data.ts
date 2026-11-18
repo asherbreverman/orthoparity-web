@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Brief, Comparison, BatchRow, ProductCode } from "./reviewer-data";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Vendor, VendorBrief, VendorComparison, PortfolioRow, ProductPayments, OwnershipMode } from './vendor-data';
 import {
   cacheKey,
   preferredSearchResults,
@@ -11,6 +12,23 @@ import {
 } from "./predicate-chain";
 
 function getClient() { return supabase; }
+export async function searchVendors(q: string, signal?: AbortSignal): Promise<Vendor[]> {
+  const {data, error} = await researchClient.rpc('pc_vendor_search', {q, lim: 50}).abortSignal(signal ?? new AbortController().signal);
+  if (error) throw error;
+  return data ?? [];
+}
+export async function getVendorBrief(v: string, m: OwnershipMode): Promise<VendorBrief> {
+  const {data, error} = await researchClient.rpc('pc_vendor_brief', {v, m}); if (error) throw error; return data as VendorBrief;
+}
+export async function getVendorPortfolio(v: string, m: OwnershipMode): Promise<PortfolioRow[]> {
+  const {data, error} = await researchClient.rpc('pc_vendor_portfolio', {v, m, p_anatomy: null, p_kind: null, p_code: null, lim: 500}); if (error) throw error; return data ?? [];
+}
+export async function getVendorComparison(a: string, b: string, m: OwnershipMode): Promise<VendorComparison> {
+  const {data, error} = await researchClient.rpc('pc_vendor_compare', {a, b, m}); if (error) throw error; return data as VendorComparison;
+}
+export async function getProductPayments(k: string): Promise<ProductPayments> {
+  const {data, error} = await researchClient.rpc('pc_product_payments', {k}); if (error) throw error; return data as ProductPayments;
+}
 // Existing research RPCs may precede regeneration of the generated schema types.
 const researchClient: SupabaseClient = supabase;
 export async function getBrief(k: string): Promise<Brief> {

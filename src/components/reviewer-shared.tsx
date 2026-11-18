@@ -6,6 +6,7 @@ import { logoDataUrl } from '@/lib/benchmark-brand';
 import { limitations, methodology } from '@/lib/predicate-chain';
 import { getMeta, searchDevices } from '@/lib/predicate-data';
 import { dateLabel, type Meta, type SearchResult } from '@/lib/predicate-chain';
+import { paymentLimitations } from '@/lib/vendor-data';
 
 export function useRelease() {
   const [meta, setMeta] = useState<Meta>({});
@@ -26,7 +27,7 @@ export function ReviewerShell({ children }: { children: ReactNode }) {
     <div className="release-bar"><span><ShieldCheck size={13} />Public data · Independent research</span><span><CalendarDays size={13} />{meta.exported_utc ? `Data as of ${meta.exported_utc}. Parser ${meta.parser_version ?? '—'}.` : error ? 'Data release information unavailable.' : 'Loading data release information…'}</span></div>
     <main>{children}</main>
     <footer className="footer benchmark-footer"><div><p>Open Ortho Benchmark · Free and open source · Built from public FDA data · Not affiliated with FDA · Not regulatory advice · <Button variant="link" onClick={() => setAbout(!about)} aria-expanded={about} aria-controls="about-limitations">About and limitations</Button></p><p>Independent research tool built from public FDA data, provided as is, not regulatory advice, and the author's personal work and views. Open source under the MIT License, Copyright (c) 2026 Asher Breverman.</p></div></footer>
-    {about && <section id="about-limitations" className="brief-section about-content" aria-label="About and limitations"><h2>About</h2><h3>Methodology</h3><ul>{methodology.map(text => <li key={text}>{text}</li>)}</ul><ul><li>Plain-English descriptions are drafted from FDA's product-code definitions and marked until an orthopedic industry reviewer confirms them.</li><li>FDA-cleared use is quoted from each 510(k) summary's Indications for Use, read by software; check the PDF for the exact text.</li><li>Pattern, peers and category counts compare applicant names as printed, with no parent-company roll-up.</li></ul><h3>Limitations</h3><Status error={error} busy={!meta.exported_utc && !error} /><ol>{limitations(meta).map((text,i) => <li key={i}>{text}</li>)}</ol></section>}
+    {about && <section id="about-limitations" className="brief-section about-content" aria-label="About and limitations"><h2>About</h2><h3>Methodology</h3><ul>{methodology.map(text => <li key={text}>{text}</li>)}</ul><ul><li>Plain-English descriptions are drafted from FDA's product-code definitions and marked until an orthopedic industry reviewer confirms them.</li><li>FDA-cleared use is quoted from each 510(k) summary's Indications for Use, read by software; check the PDF for the exact text.</li><li>Pattern, peers and category counts compare applicant names as printed, with no parent-company roll-up.</li></ul><h3>Limitations</h3><Status error={error} busy={!meta.exported_utc && !error} /><ol>{limitations(meta).map((text,i) => <li key={i}>{text}</li>)}</ol><h3>Industry payments and vendor groupings</h3><ul>{paymentLimitations.map(text => <li key={text}>{text}</li>)}</ul></section>}
 
   </div>;
 }

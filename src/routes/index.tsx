@@ -1,4 +1,6 @@
 import { ClientOnly, createFileRoute, useNavigate } from '@tanstack/react-router';
+import { z } from 'zod';
+import { fallback, zodValidator } from '@tanstack/zod-adapter';
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Copy, Check, Download, FileSpreadsheet, ChevronDown, Info, GitBranch, ArrowRight } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -6,21 +8,28 @@ import { benchmarkTitle, benchmarkDescription, benchmarkOrigin } from '@/lib/ben
 import shareImage from '@/assets/open-ortho-share.png.asset.json';
 import { Button } from '@/components/ui/button';
 import { DeviceSearch, BriefLink, PdfLink, Status, PageTitle, pageHead, useRelease } from '@/components/reviewer-shared';
-import { getBrief, getFamily, lookupChain } from '@/lib/predicate-data';
+import { getBrief, getFamily, lookupChain, getProductPayments } from '@/lib/predicate-data';
+import { VendorSearch } from '@/components/vendor-search';
+import { ProductPaymentSection } from '@/components/payment-shared';
+import { withPaymentQuestions, type ProductPayments } from '@/lib/vendor-data';
 import { dateLabel } from '@/lib/predicate-chain';
 import { filterPeers, lineageSentence, patternExplanation, unreviewedLow, questionGroups, questionsText, type Brief } from '@/lib/reviewer-data';
 const CategoryChart = lazy(() => import('@/components/category-chart'));
 const Evidence = lazy(() => import('@/components/predicate-evidence').then(m => ({ default: m.PredicateEvidence })));
+const VendorWorkspace = lazy(() => import('@/components/vendor-workspace').then(m => ({default: m.VendorWorkspace})));
 export const Route = createFileRoute('/')({
-  validateSearch: (search: Record<string, unknown>): { k?: string } => typeof search['k'] === 'string' ? { k: search['k'] } : {},
+  validateSearch: zodValidator(z.object({k: fallback(z.string(), '').optional(), v: fallback(z.string(), '').optional(), compare: fallback(z.string(), '').optional(), own: fallback(z.string(), '').optional(), mode: fallback(z.string(), '').optional()})),
   head: () => ({ meta: [{ title: benchmarkTitle }, { name: 'description', content: benchmarkDescription }, { property: 'og:title', content: benchmarkTitle }, { property: 'og:description', content: benchmarkDescription }, { property: 'og:type', content: 'website' }, { property: 'og:url', content: benchmarkOrigin + '/' }, { property: 'og:image', content: new URL(shareImage.url, benchmarkOrigin).href }, { name: 'twitter:image', content: new URL(shareImage.url, benchmarkOrigin).href }, { name: 'twitter:card', content: 'summary_large_image' }], links: [{ rel: 'canonical', href: benchmarkOrigin + '/' }] }),
   component: DeviceBrief,
 });
 function DeviceBrief() {
-  const { k } = Route.useSearch();
+  const { k, v, compare, own, mode } = Route.useSearch();
+  const vendorMode = !!v || mode === 'vendor';
   const navigate = useNavigate();
   const { meta } = useRelease();
   const [brief, setBrief] = useState<Brief | null>(null);
+  const [payments, setPayments] = useState<ProductPayments | null>(null);
+  const [paymentError, setPaymentError] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [expanded, setExpanded] = useState(false);
@@ -40,14 +49,16 @@ function DeviceBrief() {
     getBrief(k).then(data => { if (id === request.current) setBrief(data); }).catch(e => { if (id === request.current) setError(e.message); }).finally(() => { if (id === request.current) setBusy(false); });
     return () => { request.current++; };
   }, [k]);
+  useEffect(() => { let active = true; setPayments(null); setPaymentError(''); if (!k || vendorMode) return; getProductPayments(k).then(p => { if (active) setPayments(p); }).catch(e => { if (active) setPaymentError(e.message); }); return () => { active = false; }; }, [k, vendorMode]);
   useEffect(() => { if (brief?.found) benchmarkRef.current?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' }); }, [brief]);
   const device = brief?.device;
-  const groups = brief ? questionGroups(brief) : [];
+  const enrichedBrief = brief ? withPaymentQuestions(brief, payments) : null;
+  const groups = enrichedBrief ? questionGroups(enrichedBrief) : [];
   async function download(type: 'pdf' | 'xlsx') {
     if (!brief || !device) return;
     setDownloading(true); setError('');
     try {
-      if (type === 'pdf') { const { exportBriefPdf } = await import('@/lib/reviewer-export'); await exportBriefPdf(brief, meta); }
+      if (type === 'pdf') { const { exportBriefPdf } = await import('@/lib/reviewer-export'); await exportBriefPdf(enrichedBrief ?? brief, meta); }
       else { const [chain, family] = await Promise.all([lookupChain([device.knumber], Number(meta.max_generations) || 10), getFamily(device.knumber)]); const { exportWorkbook } = await import('@/lib/predicate-export'); await exportWorkbook(chain, meta, device.device_name ?? device.knumber, family); }
     } catch (e) { setError(e instanceof Error ? e.message : 'The download could not be created.'); } finally { setDownloading(false); }
   }
@@ -55,7 +66,8 @@ function DeviceBrief() {
   function tick(id: number, checked: boolean) { setSelectedQuestions(previous => { const next = new Set(previous); if (checked) next.add(id); else next.delete(id); return next; }); setCopied(''); }
   const peers = brief ? filterPeers(brief.peers?.peers ?? [], other, sameCode) : [];
   return <>
-    <section className="identify-step"><div className="eyebrow">Step 1</div><h1>Identify an orthopedic device to benchmark</h1><p>Search by 510(k) number, product name or company. Covers {meta.starting_set_clearances ? Number(meta.starting_set_clearances).toLocaleString('en-US') : '—'} orthopedic 510(k) clearances from 1976 to 2026.</p><DeviceSearch resetKey={k ?? ''} onSelect={row => void navigate({ to: '/', search: { k: row.knumber } })} /></section>
+    <section className="identify-step"><div className="mode-tabs" role="tablist" aria-label="Benchmark mode"><Button role="tab" aria-selected={!vendorMode} variant="ghost" onClick={() => void navigate({to:'/',search:{}})}>Benchmark a product</Button><Button role="tab" aria-selected={vendorMode} variant="ghost" onClick={() => void navigate({to:'/',search:{mode:'vendor'}})}>Benchmark a vendor</Button></div><div className="eyebrow">Step 1</div><h1>{vendorMode ? 'Identify a vendor to benchmark' : 'Identify an orthopedic device to benchmark'}</h1>{vendorMode ? <VendorSearch key={v ?? 'vendor'} onSelect={row => void navigate({to:'/',search:{v:row.vendor_id}})} /> : <><p>Search by 510(k) number, product name or company. Covers {meta.starting_set_clearances ? Number(meta.starting_set_clearances).toLocaleString('en-US') : '—'} orthopedic 510(k) clearances from 1976 to 2026.</p><DeviceSearch resetKey={k ?? ''} onSelect={row => void navigate({ to: '/', search: { k: row.knumber } })} /></>}</section>
+    {vendorMode ? <ClientOnly><Suspense fallback={<Status busy />}><VendorWorkspace v={v} compare={compare} mode={own === 'current' ? 'current' : 'pit'} meta={meta} onOwnership={m => void navigate({to:'/',search: prev => ({...prev,own:m === 'current' ? 'current' : undefined})})} onCompare={value => void navigate({to:'/',search:prev => ({...prev,compare:value})})} /></Suspense></ClientOnly> : <>
     <Status error={error} busy={busy} />
     {!k && <div className="brief-empty"><GitBranch size={42} className="text-primary" /><h2>No clearance selected</h2></div>}
     {brief && (!brief.found || !device) && <div className="notice">{k}: Not in this database (orthopedic clearances only)</div>}
@@ -78,6 +90,8 @@ function DeviceBrief() {
         {brief.lineage?.stopped_by_limit ? <p className="stop-label">Generation limit reached</p> : brief.lineage?.ends_at?.stop && <p className="stop-label">Record stops here: {brief.lineage.ends_at.stop}</p>}<p className="section-caption">Where the record stops is where the paper trail ends, not proof of the original design.</p>
       </section>
       <section className="brief-section"><h2>Peers cleared against the same predicates</h2><p className="section-lead">{brief.peers.total} other orthopedic clearances from {brief.peers.other_companies} other companies were cleared against at least one of the same predicates.</p><div className="peer-filters"><Button variant={other ? 'secondary' : 'outline'} size="sm" aria-pressed={other} onClick={() => setOther(!other)}>{other && <Check />}Other companies only</Button><Button variant={sameCode ? 'secondary' : 'outline'} size="sm" aria-pressed={sameCode} onClick={() => setSameCode(!sameCode)}>{sameCode && <Check />}Same product code only</Button><span className="section-note">{peers.length} records</span></div><div className="brief-table-scroll peer-table"><table className="brief-table"><thead><tr><th>510(k)</th><th>Product</th><th>Company</th><th>Year</th><th>Product code</th><th>Shared predicates</th></tr></thead><tbody>{peers.map(p => <tr key={p.knumber}><td><BriefLink k={p.knumber} /></td><td>{p.device_name ?? '—'}</td><td>{p.applicant ?? '—'}</td><td>{p.decision_year ?? '—'}</td><td>{p.product_code ?? '—'}</td><td className="font-mono">{p.shared?.join(', ')}</td></tr>)}</tbody></table></div>{!peers.length && <p className="section-note">No peers match these filters.</p>}<p className="section-caption">Peers share a predicate. That suggests a similar design basis, not that FDA compared them with each other.</p></section>
+      <Status error={paymentError} busy={!payments && !paymentError} />
+      {payments && <ProductPaymentSection payments={payments} />}
       {brief.category && <section className="brief-section"><h2>Category context <span className="text-muted-foreground font-mono">{device.product_code}</span></h2><div className="category-metrics">{[['Total clearances', brief.category.total], ['Clearances · last five years', brief.category.last5_clearances], ['Companies · last five years', brief.category.last5_companies]].map(([label,value]) => <div className="metric" key={label}><div className="metric-label">{label}</div><div className="metric-value">{value}</div></div>)}</div><ClientOnly fallback={<div className="category-chart skeleton" />}><Suspense fallback={<div className="category-chart skeleton" />}><CategoryChart rows={brief.category.by_year ?? []} /></Suspense></ClientOnly><div className="two-columns">{[{ title: 'Top companies · all time', rows: brief.category.top_companies ?? [] }, { title: 'Top companies · last five years', rows: brief.category.top_companies_last5 ?? [] }].map(group => <div key={group.title}><h3>{group.title}</h3><div className="brief-table-scroll"><table className="brief-table"><thead><tr><th>Company</th><th>Clearances</th></tr></thead><tbody>{group.rows.map(row => <tr key={row.applicant}><td>{row.applicant}</td><td>{row.clearances}</td></tr>)}</tbody></table></div></div>)}</div><p className="section-caption">Counts cover orthopedic 510(k) clearances in this product code through {brief.category.latest_year}.</p></section>}
       <section className="brief-section question-section"><div className="section-heading"><h2>Questions to ask the vendor</h2><div className="question-actions"><Button variant="outline" size="sm" onClick={() => void copy(false)}>{copied === 'all' ? <Check /> : <Copy />}{copied === 'all' ? 'Copied all questions' : 'Copy all questions'}</Button><Button variant="outline" size="sm" disabled={!selectedQuestions.size} onClick={() => void copy(true)}>{copied === 'selected' ? <Check /> : <Copy />}{copied === 'selected' ? 'Copied selected' : 'Copy selected'}</Button></div></div>
         {groups.map((group, index) => <div className="question-group" key={index}>{index === 1 && <h3 className="standard-heading">Standard VAC questions</h3>}<h3>{group.topic}</h3><ol className="vendor-questions" start={(group.items[0]?.id ?? 0) + 1}>{group.items.map(item => <li key={item.id}><label><Checkbox checked={selectedQuestions.has(item.id)} onCheckedChange={checked => tick(item.id, checked === true)} aria-label={`Select question ${item.id + 1}`} /><span>{item.question}</span></label></li>)}</ol></div>)}
@@ -85,6 +99,7 @@ function DeviceBrief() {
       </section>
       <section className="brief-actions"><Button disabled={downloading} onClick={() => void download('pdf')}><Download />Download brief (PDF)</Button><Button variant="outline" disabled={downloading} onClick={() => void download('xlsx')}><FileSpreadsheet />Analyst workbook (Excel)</Button><Button variant="ghost" aria-expanded={evidence} onClick={() => setEvidence(!evidence)}><ChevronDown className={evidence ? 'rotate-180' : ''} />{evidence ? 'Hide evidence' : 'Show evidence'}</Button></section>
       {evidence && <ClientOnly><Suspense fallback={<Status busy />}><Evidence key={device.knumber} meta={meta} selected={{ knumber: device.knumber, device_name: device.device_name ?? '', applicant: device.applicant ?? '', decision_date: device.decision_date }} /></Suspense></ClientOnly>}
+    </>}
     </>}
   </>;
 }
