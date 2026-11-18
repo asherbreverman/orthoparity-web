@@ -811,9 +811,12 @@ export type Database = {
           same_company: boolean
         }[]
       }
+      pc_fig: { Args: { label: string; v: string }; Returns: Json }
+      pc_figs: { Args: { f: Json[] }; Returns: Json }
       pc_lookup: { Args: { max_gen?: number; roots: string[] }; Returns: Json }
       pc_mode: { Args: { m: string }; Returns: string }
       pc_money: { Args: { x: number }; Returns: string }
+      pc_num: { Args: { n: number }; Returns: string }
       pc_peers: { Args: { k: string; lim?: number }; Returns: Json }
       pc_primary_lineage: {
         Args: { k: string; max_gen?: number }
