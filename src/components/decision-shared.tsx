@@ -8,9 +8,18 @@ export function useEvidence(view: View) {
   const [opened, setOpened] = useState<Set<string>>(new Set());
   const isOpen = useCallback((id: string) => evidenceIsOpen(view, opened, id), [view, opened]);
   const toggle = useCallback((id: string) => setOpened(prev => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n; }), []);
-  const reveal = useCallback((id: string) => {
+  const reveal = useCallback((id: string, keyboard = false) => {
     setOpened(prev => new Set(prev).add(id));
-    requestAnimationFrame(() => requestAnimationFrame(() => document.getElementById(`evidence-${id}`)?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' })));
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const section = document.getElementById(`evidence-${id}`);
+      if (!section) return;
+      section.scrollIntoView({ behavior: keyboard || window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
+      if (keyboard) {
+        const target = section.querySelector<HTMLElement>('.evidence-toggle, h2') ?? section;
+        if (target.tagName !== 'BUTTON') target.tabIndex = -1;
+        target.focus({ preventScroll: true });
+      }
+    }));
   }, []);
   const reset = useCallback(() => setOpened(new Set()), []);
   return { isOpen, toggle, reveal, reset };
@@ -32,22 +41,22 @@ function CopyAsk({ text }: { text: string }) {
   return <Button variant="ghost" size="icon" className="copy-ask" aria-label="Copy question" title="Copy question" onClick={async () => { try { await navigator.clipboard.writeText(text); setDone(true); } catch { /* clipboard unavailable */ } }}>{done ? <Check /> : <Copy />}</Button>;
 }
 
-export function DecisionCards({ cards, onEvidence }: { cards: DecisionCard[]; onEvidence: (id: string) => void }) {
+export function DecisionCards({ cards, onEvidence }: { cards: DecisionCard[]; onEvidence: (id: string, keyboard?: boolean) => void }) {
   return <section className="decision-grid" aria-label="Decision cards">{cards.map(c => <article className="decision-card" key={c.key}>
     <div className="decision-top"><span className="decision-question">{c.question}</span><span className={`decision-badge ${toneClass(c.tone)}`}>{c.badge}</span></div>
     <p className="decision-finding">{c.finding}</p>
     <p className="decision-why"><span>Why it matters</span>{c.why}</p>
     <div className="decision-ask"><p><span>Ask</span>{c.ask}</p><CopyAsk text={c.ask} /></div>
-    {c.evidence && <Button variant="link" size="sm" className="see-evidence no-print" onClick={() => onEvidence(c.evidence)}>See evidence</Button>}
+    {c.evidence && <Button variant="link" size="sm" className="see-evidence no-print" onClick={event => onEvidence(c.evidence, event.detail === 0)}>See evidence</Button>}
   </article>)}</section>;
 }
 
 export function EvidenceSection({ id, title, summary, open, onToggle, children }: { id: string; title: string; summary: ReactNode; open: boolean; onToggle: () => void; children: ReactNode }) {
   return <section id={`evidence-${id}`} className={`evidence-section ${open ? 'is-open' : ''}`}>
-    <Button variant="ghost" className="evidence-toggle" aria-expanded={open} aria-controls={`evidence-body-${id}`} onClick={onToggle}>
-      <ChevronDown className={open ? 'rotate-180' : ''} /><span className="evidence-title">{title}</span><span className="evidence-summary">{summary}</span>
+    <Button id={`evidence-trigger-${id}`} variant="ghost" className="evidence-toggle" aria-expanded={open} aria-controls={`evidence-body-${id}`} onClick={onToggle}>
+      <ChevronDown className="evidence-chevron" aria-hidden="true" /><span className="evidence-title">{title}</span><span className="evidence-summary">{summary}</span>
     </Button>
-    {open && <div id={`evidence-body-${id}`} className="evidence-body">{children}</div>}
+    <div id={`evidence-body-${id}`} className="evidence-body" hidden={!open} aria-labelledby={`evidence-trigger-${id}`}>{open ? children : null}</div>
   </section>;
 }
 

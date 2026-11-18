@@ -125,6 +125,7 @@
   --destructive: oklch(0.5 0.18 28);
   --shadow-search: 0 4px 16px oklch(0.3 0.03 250 / 5%);
   --shadow-popover: 0 12px 35px oklch(0.25 0.03 250 / 12%);
+  --ease-ui-out: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .dark {
@@ -1068,6 +1069,8 @@
 .result-actions .result-buttons { margin-top: 0; justify-content: flex-end; }
 .view-toggle { display: inline-flex; max-width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 2px; gap: 2px; background: var(--card); }
 .view-toggle button { min-width: 0; white-space: normal; height: auto; min-height: 32px; }
+.view-toggle button[aria-pressed="true"] { box-shadow: none; }
+.view-toggle button[aria-pressed="true"]:hover { background: var(--secondary); color: var(--secondary-foreground); }
 .bottom-line { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 16px 20px; margin: 18px 0; }
 .bottom-line-label { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted-foreground); font-weight: 600; margin-bottom: 4px; }
 .bottom-line p { font-size: 16px; line-height: 1.55; margin: 0; }
@@ -1093,6 +1096,30 @@
 .evidence-title { font-family: Archivo, sans-serif; font-weight: 700; font-size: 17px; min-width: 0; }
 .evidence-summary { color: var(--muted-foreground); font-size: 13px; font-weight: 400; min-width: 0; overflow-wrap: anywhere; }
 .evidence-body { padding: 4px 4px 24px; }
+.evidence-body[hidden] { display: none; }
+
+/* Restrained feedback: no card movement or evidence-height animation. */
+.ui-button { transition: background-color 120ms ease, color 120ms ease, transform 120ms var(--ease-ui-out); }
+.ui-button:active:not(:disabled):not([aria-disabled="true"]):not([data-keyboard]) { transform: scale(.97); }
+.ui-button[data-keyboard], .ui-button:focus-visible { transition: none; }
+.ui-button:focus-visible { position: relative; z-index: 1; }
+.ui-button:is(.evidence-toggle, .see-evidence, .benchmark-home, [role="tab"]):active { transform: none; }
+.decision-card { transition: border-color 120ms ease; }
+.decision-card:focus-within { border-color: var(--primary); transition: none; }
+.evidence-chevron { transition: transform 160ms var(--ease-ui-out); }
+.evidence-toggle[aria-expanded="true"] .evidence-chevron { transform: rotate(180deg); }
+.evidence-toggle[data-keyboard] .evidence-chevron, .evidence-section:has(.evidence-toggle:focus-visible) .evidence-chevron, main:has(.view-toggle button[data-keyboard]) .evidence-chevron { transition: none; }
+.evidence-toggle:active:not(:disabled) { background: var(--accent); color: var(--accent-foreground); }
+.filter-input:focus-within { outline: 2px solid var(--primary); outline-offset: 2px; }
+.brief-link:focus-visible, .portfolio-filters select:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+[id^="evidence-"] h2[tabindex="-1"]:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+@media (hover: hover) and (pointer: fine) {
+  .decision-card:hover { border-color: color-mix(in oklch, var(--primary) 35%, var(--border)); }
+  .decision-card:focus-within:hover { border-color: var(--primary); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ui-button:active { transform: none !important; }
+}
 .lineage-list { list-style: none; padding: 0; margin: 10px 0; }
 .lineage-list li { display: grid; grid-template-columns: 80px 90px minmax(0, 2fr) minmax(0, 1.5fr) 60px; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px; align-items: baseline; }
 .lineage-list li > * { min-width: 0; overflow-wrap: anywhere; }
