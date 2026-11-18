@@ -13,7 +13,8 @@ export const natureGroups = [ ['royalty','Royalties'], ['consulting','Consulting
 export function natureKey(group: string) { const key = group.replace(/_/g, ' '); return natureGroups.some(([id]) => id === key) ? key : 'other'; }
 export function natureLabel(group: string) { return natureGroups.find(([id]) => id === natureKey(group))?.[1] ?? 'Other'; }
 export function natureColor(group: string) { return `var(--payment-${natureKey(group).replace(/ /g,'-')})`; }
-export function money(value: number | null | undefined) { const n = Number(value) || 0; return n >= 1e6 ? `$${(n/1e6).toFixed(1).replace(/\.0$/, '')}M` : n >= 1000 ? `$${(n/1000).toFixed(n < 10000 ? 1 : 0).replace(/\.0$/, '')}K` : dollars(n); }
+export function money(value: number | null | undefined) { const n = Number(value) || 0; if (n <= 0) return 'None'; return n >= 1e6 ? `$${(n/1e6).toFixed(1)}M` : n >= 1000 ? `$${(n/1000).toFixed(n < 10000 ? 1 : 0).replace(/\.0$/, '')}K` : `$${Math.round(n)}`; }
+export function axisMoney(value: number) { return value ? money(value) : '$0'; }
 export function dollars(value: number | null | undefined) { return (Number(value) || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }); }
 export function percent(fraction: number | null | undefined) { return `${((Number(fraction)||0)*100).toFixed(1)}%`; }
 export function ratio(a: number, b: number) { return b > 0 ? a / b : 0; }

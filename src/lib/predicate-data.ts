@@ -2,6 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Brief, Comparison, BatchRow, ProductCode } from "./reviewer-data";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Vendor, VendorBrief, VendorComparison, PortfolioRow, ProductPayments, OwnershipMode } from './vendor-data';
+import type { Signals, VendorSignals } from './signals';
 import { vendorCoverage, type VendorCoverage } from './vendor-coverage';
 import {
   cacheKey,
@@ -44,6 +45,18 @@ export function getVendorCoverage() {
     return vendorCoverage(count.count, first.data?.[0]?.first_clearance_year, last.data?.[0]?.last_clearance_year);
   })();
   return coverage;
+}
+export async function getSignals(k: string): Promise<Signals> {
+  const { data, error } = await researchClient.rpc('pc_signals', { k }); if (error) throw error; return data as Signals;
+}
+export async function getVendorSignals(v: string, m: OwnershipMode): Promise<VendorSignals> {
+  const { data, error } = await researchClient.rpc('pc_vendor_signals', { v, m }); if (error) throw error; return data as VendorSignals;
+}
+const portfolios = new Map<string, Promise<PortfolioRow[]>>();
+export function getCachedPortfolio(v: string, m: OwnershipMode) {
+  const key = `${v}|${m}`; let p = portfolios.get(key);
+  if (!p) { p = getVendorPortfolio(v, m); portfolios.set(key, p); p.catch(() => portfolios.delete(key)); }
+  return p;
 }
 export async function getBrief(k: string): Promise<Brief> {
   const { data, error } = await researchClient.rpc("pc_brief", { k });

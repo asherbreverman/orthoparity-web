@@ -7,3 +7,8 @@ describe('Public vendor RPC acceptance checks',()=>{
  it('keeps exact and brand-match payments distinct for HEDRON',async()=>{const p=await getProductPayments('K253876');expect(p.exact.total).toBe(0);expect(p.brand_match.total).toBeGreaterThan(3000000);expect(p.brand).toBe('HEDRON');expect(p.royalty).toBe(3174936.41);},30000);
  it('preserves a missing payment profile instead of inventing records',async()=>{const b=await getVendorBrief('n_medical','pit');expect(b.found).toBe(true);expect(b.payments.profile_latest).toBeNull();expect(b.payments.mix_latest).toEqual([]);},30000);
 });
+import {getSignals,getVendorSignals} from '@/lib/predicate-data';
+describe('Decision signal RPCs',()=>{
+ it('returns five product cards for K253876',async()=>{const s=await getSignals('K253876');expect(s.found).toBe(true);expect(s.cards.map(c=>c.key)).toEqual(['novelty','alternatives','payments','evidence','catalog']);expect(s.header.product_code).toBe('OVE');},30000);
+ it('returns six vendor cards for Globus',async()=>{const s=await getVendorSignals('globus','pit');expect(s.found).toBe(true);expect(s.cards.map(c=>c.key)).toEqual(['breadth','momentum','ownership','payments','evidence','supply']);expect(s.acquisitions.find(a=>a.vendor_id==='nuvasive')?.date).toBe('2023-09-01');},30000);
+});
