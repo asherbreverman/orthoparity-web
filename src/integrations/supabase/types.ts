@@ -182,6 +182,378 @@ export type Database = {
         }
         Relationships: []
       }
+      pc_op_entity: {
+        Row: {
+          amount: number | null
+          food: number | null
+          payer_id: string | null
+          payer_name: string | null
+          recipients: number | null
+          royalty: number | null
+          vendor_current: string | null
+          vendor_pit: string | null
+          year: number | null
+        }
+        Insert: {
+          amount?: number | null
+          food?: number | null
+          payer_id?: string | null
+          payer_name?: string | null
+          recipients?: number | null
+          royalty?: number | null
+          vendor_current?: string | null
+          vendor_pit?: string | null
+          year?: number | null
+        }
+        Update: {
+          amount?: number | null
+          food?: number | null
+          payer_id?: string | null
+          payer_name?: string | null
+          recipients?: number | null
+          royalty?: number | null
+          vendor_current?: string | null
+          vendor_pit?: string | null
+          year?: number | null
+        }
+        Relationships: []
+      }
+      pc_op_ownership: {
+        Row: {
+          holders: number | null
+          invested: number | null
+          value: number | null
+          vendor_current: string | null
+          vendor_pit: string | null
+          year: number | null
+        }
+        Insert: {
+          holders?: number | null
+          invested?: number | null
+          value?: number | null
+          vendor_current?: string | null
+          vendor_pit?: string | null
+          year?: number | null
+        }
+        Update: {
+          holders?: number | null
+          invested?: number | null
+          value?: number | null
+          vendor_current?: string | null
+          vendor_pit?: string | null
+          year?: number | null
+        }
+        Relationships: []
+      }
+      pc_op_product: {
+        Row: {
+          amount: number | null
+          brand: string | null
+          knumber: string | null
+          nature_group: string | null
+          recipients: number | null
+          tier: number | null
+          transactions: number | null
+          vendor_pit: string | null
+          year: number | null
+        }
+        Insert: {
+          amount?: number | null
+          brand?: string | null
+          knumber?: string | null
+          nature_group?: string | null
+          recipients?: number | null
+          tier?: number | null
+          transactions?: number | null
+          vendor_pit?: string | null
+          year?: number | null
+        }
+        Update: {
+          amount?: number | null
+          brand?: string | null
+          knumber?: string | null
+          nature_group?: string | null
+          recipients?: number | null
+          tier?: number | null
+          transactions?: number | null
+          vendor_pit?: string | null
+          year?: number | null
+        }
+        Relationships: []
+      }
+      pc_op_product_top: {
+        Row: {
+          amount: number | null
+          brand: string | null
+          engagement: number | null
+          mode: string | null
+          rank: number | null
+          royalty: number | null
+          transactions: number | null
+          vendor_id: string | null
+        }
+        Insert: {
+          amount?: number | null
+          brand?: string | null
+          engagement?: number | null
+          mode?: string | null
+          rank?: number | null
+          royalty?: number | null
+          transactions?: number | null
+          vendor_id?: string | null
+        }
+        Update: {
+          amount?: number | null
+          brand?: string | null
+          engagement?: number | null
+          mode?: string | null
+          rank?: number | null
+          royalty?: number | null
+          transactions?: number | null
+          vendor_id?: string | null
+        }
+        Relationships: []
+      }
+      pc_op_relationship: {
+        Row: {
+          amount: number | null
+          bucket: string | null
+          consulting: boolean | null
+          mode: string | null
+          rkey: string | null
+          royalty: boolean | null
+          speaking_services: boolean | null
+          vendor_id: string | null
+          year: number | null
+        }
+        Insert: {
+          amount?: number | null
+          bucket?: string | null
+          consulting?: boolean | null
+          mode?: string | null
+          rkey?: string | null
+          royalty?: boolean | null
+          speaking_services?: boolean | null
+          vendor_id?: string | null
+          year?: number | null
+        }
+        Update: {
+          amount?: number | null
+          bucket?: string | null
+          consulting?: boolean | null
+          mode?: string | null
+          rkey?: string | null
+          royalty?: boolean | null
+          speaking_services?: boolean | null
+          vendor_id?: string | null
+          year?: number | null
+        }
+        Relationships: []
+      }
+      pc_op_research: {
+        Row: {
+          amount: number | null
+          ct_gov_id: string | null
+          knumbers: string | null
+          payments: number | null
+          preclinical: boolean | null
+          study_name: string | null
+          vendor_current: string | null
+          vendor_entity: string | null
+          vendor_pit: string | null
+          year: number | null
+        }
+        Insert: {
+          amount?: number | null
+          ct_gov_id?: string | null
+          knumbers?: string | null
+          payments?: number | null
+          preclinical?: boolean | null
+          study_name?: string | null
+          vendor_current?: string | null
+          vendor_entity?: string | null
+          vendor_pit?: string | null
+          year?: number | null
+        }
+        Update: {
+          amount?: number | null
+          ct_gov_id?: string | null
+          knumbers?: string | null
+          payments?: number | null
+          preclinical?: boolean | null
+          study_name?: string | null
+          vendor_current?: string | null
+          vendor_entity?: string | null
+          vendor_pit?: string | null
+          year?: number | null
+        }
+        Relationships: []
+      }
+      pc_op_vendor_profile: {
+        Row: {
+          acquisitions: number | null
+          bucket_json: Json | null
+          consulting_r: number | null
+          debt_forgiveness: number | null
+          equity_forms: number | null
+          food_r: number | null
+          median_per_recipient: number | null
+          mode: string | null
+          physicians: number | null
+          recipients: number | null
+          royalty_r: number | null
+          to_entities: number | null
+          to_teaching_hospitals: number | null
+          top10_share: number | null
+          top1pct_share: number | null
+          total: number | null
+          transactions: number | null
+          travel_r: number | null
+          vendor_id: string | null
+          year: number | null
+        }
+        Insert: {
+          acquisitions?: number | null
+          bucket_json?: Json | null
+          consulting_r?: number | null
+          debt_forgiveness?: number | null
+          equity_forms?: number | null
+          food_r?: number | null
+          median_per_recipient?: number | null
+          mode?: string | null
+          physicians?: number | null
+          recipients?: number | null
+          royalty_r?: number | null
+          to_entities?: number | null
+          to_teaching_hospitals?: number | null
+          top10_share?: number | null
+          top1pct_share?: number | null
+          total?: number | null
+          transactions?: number | null
+          travel_r?: number | null
+          vendor_id?: string | null
+          year?: number | null
+        }
+        Update: {
+          acquisitions?: number | null
+          bucket_json?: Json | null
+          consulting_r?: number | null
+          debt_forgiveness?: number | null
+          equity_forms?: number | null
+          food_r?: number | null
+          median_per_recipient?: number | null
+          mode?: string | null
+          physicians?: number | null
+          recipients?: number | null
+          royalty_r?: number | null
+          to_entities?: number | null
+          to_teaching_hospitals?: number | null
+          top10_share?: number | null
+          top1pct_share?: number | null
+          total?: number | null
+          transactions?: number | null
+          travel_r?: number | null
+          vendor_id?: string | null
+          year?: number | null
+        }
+        Relationships: []
+      }
+      pc_op_vendor_year: {
+        Row: {
+          amount: number | null
+          mode: string | null
+          nature_group: string | null
+          recipients: number | null
+          transactions: number | null
+          vendor_id: string | null
+          year: number | null
+        }
+        Insert: {
+          amount?: number | null
+          mode?: string | null
+          nature_group?: string | null
+          recipients?: number | null
+          transactions?: number | null
+          vendor_id?: string | null
+          year?: number | null
+        }
+        Update: {
+          amount?: number | null
+          mode?: string | null
+          nature_group?: string | null
+          recipients?: number | null
+          transactions?: number | null
+          vendor_id?: string | null
+          year?: number | null
+        }
+        Relationships: []
+      }
+      pc_portfolio_510k: {
+        Row: {
+          applicant: string | null
+          decision_date: string | null
+          device_name: string | null
+          gudid_brand: string | null
+          gudid_devices: number | null
+          gudid_in_distribution: number | null
+          knumber: string | null
+          product_code: string | null
+          vendor_id: string | null
+        }
+        Insert: {
+          applicant?: string | null
+          decision_date?: string | null
+          device_name?: string | null
+          gudid_brand?: string | null
+          gudid_devices?: number | null
+          gudid_in_distribution?: number | null
+          knumber?: string | null
+          product_code?: string | null
+          vendor_id?: string | null
+        }
+        Update: {
+          applicant?: string | null
+          decision_date?: string | null
+          device_name?: string | null
+          gudid_brand?: string | null
+          gudid_devices?: number | null
+          gudid_in_distribution?: number | null
+          knumber?: string | null
+          product_code?: string | null
+          vendor_id?: string | null
+        }
+        Relationships: []
+      }
+      pc_portfolio_brands: {
+        Row: {
+          brand: string | null
+          devices: number | null
+          implantable: boolean | null
+          in_distribution: number | null
+          knumbers: string | null
+          product_codes: string | null
+          vendor_id: string | null
+        }
+        Insert: {
+          brand?: string | null
+          devices?: number | null
+          implantable?: boolean | null
+          in_distribution?: number | null
+          knumbers?: string | null
+          product_codes?: string | null
+          vendor_id?: string | null
+        }
+        Update: {
+          brand?: string | null
+          devices?: number | null
+          implantable?: boolean | null
+          in_distribution?: number | null
+          knumbers?: string | null
+          product_codes?: string | null
+          vendor_id?: string | null
+        }
+        Relationships: []
+      }
       pc_product_codes: {
         Row: {
           anatomy: string | null
@@ -230,6 +602,111 @@ export type Database = {
         }
         Relationships: []
       }
+      pc_vendor_lineage: {
+        Row: {
+          note: string | null
+          parent: string | null
+          relation: string | null
+          reviewed: boolean | null
+          source_url: string | null
+          valid_from: string | null
+          valid_to: string | null
+          vendor_id: string | null
+        }
+        Insert: {
+          note?: string | null
+          parent?: string | null
+          relation?: string | null
+          reviewed?: boolean | null
+          source_url?: string | null
+          valid_from?: string | null
+          valid_to?: string | null
+          vendor_id?: string | null
+        }
+        Update: {
+          note?: string | null
+          parent?: string | null
+          relation?: string | null
+          reviewed?: boolean | null
+          source_url?: string | null
+          valid_from?: string | null
+          valid_to?: string | null
+          vendor_id?: string | null
+        }
+        Relationships: []
+      }
+      pc_vendor_names: {
+        Row: {
+          basis: string | null
+          raw_name: string | null
+          source: string | null
+          vendor_id: string | null
+        }
+        Insert: {
+          basis?: string | null
+          raw_name?: string | null
+          source?: string | null
+          vendor_id?: string | null
+        }
+        Update: {
+          basis?: string | null
+          raw_name?: string | null
+          source?: string | null
+          vendor_id?: string | null
+        }
+        Relationships: []
+      }
+      pc_vendors: {
+        Row: {
+          basis: string | null
+          clearances: number | null
+          current_parent: string | null
+          display_name: string | null
+          first_clearance_year: number | null
+          gudid_brands: number | null
+          gudid_ortho_devices: number | null
+          last_clearance_year: number | null
+          note: string | null
+          payment_kind: string | null
+          reviewed: boolean | null
+          rolls_up_to: string | null
+          segment: string | null
+          vendor_id: string
+        }
+        Insert: {
+          basis?: string | null
+          clearances?: number | null
+          current_parent?: string | null
+          display_name?: string | null
+          first_clearance_year?: number | null
+          gudid_brands?: number | null
+          gudid_ortho_devices?: number | null
+          last_clearance_year?: number | null
+          note?: string | null
+          payment_kind?: string | null
+          reviewed?: boolean | null
+          rolls_up_to?: string | null
+          segment?: string | null
+          vendor_id: string
+        }
+        Update: {
+          basis?: string | null
+          clearances?: number | null
+          current_parent?: string | null
+          display_name?: string | null
+          first_clearance_year?: number | null
+          gudid_brands?: number | null
+          gudid_ortho_devices?: number | null
+          last_clearance_year?: number | null
+          note?: string | null
+          payment_kind?: string | null
+          reviewed?: boolean | null
+          rolls_up_to?: string | null
+          segment?: string | null
+          vendor_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -260,11 +737,13 @@ export type Database = {
         }[]
       }
       pc_lookup: { Args: { max_gen?: number; roots: string[] }; Returns: Json }
+      pc_mode: { Args: { m: string }; Returns: string }
       pc_peers: { Args: { k: string; lim?: number }; Returns: Json }
       pc_primary_lineage: {
         Args: { k: string; max_gen?: number }
         Returns: Json
       }
+      pc_product_payments: { Args: { k: string }; Returns: Json }
       pc_search: {
         Args: { lim?: number; q: string }
         Returns: {
@@ -277,6 +756,33 @@ export type Database = {
           segment: string
         }[]
       }
+      pc_vendor_brief: { Args: { m?: string; v: string }; Returns: Json }
+      pc_vendor_compare: {
+        Args: { a: string; b: string; m?: string }
+        Returns: Json
+      }
+      pc_vendor_family: {
+        Args: { m: string; v: string }
+        Returns: {
+          display_name: string
+          relation: string
+          since: string
+          source_url: string
+          vendor_id: string
+        }[]
+      }
+      pc_vendor_portfolio: {
+        Args: {
+          lim?: number
+          m?: string
+          p_anatomy?: string
+          p_code?: string
+          p_kind?: string
+          v: string
+        }
+        Returns: Json
+      }
+      pc_vendor_search: { Args: { lim?: number; q: string }; Returns: Json }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
     }
