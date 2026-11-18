@@ -9,9 +9,9 @@ import { DeviceSearch, Status, useRelease } from '@/components/reviewer-shared';
 import { getVendorCoverage } from '@/lib/predicate-data';
 import { VendorSearch } from '@/components/vendor-search';
 import { ProductResult } from '@/components/product-result';
-import { fallbackVendorCoverage } from '@/lib/vendor-coverage';
+import type { VendorCoverage } from '@/lib/vendor-coverage';
 import type { View } from '@/lib/signals';
-import { StoryReveal } from '@/components/story-shared';
+import { DockedSearch, ModeTabs } from '@/components/benchmark-navigation';
 const VendorWorkspace = lazy(() => import('@/components/vendor-workspace').then(m => ({default: m.VendorWorkspace})));
 export const Route = createFileRoute('/')({
   validateSearch: zodValidator(z.object({k: fallback(z.string(), '').optional(), v: fallback(z.string(), '').optional(), compare: fallback(z.string(), '').optional(), own: fallback(z.string(), '').optional(), mode: fallback(z.string(), '').optional(), view: fallback(z.string(), '').optional()})),
@@ -25,19 +25,21 @@ function DeviceBrief() {
   const selected = !!k || !!v;
   const navigate = useNavigate();
   const { meta } = useRelease();
-  const [coverage, setCoverage] = useState(fallbackVendorCoverage);
+  const [example, setExample] = useState('');
+  const [coverage, setCoverage] = useState<VendorCoverage | null>(null);
   useEffect(() => { let active = true; getVendorCoverage().then(data => { if (active) setCoverage(data); }).catch(() => {}); return () => { active = false; }; }, []);
   const setView = (next: View) => void navigate({ to: '/', search: prev => ({ ...prev, view: next === 'analyst' ? 'analyst' : undefined }), replace: true, resetScroll: false });
+  const changeMode = (vendor: boolean) => void navigate({ to: '/', search: vendor ? { mode: 'vendor' } : {} });
+  const search = vendorMode ? <VendorSearch key={v ?? 'vendor'} initialValue={v ?? example} onSelect={row => void navigate({to:'/',search:{v:row.vendor_id, view: view === 'analyst' ? 'analyst' : undefined}, viewTransition: !window.matchMedia('(prefers-reduced-motion: reduce)').matches})} /> : <DeviceSearch resetKey={k ?? ''} onSelect={row => void navigate({ to: '/', search: { k: row.knumber, view: view === 'analyst' ? 'analyst' : undefined }, viewTransition: !window.matchMedia('(prefers-reduced-motion: reduce)').matches })} />;
   return <>
-    <section className={`identify-step ${selected ? 'result-search' : 'home-hero'}`}>
-      {!selected && <><h1>Every implant decision, on the same page.</h1><p>Free benchmarks for orthopedic devices and vendors, built from public FDA and CMS data.</p></>}
-      <div className="mode-tabs" role="tablist" aria-label="Benchmark mode"><Button role="tab" aria-selected={!vendorMode} variant="ghost" onClick={() => void navigate({to:'/',search:{}})}>Product</Button><Button role="tab" aria-selected={vendorMode} variant="ghost" onClick={() => void navigate({to:'/',search:{mode:'vendor'}})}>Vendor</Button></div>
-      {vendorMode ? <VendorSearch key={v ?? 'vendor'} onSelect={row => void navigate({to:'/',search:{v:row.vendor_id, view: view === 'analyst' ? 'analyst' : undefined}})} /> : <DeviceSearch resetKey={k ?? ''} onSelect={row => void navigate({ to: '/', search: { k: row.knumber, view: view === 'analyst' ? 'analyst' : undefined } })} />}
-      <p className="coverage-line">{vendorMode ? <>Search by orthopedic vendor company name. Covers {coverage.count.toLocaleString('en-US')} orthopedic vendors with 510(k) clearances from {coverage.first} to {coverage.last}.</> : <>Search by 510(k) number, product name or company. Covers {meta.starting_set_clearances ? Number(meta.starting_set_clearances).toLocaleString('en-US') : '—'} orthopedic 510(k) clearances from 1976 to 2026.</>}</p>
-    </section>
-    {selected ? vendorMode ? <ClientOnly><Suspense fallback={<Status busy />}><VendorWorkspace v={v} compare={compare} view={view} onView={setView} mode={own === 'current' ? 'current' : 'pit'} meta={meta} onOwnership={m => void navigate({to:'/',search: prev => ({...prev,own:m === 'current' ? 'current' : undefined}), resetScroll: false})} onCompare={value => void navigate({to:'/',search:prev => ({...prev,compare:value}), resetScroll: false})} /></Suspense></ClientOnly> : <ProductResult key={k} k={k ?? ''} view={view} meta={meta} onView={setView} /> : <div className="home-story">
-      {[['Is it new?', 'See what FDA cleared it against, and how far back the line goes.'],['What else does this job?', 'Every company with a cleared device in the same category.'],['What should we ask?', 'Plain-English questions drawn from FDA and CMS records, ready for your committee.']].map(([title,text])=><section className="home-beat" key={title}><StoryReveal><h2>{title}</h2><p>{text}</p></StoryReveal></section>)}
-      <section className="home-beat"><StoryReveal><h2>Built on public data. Clear about its limits.</h2><p>Public FDA and CMS records provide the benchmarks. Their sources and limitations stay with the evidence.</p><Button variant="link" onClick={()=>document.querySelector<HTMLButtonElement>('.benchmark-footer button')?.click()}>About and limitations ›</Button></StoryReveal></section>
-    </div>}
+    {selected ? <DockedSearch>{search}</DockedSearch> : <section className="identify-step home-hero">
+      <ModeTabs vendor={vendorMode} onChange={changeMode} />
+      <h1>{vendorMode ? 'Identify an orthopedic vendor to benchmark' : 'Identify an orthopedic device to benchmark'}</h1>
+      <p>{vendorMode ? 'Search by vendor name and get a vendor brief: seven questions, the evidence, and what to ask.' : 'Search by 510(k) number, product name or company and get a decision brief: six questions, the evidence, and what to ask the vendor.'}</p>
+      {search}
+      <div className="try-examples"><span>Try:</span><Button variant="secondary" size="sm" onClick={() => void navigate({to:'/',search:{k:'K140881'}})}>ATTUNE knee (K140881)</Button><Button variant="secondary" size="sm" onClick={() => void navigate({to:'/',search:{k:'K203153'}})}>CREO spine system (K203153)</Button><Button variant="secondary" size="sm" onClick={() => { setExample('Globus Medical'); void navigate({to:'/',search:{mode:'vendor'}}); }}>Globus Medical</Button></div>
+      <div className="home-about-tiles"><div><strong>{meta.starting_set_clearances ? Number(meta.starting_set_clearances).toLocaleString('en-US') : '—'}</strong><p>orthopedic 510(k) clearances, from {coverage?.first ?? '—'} to {coverage?.last ?? '—'}</p></div><div><strong>{coverage?.count.toLocaleString('en-US') ?? '—'}</strong><p>orthopedic vendors with 510(k) clearances</p></div><div><strong>4</strong><p>public sources: FDA 510(k) summaries, FDA GUDID, FDA recalls and CMS Open Payments</p></div></div>
+    </section>}
+    {selected ? vendorMode ? <ClientOnly><Suspense fallback={<Status busy />}><VendorWorkspace v={v} compare={compare} view={view} onView={setView} mode={own === 'current' ? 'current' : 'pit'} meta={meta} onOwnership={m => void navigate({to:'/',search: prev => ({...prev,own:m === 'current' ? 'current' : undefined}), resetScroll: false})} onCompare={value => void navigate({to:'/',search:prev => ({...prev,compare:value}), resetScroll: false})} /></Suspense></ClientOnly> : <ProductResult key={k} k={k ?? ''} view={view} meta={meta} onView={setView} /> : null}
   </>;
 }

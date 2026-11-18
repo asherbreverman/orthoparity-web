@@ -1,5 +1,5 @@
 export type Tone = 'info' | 'attention';
-export interface DecisionCard { key: string; question: string; badge: string; tone: Tone | string; finding: string; why: string; ask: string; evidence: string }
+export interface DecisionCard { key: string; question: string; short?: string; figs?: { value: string | number; label: string }[]; badge: string; tone: Tone | string; finding: string; why: string; ask: string; evidence: string }
 export interface AlternativeRow { vendor_id: string; company: string; clearances: number; latest_knumber: string | null; latest_device: string | null; latest_date: string | null }
 export interface SignalHeader { device_name: string | null; company: string | null; owner: string | null; plain_name: string | null; fda_name: string | null; product_code: string | null; cleared: string | null; device_class: string | null; procedures: string | null; anatomy: string | null; kind: string | null; summary_url: string | null; pattern: string | null }
 export interface Signals { found: boolean; knumber: string; header: SignalHeader; bottom_line: string; cards: DecisionCard[]; alternatives: { window: string; companies: number; rows: AlternativeRow[] }; notes: string[] }
@@ -19,7 +19,7 @@ export function longDate(value: string | null | undefined) {
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   return `${months[Number(m[2]) - 1]} ${Number(m[3])}, ${m[1]}`;
 }
-export function evidenceIsOpen(view: View, opened: ReadonlySet<string>, id: string) { return (view === 'analyst' && id !== 'recalls') || opened.has(id); }
+export function evidenceIsOpen(view: View, opened: ReadonlySet<string>, id: string) { return view === 'analyst' || opened.has(id); }
 /** Brands that have GUDID devices but none currently in commercial distribution. */
 export function brandsOutOfDistribution(rows: { gudid_brand?: string | null; gudid_devices?: number; gudid_in_distribution?: number }[]) {
   const brands = new Map<string, { devices: number; inDistribution: number }>();

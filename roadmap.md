@@ -22,3 +22,8 @@
 - [x] Apply neutral system typography, spacious bands, pills, and reduced-motion-aware transitions.
 - [x] Rebuild home and result chapters, inline evidence, closing questions, and vendor comparison sheet.
 - [x] Verify live data, evidence, comparisons, print, desktop/mobile, and tests.
+
+# Reference-matched front end
+- [x] Rebuild home, docked search, cover, glance tiles, sticky rail, chapters and disclosures to the supplied references.
+- [x] Preserve live calls, all evidence, questions, exports, comparison, ownership and limitations.
+- [x] Verify live product/vendor flows, mobile, keyboard, theme preferences, motion and tests.

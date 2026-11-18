@@ -6,11 +6,11 @@ import { Button } from '@/components/ui/button';
 import { BriefLink, PdfLink, Status } from './reviewer-shared';
 import { Metrics, Studies } from './payment-shared';
 import { ProductRecallEvidence } from './recall-evidence';
-import { BottomLine, DecisionCards, EvidenceSection, Notes, PrintBrief, useEvidence } from './decision-shared';
+import { BottomLine, GlanceTiles, DecisionCards, EvidenceSection, Notes, PrintBrief, useEvidence } from './decision-shared';
 import { getBrief, getFamily, lookupChain, getProductPayments, getSignals } from '@/lib/predicate-data';
 import { withPaymentQuestions, money, dollars, type ProductPayments } from '@/lib/vendor-data';
 import { LocalBar, ExtraEvidence } from './story-shared';
-import { recallDate } from '@/lib/recalls';
+import { toast } from 'sonner';
 import { dateLabel, type Meta } from '@/lib/predicate-chain';
 import { filterPeers, lineageSentence, patternExplanation, unreviewedLow, questionGroups, questionsText, type Brief, type QuestionGroup } from '@/lib/reviewer-data';
 import { askLines, longDate, type Signals, type View } from '@/lib/signals';
@@ -46,6 +46,8 @@ export function ProductResult({ k, view, meta, onView }: { k: string; view: View
   }, [k]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (brief?.found) top.current?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' }); }, [brief]);
 
+  useEffect(() => { const title = signals?.header?.device_name ?? brief?.device?.device_name; if (title) window.dispatchEvent(new CustomEvent('benchmark-name', { detail: title })); }, [brief, signals]);
+
   if (!brief) return <Status error={error} busy={busy} />;
   const device = brief.device;
   if (!brief.found || !device) return <div className="notice">{k}: Not in this database (orthopedic clearances only)</div>;
@@ -66,7 +68,7 @@ export function ProductResult({ k, view, meta, onView }: { k: string; view: View
   const plain = h?.plain_name ?? brief.product_code?.plain_name ?? h?.fda_name ?? brief.product_code?.fda_name ?? 'Category unavailable';
   const code = h?.product_code ?? device.product_code ?? '—';
   async function copy(which: 'all' | 'selected' | 'asks') {
-    try { await navigator.clipboard.writeText(which === 'asks' ? asks.map((q, i) => `${i + 1}. ${q}`).join('\n') : questionsText(groups, which === 'selected' ? selected : undefined)); setCopied(which); } catch { setError('Copy was unavailable. Select the questions to copy them.'); }
+    try { await navigator.clipboard.writeText(which === 'asks' ? asks.map((q, i) => `${i + 1}. ${q}`).join('\n') : questionsText(groups, which === 'selected' ? selected : undefined)); setCopied(which); toast.success('Questions copied'); } catch { setError('Copy was unavailable. Select the questions to copy them.'); }
   }
   function tick(id: number, checked: boolean) { setSelected(prev => { const n = new Set(prev); if (checked) n.add(id); else n.delete(id); return n; }); setCopied(''); }
   async function workbook() {
@@ -74,7 +76,7 @@ export function ProductResult({ k, view, meta, onView }: { k: string; view: View
     try { const [chain, family] = await Promise.all([lookupChain([device.knumber], Number(meta.max_generations) || 10), getFamily(device.knumber)]); const { exportWorkbook } = await import('@/lib/predicate-export'); await exportWorkbook(chain, meta, device.device_name ?? device.knumber, family); }
     catch (e) { setError(e instanceof Error ? e.message : 'The download could not be created.'); } finally { setDownloading(false); }
   }
-  const qList = (items: QuestionGroup['items']) => <ol className="vendor-questions" start={(items[0]?.id ?? 0) + 1}>{items.map(item => <li key={item.id}><label><Checkbox checked={selected.has(item.id)} onCheckedChange={c => tick(item.id, c === true)} aria-label={`Select question ${item.id + 1}`} /><span>{item.question}</span></label></li>)}</ol>;
+  const qList = (items: QuestionGroup['items']) => <ol className="vendor-questions" start={(items[0]?.id ?? 0) + 1}>{items.map(item => <li className={`question-hue-${cards[item.id]?.key === 'recalls' ? 7 : item.id % 7 + 1}`} key={item.id}><label><Checkbox checked={selected.has(item.id)} onCheckedChange={c => tick(item.id, c === true)} aria-label={`Select question ${item.id + 1}`} /><span>{item.question}</span></label></li>)}</ol>;
   const category = brief.category;
   const evidenceSections = (
 <div className="evidence-list">
@@ -129,34 +131,32 @@ export function ProductResult({ k, view, meta, onView }: { k: string; view: View
     </div>
   );
   return <>
-    <LocalBar name={name} cards={cards} />
     <Status error={error} />
     <PrintBrief meta={meta} title={name} subtitle={`${h?.company ?? device.applicant ?? '—'} · ${plain} (${code}) · ${device.knumber} · cleared ${longDate(h?.cleared ?? device.decision_date)}`} bottomLine={s?.bottom_line ?? ''} cards={cards} table={{ caption: `Alternatives in this category · ${s?.alternatives.window ?? ''}`, head: ['Company', 'Clearances', 'Latest device', 'Latest 510(k)', 'Latest date'], rows: altRows.map(r => [r.company, r.clearances, r.latest_device ?? '—', r.latest_knumber ?? '—', longDate(r.latest_date)]) }} questions={asks} notes={s?.notes ?? []} />
     <section ref={top} className="result-header" aria-label="Device">
       <div className="result-heading">
-        <div><p className="hero-label">{h?.company ?? device.applicant ?? '—'} · {plain} · Cleared {recallDate(h?.cleared ?? device.decision_date)}</p><div className="eyebrow font-mono">{device.knumber}</div><h2 className="result-title">{name}</h2>
-          <p className="result-meta">{h?.company ?? device.applicant ?? '—'} · {plain} ({code}) · cleared {longDate(h?.cleared ?? device.decision_date)} · Class {h?.device_class ?? device.device_class ?? '—'}</p>
+        <div><h2 className="result-title">{name}</h2>
+          {brief.product_code?.plain_description && <p className="plain-description">{brief.product_code.plain_description}</p>}
+          <p className="result-meta">{device.knumber} · {h?.company ?? device.applicant ?? '—'} · {plain} ({code}) · Cleared {longDate(h?.cleared ?? device.decision_date)} · Class {h?.device_class ?? device.device_class ?? '—'}</p>
           {(h?.procedures ?? brief.product_code?.procedures) && <p className="result-meta">Procedures: {h?.procedures ?? brief.product_code?.procedures}</p>}
+          {brief.product_code?.reviewed === false && <span className="review-tag">Plain-English description drafted from FDA's definition, pending expert review</span>}
         </div>
-        <div className="result-actions"><div className="no-print result-buttons"><PdfLink url={h?.summary_url ?? device.summary_url} /><Button size="sm" onClick={() => window.print()}><Download />Download brief (PDF)</Button><Button size="sm" variant="outline" disabled={!asks.length} onClick={() => void copy('asks')}>{copied === 'asks' ? <Check /> : <Copy />}{copied === 'asks' ? 'Copied' : 'Copy questions'}</Button></div></div>
+        <div className="result-actions"><div className="no-print result-buttons"><Button onClick={() => window.print()}>Download brief</Button><PdfLink url={h?.summary_url ?? device.summary_url} /><Button variant="link" disabled={!asks.length} onClick={() => void copy('asks')}>Copy questions ›</Button></div></div>
       </div>
       {s && <BottomLine text={s.bottom_line} />}
-      {brief.product_code?.plain_description && <p className="plain-description">{brief.product_code.plain_description}</p>}
-      {brief.product_code?.reviewed === false && <span className="review-tag">Plain-English description drafted from FDA's definition, pending expert review</span>}
+      {s && <GlanceTiles cards={cards} />}
     </section>
+    <LocalBar name={name} cards={cards} view={view} onView={onView} />
     {!s && <Status busy={!signals && !error} error={signals && !signals.found ? 'Decision signals are unavailable for this clearance.' : undefined} />}
     {s && <DecisionCards cards={cards} onEvidence={ev.reveal} evidence={evidenceSections} />}
-    <section className="brief-section question-section"><div className="section-heading"><h2>Bring these questions to your committee</h2><div className="question-actions no-print"><Button size="sm" onClick={() => void copy('all')}>{copied === 'all' ? <Check /> : <Copy />}{copied === 'all' ? 'Copied all' : 'Copy questions'}</Button><Button variant="outline" size="sm" disabled={!selected.size} onClick={() => void copy('selected')}>{copied === 'selected' ? <Check /> : <Copy />}{copied === 'selected' ? 'Copied selected' : 'Copy selected'}</Button><Button onClick={() => window.print()}>Download brief (PDF)</Button></div></div>
+    <section id="all-questions" className="brief-section question-section"><div className="section-heading"><h2>Questions for the vendor</h2><div className="question-actions no-print"><Button size="sm" onClick={() => void copy('all')}>{copied === 'all' ? <Check /> : <Copy />}Copy all</Button>{selected.size > 0 && <Button variant="outline" size="sm" onClick={() => void copy('selected')}>{copied === 'selected' ? <Check /> : <Copy />}Copy selected</Button>}<Button onClick={() => window.print()}>Download brief</Button></div></div>
       {groups[0] && qList(groups[0].items)}
-      <Button variant="link" className="px-0" aria-expanded={checklist} onClick={() => setChecklist(!checklist)}><ChevronDown className={checklist ? 'rotate-180' : ''} />Show the full checklist › ({checklistCount})</Button>
-      {checklist && groups.slice(1).map((g, i) => <div className="question-group" key={i}><h3>{g.topic}</h3>{qList(g.items)}</div>)}
+      <EvidenceSection id="checklist" title="Full value analysis checklist" summary={`${checklistCount} questions`} open={checklist} onToggle={() => setChecklist(!checklist)}>{groups.slice(1).map((g, i) => <div className="question-group" key={i}><h3>{g.topic}</h3>{qList(g.items)}</div>)}</EvidenceSection>
       <p className="section-caption">Questions come from fixed rules on the public data. The checklist is a starting point for value analysis; adapt it to your committee.</p>
     </section>
 
     <ExtraEvidence sections={evidenceSections} cards={cards} />
     {s && <Notes notes={s.notes} />}
-    <section className="brief-actions no-print"><Button variant="outline" disabled={downloading} onClick={() => void workbook()}><FileSpreadsheet />Analyst workbook (Excel)</Button><Button variant="ghost" aria-expanded={workspace} onClick={() => setWorkspace(!workspace)}><ChevronDown className={workspace ? 'rotate-180' : ''} />{workspace ? 'Hide ancestry workspace' : 'Show ancestry workspace'}</Button></section>
-    <div className="analyst-entry"><Button variant="link" onClick={()=>onView(view==='analyst'?'brief':'analyst')}>{view==='analyst'?'Back to decision brief ‹':'See all the data ›'}</Button></div>
-    {workspace && <ClientOnly><Suspense fallback={<Status busy />}><Evidence key={device.knumber} meta={meta} selected={{ knumber: device.knumber, device_name: device.device_name ?? '', applicant: device.applicant ?? '', decision_date: device.decision_date }} /></Suspense></ClientOnly>}
+    <section id="ancestry" className="ancestry-section"><EvidenceSection id="ancestry" title="Ancestry" summary={device.knumber} open={workspace} onToggle={() => setWorkspace(!workspace)}><div className="brief-actions no-print"><Button variant="outline" disabled={downloading} onClick={() => void workbook()}><FileSpreadsheet />Analyst workbook (Excel)</Button></div><ClientOnly><Suspense fallback={<Status busy />}><Evidence key={device.knumber} meta={meta} selected={{ knumber: device.knumber, device_name: device.device_name ?? '', applicant: device.applicant ?? '', decision_date: device.decision_date }} /></Suspense></ClientOnly></EvidenceSection></section>
   </>;
 }
