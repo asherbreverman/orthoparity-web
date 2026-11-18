@@ -355,6 +355,7 @@ export type Database = {
           amount: number | null
           ct_gov_id: string | null
           knumbers: string | null
+          ortho: boolean | null
           payments: number | null
           preclinical: boolean | null
           study_name: string | null
@@ -367,6 +368,7 @@ export type Database = {
           amount?: number | null
           ct_gov_id?: string | null
           knumbers?: string | null
+          ortho?: boolean | null
           payments?: number | null
           preclinical?: boolean | null
           study_name?: string | null
@@ -379,6 +381,7 @@ export type Database = {
           amount?: number | null
           ct_gov_id?: string | null
           knumbers?: string | null
+          ortho?: boolean | null
           payments?: number | null
           preclinical?: boolean | null
           study_name?: string | null
@@ -715,9 +718,23 @@ export type Database = {
       pc_batch: { Args: { ks: string[] }; Returns: Json }
       pc_brand_family: { Args: { k: string }; Returns: Json }
       pc_brief: { Args: { k: string }; Returns: Json }
+      pc_card: {
+        Args: {
+          ask: string
+          badge: string
+          evidence?: string
+          finding: string
+          key: string
+          question: string
+          tone: string
+          why: string
+        }
+        Returns: Json
+      }
       pc_category: { Args: { code: string }; Returns: Json }
       pc_clean_blanks: { Args: never; Returns: string }
       pc_compare: { Args: { a: string; b: string }; Returns: Json }
+      pc_data_end: { Args: never; Returns: string }
       pc_direct: {
         Args: { k: string }
         Returns: {
@@ -738,12 +755,14 @@ export type Database = {
       }
       pc_lookup: { Args: { max_gen?: number; roots: string[] }; Returns: Json }
       pc_mode: { Args: { m: string }; Returns: string }
+      pc_money: { Args: { x: number }; Returns: string }
       pc_peers: { Args: { k: string; lim?: number }; Returns: Json }
       pc_primary_lineage: {
         Args: { k: string; max_gen?: number }
         Returns: Json
       }
       pc_product_payments: { Args: { k: string }; Returns: Json }
+      pc_refresh_research_scope: { Args: never; Returns: string }
       pc_search: {
         Args: { lim?: number; q: string }
         Returns: {
@@ -756,6 +775,7 @@ export type Database = {
           segment: string
         }[]
       }
+      pc_signals: { Args: { k: string }; Returns: Json }
       pc_vendor_brief: { Args: { m?: string; v: string }; Returns: Json }
       pc_vendor_compare: {
         Args: { a: string; b: string; m?: string }
@@ -783,6 +803,7 @@ export type Database = {
         Returns: Json
       }
       pc_vendor_search: { Args: { lim?: number; q: string }; Returns: Json }
+      pc_vendor_signals: { Args: { m?: string; v: string }; Returns: Json }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
     }
