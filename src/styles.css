@@ -1109,6 +1109,7 @@
 @media (max-width: 1023px) { .decision-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 640px) {
   .decision-grid { grid-template-columns: minmax(0, 1fr); }
+  .payment-chart .recharts-tooltip-wrapper, .footprint-chart .recharts-tooltip-wrapper { left: 0 !important; transform: translate(0, 0) !important; }
   .result-actions { align-items: flex-start; }
   .evidence-toggle { grid-template-columns: auto minmax(0, 1fr); }
   .evidence-summary { grid-column: 2; }
