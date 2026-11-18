@@ -50,3 +50,4 @@ use the editor.
 - When a deployed signal RPC omits recalls, append the existing recall-card RPC result verbatim only if missing; this supports older deployments without inventing wording or duplicating cards.
 - Compose reference chapters, glance tiles and rails from signal card short/figs fields and shared evidence elements; this preserves source wording, lazy reads and print payloads.
 - Dock one shared keyboard-search control into the root header through a client portal and keep mode/view selection in the existing URL; this preserves a single search field and SSR-safe navigation.
+- Derive sitemap paths from explicit route staticData.sitemap decisions and share the public origin with page metadata; this keeps discoverable URLs aligned without research queries.

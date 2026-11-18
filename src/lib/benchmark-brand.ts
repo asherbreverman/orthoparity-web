@@ -9,4 +9,4 @@ export const logoDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponen
 export const faviconSvg = svgWith(`<rect width="64" height="64" rx="14" fill="#0A0A0A"/><g transform="translate(32 32) scale(0.78) translate(-32 -32)">${logoContents.replace(/currentColor/g, '#FFFFFF')}</g>`);
 export const benchmarkTitle = 'OrthoParity: orthopedic device and vendor benchmarks';
 export const benchmarkDescription = 'OrthoParity offers free, open-source orthopedic device and vendor benchmarks, built from public FDA and CMS data.';
-export const benchmarkOrigin = 'https://open-ortho-benchmark.lovable.app';
+export const benchmarkOrigin = 'https://www.orthoparity.com';

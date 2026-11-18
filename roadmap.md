@@ -27,3 +27,7 @@
 - [x] Rebuild home, docked search, cover, glance tiles, sticky rail, chapters and disclosures to the supplied references.
 - [x] Preserve live calls, all evidence, questions, exports, comparison, ownership and limitations.
 - [x] Verify live product/vendor flows, mobile, keyboard, theme preferences, motion and tests.
+
+# Public site URLs
+- [x] Use the www origin for canonical and social URLs and absolute site links.
+- [x] Add the missing sitemap with the www origin and verify metadata and sitemap output.
