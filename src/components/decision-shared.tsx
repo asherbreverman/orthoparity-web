@@ -47,7 +47,7 @@ export function cardHue(card: DecisionCard, index: number) { return `question-hu
 export function GlanceTiles({ cards }: { cards: DecisionCard[] }) {
   return <section className="result-glance" aria-label="Questions at a glance"><p className="glance-caption">{cards.length} questions, each with its evidence and a question for the vendor. Select one to go to it.</p><div className={`glance-tiles glance-count-${cards.length}`}>{cards.map((c, i) => <Button asChild variant="ghost" key={c.key} className={`glance-tile ${cardHue(c, i)}`}><a href={`#chapter-${c.key}`}><span className="glance-label">{c.tone === 'attention' && <i className="warning-dot" />}{c.short ?? c.question}</span><strong>{c.badge}</strong></a></Button>)}</div></section>;
 }
-export function DecisionCards({ cards, onEvidence, evidence }: { cards: DecisionCard[]; onEvidence: (id: string, keyboard?: boolean) => void; evidence?: ReactNode }) {
+export function DecisionCards({ cards, evidence }: { cards: DecisionCard[]; onEvidence: (id: string, keyboard?: boolean) => void; evidence?: ReactNode }) {
   const sections=evidenceItems(evidence);
   return <section className="decision-grid story-chapters" aria-label="Decision cards">{cards.map((c,index) => <article id={`chapter-${c.key}`} className={`decision-card story-chapter ${cardHue(c,index)}`} key={c.key}><StoryReveal className="chapter-grid">
     <div className="chapter-sidebar"><h2 className="chapter-headline">{c.question}</h2><span className={`decision-badge ${toneClass(c.tone)}`}>{c.badge}</span></div>
