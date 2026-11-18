@@ -17,3 +17,8 @@
 - [x] Add read-only recall data, shared event tables, and on-demand product/vendor evidence.
 - [x] Include provided recall cards in print and add the recall limitation.
 - [x] Verify live recall evidence, ownership changes, links, print, and tests.
+
+# Story-led presentation
+- [x] Apply neutral system typography, spacious bands, pills, and reduced-motion-aware transitions.
+- [x] Rebuild home and result chapters, inline evidence, closing questions, and vendor comparison sheet.
+- [x] Verify live data, evidence, comparisons, print, desktop/mobile, and tests.

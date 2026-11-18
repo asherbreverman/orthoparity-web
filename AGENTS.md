@@ -48,3 +48,4 @@ use the editor.
 - Keep interaction motion in shared CSS, suppress movement for reduced motion and keyboard actions, and leave evidence contents lazy; this preserves fast, accessible controls without extra evidence requests.
 - Load recall history only inside opened evidence sections through the read-only adapter, with ownership-dependent vendor reads and a lazy chart; this keeps default briefs free of recall requests.
 - When a deployed signal RPC omits recalls, append the existing recall-card RPC result verbatim only if missing; this supports older deployments without inventing wording or duplicating cards.
+- Compose story chapters from existing evidence elements and shared presentation wrappers, keeping adapter calls and print payloads unchanged; this lets chapters reveal the same research in place without duplicated reads.

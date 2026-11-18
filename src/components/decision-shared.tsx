@@ -1,4 +1,5 @@
-import { useCallback, useState, type ReactNode } from 'react';
+import { isValidElement, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { StoryReveal, evidenceItems } from './story-shared';
 import { ChevronDown, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toneClass, evidenceIsOpen, type DecisionCard, type View } from '@/lib/signals';
@@ -41,22 +42,34 @@ function CopyAsk({ text }: { text: string }) {
   return <Button variant="ghost" size="icon" className="copy-ask" aria-label="Copy question" title="Copy question" onClick={async () => { try { await navigator.clipboard.writeText(text); setDone(true); } catch { /* clipboard unavailable */ } }}>{done ? <Check /> : <Copy />}</Button>;
 }
 
-export function DecisionCards({ cards, onEvidence }: { cards: DecisionCard[]; onEvidence: (id: string, keyboard?: boolean) => void }) {
-  return <section className="decision-grid" aria-label="Decision cards">{cards.map(c => <article className="decision-card" key={c.key}>
-    <div className="decision-top"><span className="decision-question">{c.question}</span><span className={`decision-badge ${toneClass(c.tone)}`}>{c.badge}</span></div>
+export function DecisionCards({ cards, onEvidence, evidence }: { cards: DecisionCard[]; onEvidence: (id: string, keyboard?: boolean) => void; evidence?: ReactNode }) {
+  const sections=evidenceItems(evidence);
+  return <section className="decision-grid story-chapters" aria-label="Decision cards">{cards.map((c,index) => <article id={`chapter-${c.key}`} className="decision-card story-chapter" key={c.key}><StoryReveal>
+    <div className="decision-top"><span className="decision-question">{c.question}</span><h2 className="chapter-headline">{c.badge.replace(/\.$/,'')}. {c.tone==='attention' && <span className={`decision-badge ${toneClass(c.tone)}`}>{c.badge}</span>}</h2></div>
     <p className="decision-finding">{c.finding}</p>
     <p className="decision-why"><span>Why it matters</span>{c.why}</p>
     <div className="decision-ask"><p><span>Ask</span>{c.ask}</p><CopyAsk text={c.ask} /></div>
-    {c.evidence && <Button variant="link" size="sm" className="see-evidence no-print" onClick={event => onEvidence(c.evidence, event.detail === 0)}>See evidence</Button>}
+    {c.evidence && <Button variant="link" size="sm" className="see-evidence no-print" onClick={event => onEvidence(c.evidence, event.detail === 0)}>See the evidence ›</Button>}
+    </StoryReveal>
+    {cards.findIndex(card=>card.evidence===c.evidence)===index && sections.find(node=>isValidElement<{id?:string}>(node)&&node.props.id===c.evidence)}
   </article>)}</section>;
 }
 
 export function EvidenceSection({ id, title, summary, open, onToggle, children }: { id: string; title: string; summary: ReactNode; open: boolean; onToggle: () => void; children: ReactNode }) {
+  const [present,setPresent]=useState(open);
+  const [height,setHeight]=useState<number | undefined>(open ? undefined : 0);
+  const content=useRef<HTMLDivElement>(null);
+  useEffect(()=>{const node=content.current;if(!node || !open)return;const observer=new ResizeObserver(()=>setHeight(current=>current===undefined?undefined:node.scrollHeight));observer.observe(node);return()=>observer.disconnect();},[open,present]);
+  useEffect(()=>{
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){setPresent(open);setHeight(open?undefined:0);return;}
+    if(open){setPresent(true);const frame=requestAnimationFrame(()=>setHeight(content.current?.scrollHeight ?? 0));const timer=setTimeout(()=>setHeight(undefined),400);return()=>{cancelAnimationFrame(frame);clearTimeout(timer);};}
+    setHeight(content.current?.scrollHeight ?? 0);const frame=requestAnimationFrame(()=>setHeight(0));const timer=setTimeout(()=>setPresent(false),window.matchMedia('(prefers-reduced-motion: reduce)').matches?0:400);return()=>{cancelAnimationFrame(frame);clearTimeout(timer);};
+  },[open]);
   return <section id={`evidence-${id}`} className={`evidence-section ${open ? 'is-open' : ''}`}>
     <Button id={`evidence-trigger-${id}`} variant="ghost" className="evidence-toggle" aria-expanded={open} aria-controls={`evidence-body-${id}`} onClick={onToggle}>
       <ChevronDown className="evidence-chevron" aria-hidden="true" /><span className="evidence-title">{title}</span><span className="evidence-summary">{summary}</span>
     </Button>
-    <div id={`evidence-body-${id}`} className="evidence-body" hidden={!open} aria-labelledby={`evidence-trigger-${id}`}>{open ? children : null}</div>
+    <div id={`evidence-body-${id}`} className="evidence-height" style={{height:height===undefined?'auto':height}} inert={!open} aria-hidden={!open} aria-labelledby={`evidence-trigger-${id}`}><div ref={content} className="evidence-body">{present ? children : null}</div></div>
   </section>;
 }
 
