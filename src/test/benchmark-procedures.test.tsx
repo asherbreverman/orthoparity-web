@@ -18,15 +18,15 @@ describe('Lazy benchmark procedure reads', () => {
     await waitFor(() => expect(getDeviceProcedures).toHaveBeenCalledWith('K110694'));
     expect(getDeviceProcedures).toHaveBeenCalledTimes(1);
   });
-  it('reads the new ownership mode only when vendor evidence is open', async () => {
+  it('reads vendor procedures only when vendor evidence is open', async () => {
     const props = {id:'procedures', v:'globus', onToggle:vi.fn()};
-    const screen = render(<VendorProceduresSection {...props} mode="pit" open={false} />);
+    const screen = render(<VendorProceduresSection {...props} mode="current" open={false} />);
     screen.rerender(<VendorProceduresSection {...props} mode="current" open={false} />);
     expect(getVendorProcedures).not.toHaveBeenCalled();
-    screen.rerender(<VendorProceduresSection {...props} mode="pit" open />);
-    await waitFor(() => expect(getVendorProcedures).toHaveBeenCalledWith('globus', 'pit'));
     screen.rerender(<VendorProceduresSection {...props} mode="current" open />);
     await waitFor(() => expect(getVendorProcedures).toHaveBeenCalledWith('globus', 'current'));
-    expect(getVendorProcedures).toHaveBeenCalledTimes(2);
+    screen.rerender(<VendorProceduresSection {...props} mode="current" open />);
+    await waitFor(() => expect(getVendorProcedures).toHaveBeenCalledWith('globus', 'current'));
+    expect(getVendorProcedures).toHaveBeenCalledTimes(1);
   });
 });

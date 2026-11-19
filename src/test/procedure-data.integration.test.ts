@@ -41,16 +41,9 @@ describe('Public procedure reads', () => {
     expect(data.procedures.some(p => p.family_id === 'thoracolumbar_fusion')).toBe(true);
     expect(data).not.toHaveProperty('payment');
   }, 30000);
-  it('keeps pit and current-owner vendor procedure caches separate', async () => {
-    const pit = getVendorProcedures('globus', 'pit');
-    const current = getVendorProcedures('globus', 'current');
-    expect(current).not.toBe(pit);
-    expect(getVendorProcedures('globus', 'pit')).toBe(pit);
-    const [a, b] = await Promise.all([pit, current]);
-    expect(a.mode).toBe('pit');
-    expect(b.mode).toBe('current');
-    expect(a.procedures_total).toBe(8);
-    expect(b.procedures.find(p => p.family_id === 'thoracolumbar_fusion')?.clearances_recent).toBeGreaterThan(a.procedures.find(p => p.family_id === 'thoracolumbar_fusion')?.clearances_recent ?? 0);
+  it('reads parent-company vendor procedures', async () => {
+    const b = await getVendorProcedures('globus', 'current');
+    expect(b.procedures.some(p => p.family_id === 'thoracolumbar_fusion')).toBe(true);
     expect(b).not.toHaveProperty('payment');
   }, 30000);
 });

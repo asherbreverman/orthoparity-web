@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Brief, Comparison, BatchRow, ProductCode } from "./reviewer-data";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Vendor, VendorBrief, VendorComparison, PortfolioRow, ProductPayments, OwnershipMode } from './vendor-data';
+import type { Vendor, VendorResolve, VendorBrief, VendorComparison, PortfolioRow, ProductPayments, OwnershipMode } from './vendor-data';
 import type { DecisionCard, Signals, VendorSignals } from './signals';
 import type { DeviceRecalls, VendorRecalls } from './recalls';
 import type { ProcedureList, ProcedureDetail, DeviceProcedures, VendorProcedures } from './procedure-data';
@@ -165,6 +165,15 @@ export function lookupChain(roots: string[], max_gen: number) {
 }
 
 export const searchVendors = resilient(searchVendorsRaw);
+const resolveRead = resilient(async (v: string): Promise<VendorResolve> => {
+  const {data, error} = await researchClient.rpc('pc_vendor_resolve', {v}); if (error) throw error; return data as VendorResolve;
+});
+const resolves = new Map<string, Promise<VendorResolve>>();
+export function resolveVendor(v: string) {
+  let p = resolves.get(v);
+  if (!p) { p = resolveRead(v); resolves.set(v, p); p.catch(() => resolves.delete(v)); }
+  return p;
+}
 export const getVendorBrief = resilient(getVendorBriefRaw);
 export const getVendorPortfolio = resilient(getVendorPortfolioRaw);
 export const getVendorComparison = resilient(getVendorComparisonRaw);

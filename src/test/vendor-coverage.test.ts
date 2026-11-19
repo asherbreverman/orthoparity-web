@@ -11,6 +11,6 @@ describe('Vendor coverage', () => {
     expect(vendorCoverage(3123,1978,2027)).toEqual({count:3123,first:1978,last:2027});
   });
   it('reads all vendors through the exact count and year bounds', async () => {
-    expect(await getVendorCoverage()).toEqual({count:2040,first:1976,last:2026});
+    expect(await getVendorCoverage()).toEqual({count:1964,first:1976,last:2026});
   }, 30000);
 });

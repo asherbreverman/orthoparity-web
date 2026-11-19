@@ -54,3 +54,4 @@ use the editor.
 - Keep procedure reads in the read-only adapter (pc_procedure_list, pc_procedure, pc_device_procedures, pc_vendor_procedures); worksheet inputs stay in component state and are never stored or sent.
 - Keep procedure pages as un-nested leaf routes with shared evidence and worksheet components; this preserves the existing root shell and isolates private worksheet inputs from route data.
 - Load benchmark procedure links only when their evidence section opens, cache by subject and ownership mode, and keep them out of cards and exports; this preserves lazy research and existing briefs.
+- Benchmark a vendor always shows the parent company: resolve v with pc_vendor_resolve, redirect with from=, and call vendor RPCs with m='current'.
