@@ -1,26 +1,9 @@
-# OrthoParity
+# OrthoParity website
 
-Implement exactly the screenshot and nothing else
+The website behind https://www.orthoparity.com: free, open-source orthopedic implant and vendor benchmarks from public FDA and CMS data.
 
-This project was built with [Lovable](https://lovable.dev).
+This repository is the front end, built with Lovable. The data pipeline, database setup, methodology and limitations live in https://github.com/asherbreverman/orthoparity-data.
 
-**Live app**: https://orthoparity.lovable.app
+OrthoParity is an independent research tool built from public FDA and CMS data, provided as is. It is not affiliated with FDA or CMS, and it is not regulatory, legal or compliance advice.
 
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/0bb1b227-1a9f-45cd-8e25-8a159ae141fd).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
-```
+Copyright (c) 2026 Asher Breverman. MIT License (see LICENSE).
