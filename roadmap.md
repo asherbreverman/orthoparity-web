@@ -55,3 +55,7 @@
 - [x] Switch cached home coverage to the parent-company coverage RPC.
 - [x] Honor supply and DRG spread notes, empty evidence sections and zero category counts.
 - [x] Add focused tests and verify live pages without changing the design.
+
+# Data-driven update audit
+- [x] Verify named home, procedure, product and vendor flows against live data.
+- [x] Check phone light/dark, keyboard use and em dashes; run the full tests and report limits.
