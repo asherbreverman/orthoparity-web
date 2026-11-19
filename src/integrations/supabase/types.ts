@@ -917,6 +917,36 @@ export type Database = {
         }
         Relationships: []
       }
+      pc_vendor_divestitures: {
+        Row: {
+          buyer: string | null
+          decided_before: string | null
+          effective: string | null
+          note: string | null
+          product_codes: string | null
+          seller: string | null
+          source_url: string | null
+        }
+        Insert: {
+          buyer?: string | null
+          decided_before?: string | null
+          effective?: string | null
+          note?: string | null
+          product_codes?: string | null
+          seller?: string | null
+          source_url?: string | null
+        }
+        Update: {
+          buyer?: string | null
+          decided_before?: string | null
+          effective?: string | null
+          note?: string | null
+          product_codes?: string | null
+          seller?: string | null
+          source_url?: string | null
+        }
+        Relationships: []
+      }
       pc_vendor_lineage: {
         Row: {
           note: string | null
@@ -1050,6 +1080,7 @@ export type Database = {
       pc_code_vendors: { Args: { code: string; lim?: number }; Returns: Json }
       pc_compare: { Args: { a: string; b: string }; Returns: Json }
       pc_data_end: { Args: never; Returns: string }
+      pc_device_owner: { Args: { k: string }; Returns: Json }
       pc_device_procedures: { Args: { k: string }; Returns: Json }
       pc_device_recalls: { Args: { k: string }; Returns: Json }
       pc_direct: {
@@ -1138,6 +1169,7 @@ export type Database = {
           vendor_id: string
         }[]
       }
+      pc_vendor_parent: { Args: { v: string }; Returns: string }
       pc_vendor_portfolio: {
         Args: {
           lim?: number
@@ -1154,8 +1186,10 @@ export type Database = {
         Args: { lim?: number; m?: string; v: string }
         Returns: Json
       }
+      pc_vendor_resolve: { Args: { v: string }; Returns: Json }
       pc_vendor_search: { Args: { lim?: number; q: string }; Returns: Json }
       pc_vendor_signals: { Args: { m?: string; v: string }; Returns: Json }
+      pc_vendor_step: { Args: { v: string }; Returns: Json }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
     }
