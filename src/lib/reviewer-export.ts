@@ -10,11 +10,11 @@ export async function exportBriefPdf(brief: Brief, meta: Meta) {
   const device = brief.device;
   const width = 516;
   const sections: { title: string; text: string; size: number }[] = [
-    { title: 'AT A GLANCE', text: [brief.product_code?.plain_name ?? brief.product_code?.fda_name ?? device.product_code ?? 'FDA category', brief.product_code?.plain_description, `${device.knumber} | ${device.device_name ?? '—'}`, `${device.applicant ?? '—'} | Cleared ${dateLabel(device.decision_date)} | Class ${device.device_class ?? '—'}`, `Product code ${device.product_code ?? '—'} | Regulation ${device.regulation_number ?? '—'} | ${brief.pattern}`].filter(Boolean).join('\n'), size: 9 },
-    { title: 'FDA-CLEARED USE', text: brief.ifu?.found && brief.ifu.ifu_text ? `${brief.ifu.ifu_text.slice(0, 600)}${brief.ifu.ifu_text.length > 600 ? '…' : ''}\nFrom the 510(k) Indications for Use, page ${brief.ifu.page ?? '—'}` : 'Indications for Use not found in the summary. See the FDA PDF.', size: 8.5 },
-    { title: 'CLEARED AS EQUIVALENT TO — TOP 5', text: (brief.direct_predicates ?? []).slice(0, 5).map(p => `${p.predicate} | ${p.device_name ?? '—'} | ${p.applicant ?? '—'} | ${p.decision_year ?? '—'} | ${p.role === 'primary' ? 'Primary' : 'Additional'}`).join('\n') || 'No numbered predicates on file.', size: 8 },
+    { title: 'AT A GLANCE', text: [brief.product_code?.plain_name ?? brief.product_code?.fda_name ?? device.product_code ?? 'FDA category', brief.product_code?.plain_description, `${device.knumber} | ${device.device_name ?? 'NOT FOUND'}`, `${device.applicant ?? 'NOT FOUND'} | Cleared ${dateLabel(device.decision_date)} | Class ${device.device_class ?? 'NOT FOUND'}`, `Product code ${device.product_code ?? 'NOT FOUND'} | Regulation ${device.regulation_number ?? 'NOT FOUND'} | ${brief.pattern}`].filter(Boolean).join('\n'), size: 9 },
+    { title: 'FDA-CLEARED USE', text: brief.ifu?.found && brief.ifu.ifu_text ? `${brief.ifu.ifu_text.slice(0, 600)}${brief.ifu.ifu_text.length > 600 ? '…' : ''}\nFrom the 510(k) Indications for Use, page ${brief.ifu.page ?? 'NOT FOUND'}` : 'Indications for Use not found in the summary. See the FDA PDF.', size: 8.5 },
+    { title: 'CLEARED AS EQUIVALENT TO: TOP 5', text: (brief.direct_predicates ?? []).slice(0, 5).map(p => `${p.predicate} | ${p.device_name ?? 'NOT FOUND'} | ${p.applicant ?? 'NOT FOUND'} | ${p.decision_year ?? 'NOT FOUND'} | ${p.role === 'primary' ? 'Primary' : 'Additional'}`).join('\n') || 'No numbered predicates on file.', size: 8 },
     { title: 'TECHNOLOGY LINE', text: `${lineageSentence(brief.lineage)} ${brief.lineage.stopped_by_limit ? 'Generation limit reached.' : brief.lineage.ends_at?.stop ? `Record stops here: ${brief.lineage.ends_at.stop}.` : ''}`, size: 8.5 },
-    { title: 'PEERS & CATEGORY', text: `${brief.peers.total} peer clearances | ${brief.peers.other_companies} other companies\n${brief.category?.total ?? '—'} category clearances | ${brief.category?.last5_clearances ?? '—'} clearances and ${brief.category?.last5_companies ?? '—'} companies in the last five years`, size: 8.5 },
+    { title: 'PEERS & CATEGORY', text: `${brief.peers.total} peer clearances | ${brief.peers.other_companies} other companies\n${brief.category?.total ?? 'NOT FOUND'} category clearances | ${brief.category?.last5_clearances ?? 'NOT FOUND'} clearances and ${brief.category?.last5_companies ?? 'NOT FOUND'} companies in the last five years`, size: 8.5 },
   ];
   const layouts = sections.map(section => { doc.setFontSize(section.size); return { ...section, lines: doc.splitTextToSize(section.text, width) as string[] }; });
   const naturalHeight = layouts.reduce((sum, section) => sum + 26 + section.lines.length * section.size * 1.2, 0);
@@ -65,7 +65,7 @@ export async function exportBriefPdf(brief: Brief, meta: Meta) {
   }
   for (let page = 1; page <= doc.getNumberOfPages(); page++) {
     doc.setPage(page); doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
-    doc.text(`Data as of ${meta.exported_utc ?? '—'} | Parser ${meta.parser_version ?? '—'} | Page ${page}`, 48, 742);
+    doc.text(`Data as of ${meta.exported_utc ?? 'NOT FOUND'} | Parser ${meta.parser_version ?? 'NOT FOUND'} | Page ${page}`, 48, 742);
     doc.text('OrthoParity. Independent research from public FDA data. Not affiliated with FDA. Not regulatory advice.', 48, 755);
   }
   doc.save(`${filename(device.knumber, new Date().toISOString().slice(0, 10))}_Brief.pdf`);

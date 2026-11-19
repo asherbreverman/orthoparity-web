@@ -15,7 +15,7 @@ export function recallKnumbers(value: RecallEvent['knumbers']) { return [...new 
 export function recallDate(value: string | null) {
   const match = /^(\d{4})-(\d{2})/.exec(value ?? '');
   const month = match ? ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][Number(match[2])-1] : undefined;
-  return match && month ? `${month} ${match[1]}` : '—';
+  return match && month ? `${month} ${match[1]}` : 'NOT FOUND';
 }
 export function recentRecallEvents(events: RecallEvent[]) { return [...events].sort((a,b) => (b.initiated ?? '').localeCompare(a.initiated ?? '')); }
 export function recallYears(rows: VendorRecalls['by_year'], endYear: number) { const values = new Map(rows.map(r => [r.year,r.events])); return Array.from({length: Math.max(0,endYear-2002+1)}, (_,i) => ({year: 2002+i, events: values.get(2002+i) ?? 0})); }

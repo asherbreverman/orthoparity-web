@@ -35,13 +35,13 @@ function DeviceCard({ data }: NodeProps<CardNode>) {
       <Handle type="target" position={Position.Top} />
       <div className="node-first">
         <span>{n.knumber}</span>
-        <span>{n.decision_date?.slice(0, 4) ?? "—"}</span>
+        <span>{n.decision_date?.slice(0, 4) ?? "NOT FOUND"}</span>
       </div>
       <div className="node-line" title={n.applicant ?? undefined}>
-        {n.applicant ?? '—'}
+        {n.applicant ?? 'NOT FOUND'}
       </div>
       <div className="node-line" title={n.device_name ?? undefined}>
-        {(n.device_name?.length ?? 0) > 30 ? `${n.device_name?.slice(0, 30)}…` : n.device_name ?? '—'}
+        {(n.device_name?.length ?? 0) > 30 ? `${n.device_name?.slice(0, 30)}…` : n.device_name ?? 'NOT FOUND'}
       </div>
       {n.stop && (
         <div className="node-stop" title={n.stop}>

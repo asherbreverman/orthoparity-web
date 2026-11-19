@@ -124,7 +124,7 @@ export function cacheKey(roots: string[], max: number) {
   return `${[...new Set(roots)].sort().join(",")}:${max}`;
 }
 export function dateLabel(value: string | null | undefined) {
-  if (!value) return "—";
+  if (!value) return "NOT FOUND";
   const date = new Date(value);
   return Number.isNaN(date.getTime())
     ? value

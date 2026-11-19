@@ -239,7 +239,7 @@ export function PredicateEvidence({ selected, meta }: { selected: SearchResult; 
                   <m.icon size={14} />
                 </div>
                 <div className="metric-value">
-                  {loading ? <div className="skeleton h-7 w-14" /> : (m.value ?? "—")}
+                  {loading ? <div className="skeleton h-7 w-14" /> : (m.value ?? "NOT FOUND")}
                 </div>
               </div>
             ))}

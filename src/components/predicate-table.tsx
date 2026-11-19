@@ -84,7 +84,7 @@ export function PredicateTable({
             {visible.map((row, index) => (
               <tr key={index}>
                 {columns.map((c) => {
-                  const full = String(row[c.key] ?? "—");
+                  const full = String(row[c.key] ?? "NOT FOUND");
                   const text = c.max && full.length > c.max ? `${full.slice(0, c.max)}…` : full;
                   const url =
                     typeof row["summary_url"] === "string" && /^https:\/\//.test(row["summary_url"])

@@ -15,7 +15,7 @@ export function askLines(cards: DecisionCard[]) { return cards.map(c => c.ask).f
 export function numberedText(lines: string[]) { return lines.map((q, i) => `${i + 1}. ${q}`).join('\n'); }
 export function longDate(value: string | null | undefined) {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(value ?? '');
-  if (!m) return '—';
+  if (!m) return 'NOT FOUND';
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   return `${months[Number(m[2]) - 1]} ${Number(m[3])}, ${m[1]}`;
 }
