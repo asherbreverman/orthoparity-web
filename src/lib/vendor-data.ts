@@ -1,5 +1,6 @@
 export type OwnershipMode = 'pit' | 'current';
 export interface Vendor { vendor_id: string; display_name: string; current_parent?: string | null; segment?: string | null; clearances: number; matched_name?: string | null; payments_2025?: number | null; via_vendor_id?: string | null; via_name?: string | null }
+export interface DeviceOwner { found: boolean; knumber: string; filer: string | null; filer_vendor_id: string | null; owner_vendor_id: string | null; owner_name: string | null; now_part_of: boolean; divested: boolean; explanation: string | null; source_url: string | null }
 export interface VendorResolveStep { vendor_id: string; name: string; parent: string; parent_name: string; relation: string; date: string | null; source_url: string | null }
 export interface VendorResolve { found: boolean; requested: string; requested_name: string | null; vendor_id: string | null; name: string | null; redirected: boolean; event: string | null; explanation: string | null; steps: VendorResolveStep[] }
 /** Source links for a redirect note: one plain "Source" or numbered when several. */

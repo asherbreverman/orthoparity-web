@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Brief, Comparison, BatchRow, ProductCode } from "./reviewer-data";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Vendor, VendorResolve, VendorBrief, VendorComparison, PortfolioRow, ProductPayments, OwnershipMode } from './vendor-data';
+import type { Vendor, VendorResolve, DeviceOwner, VendorBrief, VendorComparison, PortfolioRow, ProductPayments, OwnershipMode } from './vendor-data';
 import type { DecisionCard, Signals, VendorSignals } from './signals';
 import type { DeviceRecalls, VendorRecalls } from './recalls';
 import type { ProcedureList, ProcedureDetail, DeviceProcedures, VendorProcedures } from './procedure-data';
@@ -168,6 +168,15 @@ export const searchVendors = resilient(searchVendorsRaw);
 const resolveRead = resilient(async (v: string): Promise<VendorResolve> => {
   const {data, error} = await researchClient.rpc('pc_vendor_resolve', {v}); if (error) throw error; return data as VendorResolve;
 });
+const ownerRead = resilient(async (k: string): Promise<DeviceOwner> => {
+  const {data, error} = await researchClient.rpc('pc_device_owner', {k}); if (error) throw error; return data as DeviceOwner;
+});
+const owners = new Map<string, Promise<DeviceOwner>>();
+export function getDeviceOwner(k: string) {
+  let p = owners.get(k);
+  if (!p) { p = ownerRead(k); owners.set(k, p); p.catch(() => owners.delete(k)); }
+  return p;
+}
 const resolves = new Map<string, Promise<VendorResolve>>();
 export function resolveVendor(v: string) {
   let p = resolves.get(v);
