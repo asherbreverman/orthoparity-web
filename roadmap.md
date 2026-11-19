@@ -46,3 +46,7 @@
 - [x] Check requested pages, suppressed DRG, benchmark links and ownership-dependent lazy reads.
 - [x] Check worksheet privacy, printing, keyboard use and phone light/dark layouts.
 - [x] Scan wording, extend focused math/format tests and run the existing suite; report any limits.
+
+# Procedure small fixes
+- [x] Hide empty role groups, blank untouched worksheet results and label other supplies.
+- [x] Isolate vendor highlights with hl links and verify the four changes without redesign.

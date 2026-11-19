@@ -1,7 +1,23 @@
 import {describe, expect, it} from 'vitest';
-import {flagshipFirst, procedureDollars, sharePosition, worksheetTotals, procedureVendorName, type ProcedureSummary} from '@/lib/procedure-data';
+import {flagshipFirst, procedureDollars, sharePosition, worksheetTotals, worksheetHasNumbers, procedureRoleGroups, procedureVendorName, type ProcedureDevice, type ProcedureSummary} from '@/lib/procedure-data';
 
 describe('Procedure worksheet rules', () => {
+  it('keeps results empty before any number, even when an item name is entered', () => {
+    expect(worksheetHasNumbers([{item:'Cage', units:'', price:''}], '')).toBe(false);
+  });
+  it('treats an explicitly entered zero as a number', () => {
+    expect(worksheetHasNumbers([{item:'', units:'0', price:''}], '')).toBe(true);
+    expect(worksheetHasNumbers([], '0')).toBe(true);
+  });
+  it('returns to empty results when all numbers are cleared', () => {
+    expect(worksheetHasNumbers([{item:'', units:'', price:'250'}], '')).toBe(true);
+    expect(worksheetHasNumbers([{item:'', units:'', price:''}], '')).toBe(false);
+  });
+  it('includes only device roles with categories, in the existing order', () => {
+    const devices = [{role:'implant'}, {role:'enabling technology'}] as ProcedureDevice[];
+    expect(procedureRoleGroups(devices)).toEqual(['Implant','Enabling technology']);
+    expect(procedureRoleGroups([])).toEqual([]);
+  });
   it('adds units times price for the construct', () => {
     expect(worksheetTotals([{item:'Screw', units:'4', price:'250'}, {item:'Cage', units:'1', price:'2000'}], '', 10000, 12000).construct).toBe(3000);
   });

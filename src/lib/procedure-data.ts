@@ -26,6 +26,12 @@ export function procedureNumber(value: ProcedureValue | undefined): string { ret
 export function procedureDollars(value: ProcedureValue | undefined): string { return typeof value === 'number' ? value.toLocaleString('en-US', {style: 'currency', currency: 'USD', maximumFractionDigits: 0}) : value ?? 'NOT FOUND'; }
 export function flagshipFirst(rows: ProcedureSummary[]) { return [...rows.filter(r => r.flagship), ...rows.filter(r => !r.flagship)]; }
 export interface WorksheetRow {item: string; units: string; price: string}
+export function worksheetHasNumbers(rows: WorksheetRow[], other: string) {
+  return [...rows.flatMap(row => [row.units, row.price]), other].some(value => value.trim() !== '' && Number.isFinite(Number(value)));
+}
+export function procedureRoleGroups(devices: ProcedureDevice[]) {
+  return ['Implant', 'Biologic', 'Cement and accessories', 'Enabling technology'].filter(role => devices.some(device => device.role.toLowerCase() === role.toLowerCase()));
+}
 const inputNumber = (value: string) => {const n = Number(value); return Number.isFinite(n) && n > 0 ? n : 0;};
 export function worksheetTotals(rows: WorksheetRow[], other: string, medicare: ProcedureValue, total: ProcedureValue) {
   const construct = rows.reduce((sum, row) => sum + inputNumber(row.units) * inputNumber(row.price), 0);
