@@ -18,7 +18,20 @@ describe('Public procedure reads', () => {
     expect(result.devices.find(d => d.product_code === 'JWH')?.vendors.some(v => v.vendor_id === 'stryker')).toBe(true);
   }, 30000);
   it('preserves the not-found response', async () => {
-    expect((await getProcedure('not_a_procedure')).found).toBe(false);
+    expect((await getProcedure('not_a_family')).found).toBe(false);
+  }, 30000);
+  it('preserves the CMS suppression note and missing figures for DRG 461', async () => {
+    const result = await getProcedure('hip_knee_replacement');
+    expect(result.drgs.find(row => row.drg === '461')).toMatchObject({
+      note:'Every hospital row suppressed by CMS (fewer than 11 discharges)',
+      medicare_pays:null, patient_other_pays:null, total_payment:null,
+    });
+  }, 30000);
+  it('links K241487 to spinal fusion as an implant without Medicare payments', async () => {
+    const result = await getDeviceProcedures('K241487');
+    expect(result.procedures.find(row => row.family_id === 'thoracolumbar_fusion')).toMatchObject({name:'Lumbar and thoracolumbar spinal fusion', role:'implant'});
+    expect(result).not.toHaveProperty('payment');
+    expect(result).not.toHaveProperty('medicare_pays');
   }, 30000);
   it('caches device procedures by 510(k) without payment fields', async () => {
     const first = getDeviceProcedures('K110694');

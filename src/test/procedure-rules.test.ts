@@ -27,6 +27,34 @@ describe('Procedure worksheet rules', () => {
     expect(procedureDollars(17727)).toBe('$17,727');
     expect(procedureDollars('NOT FOUND')).toBe('NOT FOUND');
   });
+  it('preserves fractional worksheet inputs in the calculations', () => {
+    expect(worksheetTotals([{item:'Implant', units:'2.5', price:'100.25'}], '49.375', 1000, 2000)).toEqual({construct:250.625, supplies:300, medicareShare:.3, totalShare:.15});
+  });
+  it.each([
+    [3000, .3, .15, 'at 30%'],
+    [4000, .4, .2, 'at 40%'],
+    [5000, .5, .25, 'at 50%'],
+  ])('places a $%s worksheet total at the correct Medicare boundary', (price, medicareShare, totalShare, position) => {
+    const totals = worksheetTotals([{item:'Implant', units:'1', price:String(price)}], '', 10000, 20000);
+    expect(totals.medicareShare).toBe(medicareShare);
+    expect(totals.totalShare).toBe(totalShare);
+    expect(sharePosition(totals.medicareShare)).toBe(position);
+  });
+  it.each([
+    [.299999, 'less than 30%'], [.300001, 'between 30% and 40%'],
+    [.399999, 'between 30% and 40%'], [.400001, 'between 40% and 50%'],
+    [.499999, 'between 40% and 50%'], [.500001, 'more than 50%'],
+    [null, 'NOT FOUND'],
+  ])('places the share %s without rounding it into a boundary', (share, position) => {
+    expect(sharePosition(share)).toBe(position);
+  });
+  it.each([
+    [0, '$0'], [17727.49, '$17,727'], [17727.5, '$17,728'],
+    [1234567890, '$1,234,567,890'], [null, 'NOT FOUND'], [undefined, 'NOT FOUND'],
+    ['NOT FOUND', 'NOT FOUND'],
+  ])('formats the procedure dollar value %s without inventing missing figures', (value, formatted) => {
+    expect(procedureDollars(value)).toBe(formatted);
+  });
   it('puts flagships first without changing relative source order', () => {
     const rows = [{family_id:'a', flagship:false}, {family_id:'b', flagship:true}, {family_id:'c', flagship:true}, {family_id:'d', flagship:false}] as ProcedureSummary[];
     expect(flagshipFirst(rows).map(r => r.family_id)).toEqual(['b','c','a','d']);

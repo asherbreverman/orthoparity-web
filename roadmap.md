@@ -41,3 +41,8 @@
 - [x] Add cached device/vendor procedure reads and lazy benchmark evidence sections.
 - [x] Add the home browse link and update home, About and footer sources without header changes.
 - [x] Verify live links, ownership changes, lazy reads, empty states and unchanged print/export contents.
+
+# Procedure end-to-end audit
+- [x] Check requested pages, suppressed DRG, benchmark links and ownership-dependent lazy reads.
+- [x] Check worksheet privacy, printing, keyboard use and phone light/dark layouts.
+- [x] Scan wording, extend focused math/format tests and run the existing suite; report any limits.

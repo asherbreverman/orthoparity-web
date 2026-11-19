@@ -7,7 +7,7 @@ import { statistics } from '@/lib/predicate-chain';
 describe('Connected Predicate Chain acceptance checks', () => {
   it('loads device-tailored VAC questions from the existing brief RPC', async () => {
     const brief = await getBrief('K253876');
-    expect(brief.vac_questions).toHaveLength(16);
+    expect(brief.vac_questions).toHaveLength(17);
     expect(brief.vac_questions?.[0]?.topic).toBe('Coding and reimbursement');
     expect(brief.vac_questions?.[0]?.question).toContain('Anterior cervical discectomy and fusion (ACDF)');
   }, 30000);
@@ -55,7 +55,7 @@ describe('Connected Predicate Chain acceptance checks', () => {
   }, 30000);
   it('loads the release metadata used by the header', async () => {
     const meta = await getMeta();
-    expect(meta.exported_utc).toBe('2026-11-17 20:13');
+    expect(meta.exported_utc).toBe('2026-11-19 03:28');
     expect(meta.parser_version).toBe('1.3.1');
     expect(meta.max_generations).toBe('10');
   }, 30000);
