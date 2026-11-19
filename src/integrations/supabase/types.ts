@@ -772,6 +772,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      pc_applicant_vendor: { Args: { name: string }; Returns: string }
       pc_batch: { Args: { ks: string[] }; Returns: Json }
       pc_brand_family: { Args: { k: string }; Returns: Json }
       pc_brief: { Args: { k: string }; Returns: Json }
@@ -817,6 +818,7 @@ export type Database = {
       pc_mode: { Args: { m: string }; Returns: string }
       pc_money: { Args: { x: number }; Returns: string }
       pc_num: { Args: { n: number }; Returns: string }
+      pc_owner_at: { Args: { d: string; v: string }; Returns: string }
       pc_peers: { Args: { k: string; lim?: number }; Returns: Json }
       pc_primary_lineage: {
         Args: { k: string; max_gen?: number }
@@ -833,6 +835,16 @@ export type Database = {
         Returns: Json
       }
       pc_refresh_research_scope: { Args: never; Returns: string }
+      pc_same_company: {
+        Args: {
+          a_applicant: string
+          a_root: string
+          b_applicant: string
+          b_root: string
+          d: string
+        }
+        Returns: boolean
+      }
       pc_search: {
         Args: { lim?: number; q: string }
         Returns: {
