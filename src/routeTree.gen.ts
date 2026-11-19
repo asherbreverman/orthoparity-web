@@ -10,11 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProceduresRouteImport } from './routes/procedures'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as ProceduresFamilyIdRouteImport } from './routes/procedures_.$familyId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProceduresRoute = ProceduresRouteImport.update({
+  id: '/procedures',
+  path: '/procedures',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -22,31 +29,45 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProceduresFamilyIdRoute = ProceduresFamilyIdRouteImport.update({
+  id: '/procedures_/$familyId',
+  path: '/procedures/$familyId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/procedures': typeof ProceduresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/procedures/$familyId': typeof ProceduresFamilyIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/procedures': typeof ProceduresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/procedures/$familyId': typeof ProceduresFamilyIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/procedures': typeof ProceduresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/procedures_/$familyId': typeof ProceduresFamilyIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/sitemap.xml'
+  fullPaths: '/' | '/procedures' | '/sitemap.xml' | '/procedures/$familyId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/sitemap.xml'
-  id: '__root__' | '/' | '/sitemap.xml'
+  to: '/' | '/procedures' | '/sitemap.xml' | '/procedures/$familyId'
+  id:
+    '__root__' | '/' | '/procedures' | '/sitemap.xml' | '/procedures_/$familyId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ProceduresRoute: typeof ProceduresRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  ProceduresFamilyIdRoute: typeof ProceduresFamilyIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -58,6 +79,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/procedures': {
+      id: '/procedures'
+      path: '/procedures'
+      fullPath: '/procedures'
+      preLoaderRoute: typeof ProceduresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -65,12 +93,21 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/procedures_/$familyId': {
+      id: '/procedures_/$familyId'
+      path: '/procedures/$familyId'
+      fullPath: '/procedures/$familyId'
+      preLoaderRoute: typeof ProceduresFamilyIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ProceduresRoute: ProceduresRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  ProceduresFamilyIdRoute: ProceduresFamilyIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -51,3 +51,5 @@ use the editor.
 - Compose reference chapters, glance tiles and rails from signal card short/figs fields and shared evidence elements; this preserves source wording, lazy reads and print payloads.
 - Dock one shared keyboard-search control into the root header through a client portal and keep mode/view selection in the existing URL; this preserves a single search field and SSR-safe navigation.
 - Derive sitemap paths from explicit route staticData.sitemap decisions and share the public origin with page metadata; this keeps discoverable URLs aligned without research queries.
+- Keep procedure reads in the read-only adapter (pc_procedure_list, pc_procedure, pc_device_procedures, pc_vendor_procedures); worksheet inputs stay in component state and are never stored or sent.
+- Keep procedure pages as un-nested leaf routes with shared evidence and worksheet components; this preserves the existing root shell and isolates private worksheet inputs from route data.

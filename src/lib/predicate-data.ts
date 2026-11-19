@@ -4,6 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Vendor, VendorBrief, VendorComparison, PortfolioRow, ProductPayments, OwnershipMode } from './vendor-data';
 import type { DecisionCard, Signals, VendorSignals } from './signals';
 import type { DeviceRecalls, VendorRecalls } from './recalls';
+import type { ProcedureList, ProcedureDetail } from './procedure-data';
 import { vendorCoverage, type VendorCoverage } from './vendor-coverage';
 import {
   cacheKey,
@@ -178,3 +179,25 @@ export const batchDevices = resilient(batchDevicesRaw);
 export const getProductCodes = resilient(getProductCodesRaw);
 export const searchDevices = resilient(searchDevicesRaw);
 export const getFamily = resilient(getFamilyRaw);
+
+const procedureReads = new Map<string, Promise<ProcedureList | ProcedureDetail>>();
+function cachedProcedureRead<T extends ProcedureList | ProcedureDetail>(key: string, read: () => Promise<T>): Promise<T> {
+  const existing = procedureReads.get(key);
+  if (existing) return existing as Promise<T>;
+  const pending = read();
+  procedureReads.set(key, pending);
+  pending.catch(() => procedureReads.delete(key));
+  return pending;
+}
+const procedureListRead = resilient(async (): Promise<ProcedureList> => {
+  const {data, error} = await researchClient.rpc('pc_procedure_list');
+  if (error) throw error;
+  return data as ProcedureList;
+});
+const procedureRead = resilient(async (fid: string, vendors_per_code: number): Promise<ProcedureDetail> => {
+  const {data, error} = await researchClient.rpc('pc_procedure', {fid, vendors_per_code});
+  if (error) throw error;
+  return data as ProcedureDetail;
+});
+export function getProcedureList() { return cachedProcedureRead('list', procedureListRead); }
+export function getProcedure(fid: string) { return cachedProcedureRead(JSON.stringify([fid, 100]), () => procedureRead(fid, 100)); }

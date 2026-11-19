@@ -6,7 +6,7 @@ import { toneClass, evidenceIsOpen, type DecisionCard, type View } from '@/lib/s
 import type { Meta } from '@/lib/predicate-chain';
 import { toast } from 'sonner';
 
-export function useEvidence(view: View) {
+export function useEvidence(view: View, controlled?: {opened: Set<string>; onToggle: (id: string) => void}) {
   const [opened, setOpened] = useState<Set<string>>(new Set());
   const isOpen = useCallback((id: string) => evidenceIsOpen(view, opened, id), [view, opened]);
   const toggle = useCallback((id: string) => setOpened(prev => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n; }), []);
@@ -24,7 +24,7 @@ export function useEvidence(view: View) {
     }));
   }, []);
   const reset = useCallback(() => setOpened(new Set()), []);
-  return { isOpen, toggle, reveal, reset };
+  return { isOpen: controlled ? (id: string) => evidenceIsOpen(view, controlled.opened, id) : isOpen, toggle: controlled?.onToggle ?? toggle, reveal, reset };
 }
 
 export function ViewToggle({ view, onChange }: { view: View; onChange: (v: View) => void }) {

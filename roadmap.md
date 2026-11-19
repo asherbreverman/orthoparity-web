@@ -31,3 +31,8 @@
 # Public site URLs
 - [x] Use the www origin for canonical and social URLs and absolute site links.
 - [x] Add the missing sitemap with the www origin and verify metadata and sitemap output.
+
+# Medicare procedures
+- [x] Add cached read-only procedure calls, types, routes and metadata.
+- [x] Build procedure tables, evidence, vendor highlights and private worksheet printing using existing styles.
+- [x] Test calculations and live reads; verify desktop/mobile, URL state, printing and existing pages.

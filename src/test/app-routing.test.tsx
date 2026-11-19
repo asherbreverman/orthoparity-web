@@ -21,12 +21,18 @@ describe("App routing", () => {
     expect(benchmarkOrigin).toBe('https://www.orthoparity.com');
   });
 
-  it('includes only the public home page in the sitemap with the www URL', () => {
+  it('includes the public home and procedure index in the sitemap with the www URL', () => {
     const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
     const paths = sitemapStaticPaths(router);
-    expect(paths).toEqual(['/']);
+    expect(paths).toEqual(['/', '/procedures']);
     const xml = sitemapXML(benchmarkOrigin, paths.map(path => ({ path })));
     expect(xml).toContain('<loc>https://www.orthoparity.com/</loc>');
+    expect(xml).toContain('<loc>https://www.orthoparity.com/procedures</loc>');
     expect(xml).not.toContain('<lastmod>');
+  });
+
+  it('matches a procedure detail as a separate leaf under the root shell', () => {
+    const router = createRouter({routeTree, context: {queryClient: new QueryClient()}});
+    expect(router.matchRoutes('/procedures/hip_knee_replacement').map(m => m.routeId)).toEqual(['__root__', '/procedures_/$familyId']);
   });
 });
