@@ -50,3 +50,8 @@
 # Procedure small fixes
 - [x] Hide empty role groups, blank untouched worksheet results and label other supplies.
 - [x] Isolate vendor highlights with hl links and verify the four changes without redesign.
+
+# Data-driven procedure updates
+- [x] Switch cached home coverage to the parent-company coverage RPC.
+- [x] Honor supply and DRG spread notes, empty evidence sections and zero category counts.
+- [x] Add focused tests and verify live pages without changing the design.

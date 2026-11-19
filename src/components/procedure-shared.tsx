@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useRouter } from '@tanstack/react-router';
 import { useQueryErrorResetBoundary } from '@tanstack/react-query';
 import { Button } from './ui/button';
@@ -21,4 +22,9 @@ export function ProcedurePayments({detail}: {detail: ProcedureDetail}) {
 }
 export function ProcedureSource({url, children}: {url: string; children: React.ReactNode}) {
   return /^https:\/\//.test(url) ? <a className="brief-link" href={url} target="_blank" rel="noopener noreferrer">{children}</a> : <span>{children}</span>;
+}
+export function ProcedureSupplyRange({detail}: {detail: ProcedureDetail}) {
+  const [totalBase, setTotalBase] = useState(false);
+  const range = detail.supply_range;
+  return <section className="brief-section"><h2>Supply cost range</h2>{range.note ? <>NOT FOUND<p className="section-caption">{range.note}</p></> : <><div className="ownership-switch no-print" role="group" aria-label="Supply range base"><Button aria-pressed={!totalBase} variant="ghost" onClick={() => setTotalBase(false)}>Base: Medicare payment</Button><Button aria-pressed={totalBase} variant="ghost" onClick={() => setTotalBase(true)}>Base: Total payment</Button></div><div tabIndex={0} className="brief-table-scroll mt-6"><table className="brief-table"><thead><tr><th>Share of payment</th><th className={!totalBase ? 'procedure-base' : ''}>On Medicare's payment</th><th className={totalBase ? 'procedure-base' : ''}>On total payment</th></tr></thead><tbody>{range.shares.map((share, i) => <tr key={share}><td>{share * 100}%</td><td className={!totalBase ? 'procedure-base' : ''}>{procedureDollars(range.on_medicare[i])}</td><td className={totalBase ? 'procedure-base' : ''}>{procedureDollars(range.on_total[i])}</td></tr>)}</tbody></table></div><p className="section-caption">A planning reference for comparing with your own supply cost per case, drawn from published studies of implant cost as a share of payment (see Evidence). It is not a standard or a target.</p></>}</section>;
 }

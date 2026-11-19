@@ -39,7 +39,7 @@ use the editor.
 - Keep reviewer payload types and parsing/filter helpers in browser-safe modules, and import PDF/Excel generators only inside download actions; this preserves SSR safety and testable rules.
 - Reuse the exact logo source for the on-page mark and browser PDF rasterization; this keeps branding consistent without server-side rendering libraries.
 - Keep inline brand artwork and export SVG sourced from shared SVG contents; this prevents header, icons and PDFs from drifting.
-- Read vendor coverage once through a cached count and ordered year bounds; this avoids capped table reads and keeps existing research calls unchanged.
+- Read vendor coverage once through the cached pc_vendor_coverage RPC; this counts parent companies and avoids table-query schema coupling.
 - Keep vendor and payment reads in the existing read-only adapter; load portfolios on opening and selected-device reads only on explicit benchmarking to avoid request loops.
 - Render only explicitly selected aggregate fields in vendor/payment views and exports; never enumerate raw payload fields, preserving recipient privacy.
 - Keep vendor, ownership and comparison state on the single index route; isolate chart imports behind lazy client rendering and downloads inside user actions.
@@ -53,5 +53,6 @@ use the editor.
 - Derive sitemap paths from explicit route staticData.sitemap decisions and share the public origin with page metadata; this keeps discoverable URLs aligned without research queries.
 - Keep procedure reads in the read-only adapter (pc_procedure_list, pc_procedure, pc_device_procedures, pc_vendor_procedures); worksheet inputs stay in component state and are never stored or sent.
 - Keep procedure pages as un-nested leaf routes with shared evidence and worksheet components; this preserves the existing root shell and isolates private worksheet inputs from route data.
+- Keep supply-range rendering in the shared procedure components and honor source notes before showing ranges; this preserves supplied missing-data semantics across page states.
 - Load benchmark procedure links only when their evidence section opens, cache by subject and ownership mode, and keep them out of cards and exports; this preserves lazy research and existing briefs.
 - Benchmark a vendor always shows the parent company: resolve v with pc_vendor_resolve, redirect with from=, and call vendor RPCs with m='current'.

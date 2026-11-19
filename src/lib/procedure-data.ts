@@ -13,8 +13,8 @@ export interface ProcedureDetail {
   found: boolean;
   family: ProcedureFamily;
   payment: {medicare_pays: ProcedureValue; patient_other_pays: ProcedureValue; total_payment: ProcedureValue; patient_other_share: number};
-  supply_range: {shares: number[]; on_medicare: ProcedureValue[]; on_total: ProcedureValue[]};
-  drgs: {drg: string; description: string; discharges: ProcedureValue; hospitals: ProcedureValue; medicare_pays: ProcedureValue; patient_other_pays: ProcedureValue; total_payment: ProcedureValue; share_of_family: number | null; hospital_medicare_spread: {p25: ProcedureValue; median: ProcedureValue; p75: ProcedureValue} | null; note: string | null}[];
+  supply_range: {note: string | null; shares: number[]; on_medicare: ProcedureValue[]; on_total: ProcedureValue[]};
+  drgs: {drg: string; description: string; discharges: ProcedureValue; hospitals: ProcedureValue; medicare_pays: ProcedureValue; patient_other_pays: ProcedureValue; total_payment: ProcedureValue; share_of_family: number | null; hospital_medicare_spread: {p25: ProcedureValue; median: ProcedureValue; p75: ProcedureValue} | null; spread_note: string | null; note: string | null}[];
   outpatient: {cpt: string; procedure: string; status: string; apc: string; apc_description: string | null; apc_services: ProcedureValue; apc_medicare_pays: ProcedureValue; apc_patient_other_pays: ProcedureValue; apc_total_allowed: ProcedureValue; source: string; source_url: string}[];
   devices: ProcedureDevice[];
   evidence: {source: string; procedure: string; data_years: string; measure: string; result: string; source_url: string}[];

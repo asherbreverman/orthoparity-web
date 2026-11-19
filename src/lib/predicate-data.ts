@@ -62,13 +62,9 @@ const researchClient: SupabaseClient = supabase;
 let coverage: Promise<VendorCoverage> | undefined;
 export function getVendorCoverage() {
   coverage ??= resilient(async () => {
-    const [count, first, last] = await Promise.all([
-      researchClient.from('pc_vendors').select('vendor_id', {count:'exact',head:true}),
-      researchClient.from('pc_vendors').select('first_clearance_year').not('first_clearance_year','is',null).order('first_clearance_year',{ascending:true}).limit(1),
-      researchClient.from('pc_vendors').select('last_clearance_year').not('last_clearance_year','is',null).order('last_clearance_year',{ascending:false}).limit(1),
-    ]);
-    if (count.error || first.error || last.error) throw count.error || first.error || last.error;
-    return vendorCoverage(count.count, first.data?.[0]?.first_clearance_year, last.data?.[0]?.last_clearance_year);
+    const {data, error} = await researchClient.rpc('pc_vendor_coverage');
+    if (error) throw error;
+    return vendorCoverage(data?.parent_companies ?? null, data?.first_year, data?.last_year);
   })();
   coverage.catch(() => { coverage = undefined; });
   return coverage;

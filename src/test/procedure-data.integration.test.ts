@@ -13,7 +13,7 @@ describe('Public procedure reads', () => {
     expect(getProcedure('hip_knee_replacement')).toBe(first);
     const result = await first;
     expect(result.found).toBe(true);
-    expect(result.supply_range).toEqual({shares:[.3,.4,.5], on_medicare:[4391,5855,7318], on_total:[5318,7091,8864]});
+    expect(result.supply_range).toEqual({note:null, shares:[.3,.4,.5], on_medicare:[4391,5855,7318], on_total:[5318,7091,8864]});
     expect(result.worksheet).toHaveLength(7);
     expect(result.devices.find(d => d.product_code === 'JWH')?.vendors.some(v => v.vendor_id === 'stryker')).toBe(true);
   }, 30000);
