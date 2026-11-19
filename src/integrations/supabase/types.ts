@@ -643,6 +643,7 @@ export type Database = {
           note: string | null
           patient_other_pays: number | null
           share_of_family: number | null
+          spread_note: string | null
           total_payment: number | null
         }
         Insert: {
@@ -658,6 +659,7 @@ export type Database = {
           note?: string | null
           patient_other_pays?: number | null
           share_of_family?: number | null
+          spread_note?: string | null
           total_payment?: number | null
         }
         Update: {
@@ -673,6 +675,7 @@ export type Database = {
           note?: string | null
           patient_other_pays?: number | null
           share_of_family?: number | null
+          spread_note?: string | null
           total_payment?: number | null
         }
         Relationships: []
@@ -736,6 +739,7 @@ export type Database = {
           supply_medicare_30: number | null
           supply_medicare_40: number | null
           supply_medicare_50: number | null
+          supply_note: string | null
           supply_total_30: number | null
           supply_total_40: number | null
           supply_total_50: number | null
@@ -757,6 +761,7 @@ export type Database = {
           supply_medicare_30?: number | null
           supply_medicare_40?: number | null
           supply_medicare_50?: number | null
+          supply_note?: string | null
           supply_total_30?: number | null
           supply_total_40?: number | null
           supply_total_50?: number | null
@@ -778,6 +783,7 @@ export type Database = {
           supply_medicare_30?: number | null
           supply_medicare_40?: number | null
           supply_medicare_50?: number | null
+          supply_note?: string | null
           supply_total_30?: number | null
           supply_total_40?: number | null
           supply_total_50?: number | null
@@ -1159,6 +1165,7 @@ export type Database = {
         Args: { a: string; b: string; m?: string }
         Returns: Json
       }
+      pc_vendor_coverage: { Args: never; Returns: Json }
       pc_vendor_family: {
         Args: { m: string; v: string }
         Returns: {
