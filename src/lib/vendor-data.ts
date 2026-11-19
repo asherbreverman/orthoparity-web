@@ -44,3 +44,9 @@ export const paymentLimitations = [
 ];
 
 export const emptyProfile: Profile = {total:0,transactions:0,recipients:0,physicians:0,food_r:0,travel_r:0,consulting_r:0,royalty_r:0,top1pct_share:0,top10_share:0,median_per_recipient:0,to_entities:0,equity_forms:0,acquisitions:null,debt_forgiveness:null,bucket_json:[]};
+/** Search option text: owned companies show their parent with a "via" line. */
+export function vendorOption(row: { vendor_id: string; display_name: string; segment?: string | null; clearances: number; via_name?: string | null; matched_name?: string | null }) { return { id: row.vendor_id, name: row.display_name, detail: `${row.segment ?? 'Segment unavailable'} · 510(k)s: ${row.clearances.toLocaleString('en-US')}`, extra: row.via_name ? `via ${row.via_name}` : row.matched_name && row.matched_name !== row.display_name ? `matched: ${row.matched_name}` : undefined, label: row.via_name ? `${row.display_name}, via ${row.via_name}` : row.display_name }; }
+/** Redirect to the parent: replace the history entry and keep the original id in from. */
+export function redirectNavigation(to: string, original: string, view: string) { return { to: '/' as const, search: { v: to, from: original, view: view === 'analyst' ? 'analyst' as const : undefined }, replace: true }; }
+/** Product "Now part of" line, or null when the filer is its own parent. */
+export function ownerLine(o: DeviceOwner | null | undefined) { if (!o?.found || !o.now_part_of || !o.owner_name) return null; const src = o.divested && o.source_url && /^https:\/\//.test(o.source_url) ? o.source_url : null; return { text: `Now part of ${o.owner_name}. ${o.explanation ?? ''}`.trim(), source: src }; }

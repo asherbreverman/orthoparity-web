@@ -10,7 +10,7 @@ import { ProductRecallEvidence } from './recall-evidence';
 import { ProductProceduresSection } from './benchmark-procedures';
 import { BottomLine, GlanceTiles, DecisionCards, EvidenceSection, Notes, PrintBrief, useEvidence } from './decision-shared';
 import { getBrief, getFamily, lookupChain, getProductPayments, getSignals, getDeviceOwner } from '@/lib/predicate-data';
-import { withPaymentQuestions, money, dollars, type ProductPayments } from '@/lib/vendor-data';
+import { ownerLine, withPaymentQuestions, money, dollars, type ProductPayments } from '@/lib/vendor-data';
 import { LocalBar, ExtraEvidence } from './story-shared';
 import { toast } from 'sonner';
 import { dateLabel, type Meta } from '@/lib/predicate-chain';
@@ -69,7 +69,7 @@ export function ProductResult({ k, view, meta, onView }: { k: string; view: View
   const altRows = s?.alternatives.rows ?? [];
   const card = (key: string) => cards.find(c => c.key === key);
   const p = payments;
-  const ownerNow = !!owner?.found && owner.now_part_of && !!owner.owner_name;
+  const ownerNow = !!ownerLine(owner);
   const ownerLink = !!owner?.found && !owner.now_part_of && !!owner.owner_vendor_id && !!owner.owner_name;
   const name = h?.device_name ?? device.device_name ?? device.knumber;
   const plain = h?.plain_name ?? brief.product_code?.plain_name ?? h?.fda_name ?? brief.product_code?.fda_name ?? 'Category unavailable';
@@ -140,12 +140,12 @@ export function ProductResult({ k, view, meta, onView }: { k: string; view: View
   );
   return <>
     <Status error={error} />
-    <PrintBrief meta={meta} title={name} subtitle={`${h?.company ?? device.applicant ?? '—'}${ownerNow ? `, now part of ${owner?.owner_name}` : ''} · ${plain} (${code}) · ${device.knumber} · cleared ${longDate(h?.cleared ?? device.decision_date)}`} bottomLine={s?.bottom_line ?? ''} cards={cards} table={{ caption: `Alternatives in this category · ${s?.alternatives.window ?? ''}`, head: ['Company', 'Clearances', 'Latest device', 'Latest 510(k)', 'Latest date'], rows: altRows.map(r => [r.company, r.clearances, r.latest_device ?? '—', r.latest_knumber ?? '—', longDate(r.latest_date)]) }} questions={asks} notes={s?.notes ?? []} />
+    <PrintBrief meta={meta} title={name} subtitle={`${owner?.filer ?? h?.company ?? device.applicant ?? '—'}${ownerNow ? `, now part of ${owner?.owner_name}` : ''} · ${plain} (${code}) · ${device.knumber} · cleared ${longDate(h?.cleared ?? device.decision_date)}`} bottomLine={s?.bottom_line ?? ''} cards={cards} table={{ caption: `Alternatives in this category · ${s?.alternatives.window ?? ''}`, head: ['Company', 'Clearances', 'Latest device', 'Latest 510(k)', 'Latest date'], rows: altRows.map(r => [r.company, r.clearances, r.latest_device ?? '—', r.latest_knumber ?? '—', longDate(r.latest_date)]) }} questions={asks} notes={s?.notes ?? []} />
     <section ref={top} className="result-header" aria-label="Device">
       <div className="result-heading">
         <div><h2 className="result-title">{name}</h2>
           {brief.product_code?.plain_description && <p className="plain-description">{brief.product_code.plain_description}</p>}
-          <p className="result-meta">{device.knumber} · {h?.company ?? device.applicant ?? '—'} · {plain} ({code}) · Cleared {longDate(h?.cleared ?? device.decision_date)} · Class {h?.device_class ?? device.device_class ?? '—'}</p>
+          <p className="result-meta">{device.knumber} · {owner?.filer ?? h?.company ?? device.applicant ?? '—'} · {plain} ({code}) · Cleared {longDate(h?.cleared ?? device.decision_date)} · Class {h?.device_class ?? device.device_class ?? '—'}</p>
           {ownerNow && owner && <p className="result-meta">Now part of {owner.owner_name}. {owner.explanation}{owner.divested && owner.source_url && /^https:\/\//.test(owner.source_url) && <> <a className="brief-link" href={owner.source_url} target="_blank" rel="noopener noreferrer">Source<ExternalLink size={12} /></a></>} <Button asChild variant="link" size="sm"><Link to="/" search={{ v: owner.owner_vendor_id ?? undefined }}>Benchmark {owner.owner_name}</Link></Button></p>}
           {(h?.procedures ?? brief.product_code?.procedures) && <p className="result-meta">Procedures: {h?.procedures ?? brief.product_code?.procedures}</p>}
           {brief.product_code?.reviewed === false && <span className="review-tag">Plain-English description drafted from FDA's definition, pending expert review</span>}

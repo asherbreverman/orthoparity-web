@@ -11,6 +11,7 @@ import { VendorSearch } from '@/components/vendor-search';
 import { ProductResult } from '@/components/product-result';
 import type { VendorCoverage } from '@/lib/vendor-coverage';
 import type { View } from '@/lib/signals';
+import { redirectNavigation } from '@/lib/vendor-data';
 import { DockedSearch, ModeTabs } from '@/components/benchmark-navigation';
 const VendorWorkspace = lazy(() => import('@/components/vendor-workspace').then(m => ({default: m.VendorWorkspace})));
 export const Route = createFileRoute('/')({
@@ -42,6 +43,6 @@ function DeviceBrief() {
       <div className="mb-6"><Button asChild variant="link"><Link to="/procedures">Or browse Medicare payments by procedure</Link></Button></div>
       <div className="home-about-tiles"><div><strong>{meta.starting_set_clearances ? Number(meta.starting_set_clearances).toLocaleString('en-US') : '—'}</strong><p>orthopedic 510(k) clearances, from {coverage?.first ?? '—'} to {coverage?.last ?? '—'}</p></div><div><strong>{coverage?.count.toLocaleString('en-US') ?? '—'}</strong><p>orthopedic vendors with 510(k) clearances</p></div><div><strong>5</strong><p>public sources: FDA 510(k) summaries, FDA GUDID, FDA recalls, CMS Open Payments and CMS Medicare hospital payments</p></div></div>
     </section>}
-    {selected ? vendorMode ? <ClientOnly><Suspense fallback={<Status busy />}><VendorWorkspace v={v} compare={compare} view={view} onView={setView} from={from || undefined} meta={meta} onRedirect={(to, original) => void navigate({to:'/', search:{v:to, from:original, view: view === 'analyst' ? 'analyst' : undefined}, replace:true})} onDismiss={() => void navigate({to:'/', search: prev => ({...prev, from: undefined}), replace:true, resetScroll:false})} onCompare={value => void navigate({to:'/',search:prev => ({...prev,compare:value}), resetScroll: false})} /></Suspense></ClientOnly> : <ProductResult key={k} k={k ?? ''} view={view} meta={meta} onView={setView} /> : null}
+    {selected ? vendorMode ? <ClientOnly><Suspense fallback={<Status busy />}><VendorWorkspace v={v} compare={compare} view={view} onView={setView} from={from || undefined} meta={meta} onRedirect={(to, original) => void navigate(redirectNavigation(to, original, view))} onDismiss={() => void navigate({to:'/', search: prev => ({...prev, from: undefined}), replace:true, resetScroll:false})} onCompare={value => void navigate({to:'/',search:prev => ({...prev,compare:value}), resetScroll: false})} /></Suspense></ClientOnly> : <ProductResult key={k} k={k ?? ''} view={view} meta={meta} onView={setView} /> : null}
   </>;
 }
