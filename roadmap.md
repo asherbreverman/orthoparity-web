@@ -36,3 +36,8 @@
 - [x] Add cached read-only procedure calls, types, routes and metadata.
 - [x] Build procedure tables, evidence, vendor highlights and private worksheet printing using existing styles.
 - [x] Test calculations and live reads; verify desktop/mobile, URL state, printing and existing pages.
+
+# Procedure connections
+- [x] Add cached device/vendor procedure reads and lazy benchmark evidence sections.
+- [x] Add the home browse link and update home, About and footer sources without header changes.
+- [x] Verify live links, ownership changes, lazy reads, empty states and unchanged print/export contents.

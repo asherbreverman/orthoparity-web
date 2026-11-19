@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {getProcedureList, getProcedure} from '@/lib/predicate-data';
+import {getProcedureList, getProcedure, getDeviceProcedures, getVendorProcedures} from '@/lib/predicate-data';
 describe('Public procedure reads', () => {
   it('caches the procedure list for the session', async () => {
     const first = getProcedureList();
@@ -19,5 +19,25 @@ describe('Public procedure reads', () => {
   }, 30000);
   it('preserves the not-found response', async () => {
     expect((await getProcedure('not_a_procedure')).found).toBe(false);
+  }, 30000);
+  it('caches device procedures by 510(k) without payment fields', async () => {
+    const first = getDeviceProcedures('K110694');
+    expect(getDeviceProcedures('K110694')).toBe(first);
+    const data = await first;
+    expect(data.product_code).toBe('MAX');
+    expect(data.procedures.some(p => p.family_id === 'thoracolumbar_fusion')).toBe(true);
+    expect(data).not.toHaveProperty('payment');
+  }, 30000);
+  it('keeps pit and current-owner vendor procedure caches separate', async () => {
+    const pit = getVendorProcedures('globus', 'pit');
+    const current = getVendorProcedures('globus', 'current');
+    expect(current).not.toBe(pit);
+    expect(getVendorProcedures('globus', 'pit')).toBe(pit);
+    const [a, b] = await Promise.all([pit, current]);
+    expect(a.mode).toBe('pit');
+    expect(b.mode).toBe('current');
+    expect(a.procedures_total).toBe(8);
+    expect(b.procedures.find(p => p.family_id === 'thoracolumbar_fusion')?.clearances_recent).toBeGreaterThan(a.procedures.find(p => p.family_id === 'thoracolumbar_fusion')?.clearances_recent ?? 0);
+    expect(b).not.toHaveProperty('payment');
   }, 30000);
 });

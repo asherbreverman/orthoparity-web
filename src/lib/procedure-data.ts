@@ -5,6 +5,10 @@ export interface ProcedureSummary extends ProcedureFamily { medicare_pays: Proce
 export interface ProcedureList { procedures: ProcedureSummary[]; notes: ProcedureNotes }
 export interface ProcedureVendor { vendor_id: string; name: string; clearances: number; latest: string | null }
 export interface ProcedureDevice { role: string; product_code: string; plain_name: string | null; fda_name: string; clearances_all: number; clearances_recent: number; active_vendors: number; status: string; vendors: ProcedureVendor[] }
+export interface DeviceProcedures { knumber: string; product_code: string | null; procedures: {family_id: string; name: string; role: string; flagship: boolean; status: string}[] }
+export interface VendorProcedureCategory {role: string; product_code: string; plain_name: string | null; clearances_all: number; clearances_recent: number; latest: string | null}
+export interface VendorProcedure {family_id: string; name: string; flagship: boolean; data_year: number; categories_total: number; categories_with_clearances: number; categories_recent: number; clearances_recent: number; latest: string | null; categories: VendorProcedureCategory[]}
+export interface VendorProcedures {vendor_id: string; mode: 'pit' | 'current'; window: {from: string; to: string}; procedures: VendorProcedure[]; procedures_total: number}
 export interface ProcedureDetail {
   found: boolean;
   family: ProcedureFamily;

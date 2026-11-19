@@ -1,4 +1,4 @@
-import { ClientOnly, createFileRoute, useNavigate } from '@tanstack/react-router';
+import { ClientOnly, createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { z } from 'zod';
 import { fallback, zodValidator } from '@tanstack/zod-adapter';
 import { lazy, Suspense, useEffect, useState } from 'react';
@@ -39,7 +39,8 @@ function DeviceBrief() {
       <p>{vendorMode ? 'Search by vendor name and get a vendor brief: seven questions, the evidence, and what to ask.' : 'Search by 510(k) number, product name or company and get a decision brief: six questions, the evidence, and what to ask the vendor.'}</p>
       {search}
       <div className="try-examples"><span>Try:</span><Button variant="secondary" size="sm" onClick={() => void navigate({to:'/',search:{k:'K140881'}})}>ATTUNE knee (K140881)</Button><Button variant="secondary" size="sm" onClick={() => void navigate({to:'/',search:{k:'K203153'}})}>CREO spine system (K203153)</Button><Button variant="secondary" size="sm" onClick={() => { setExample('Globus Medical'); void navigate({to:'/',search:{mode:'vendor'}}); }}>Globus Medical</Button></div>
-      <div className="home-about-tiles"><div><strong>{meta.starting_set_clearances ? Number(meta.starting_set_clearances).toLocaleString('en-US') : '—'}</strong><p>orthopedic 510(k) clearances, from {coverage?.first ?? '—'} to {coverage?.last ?? '—'}</p></div><div><strong>{coverage?.count.toLocaleString('en-US') ?? '—'}</strong><p>orthopedic vendors with 510(k) clearances</p></div><div><strong>4</strong><p>public sources: FDA 510(k) summaries, FDA GUDID, FDA recalls and CMS Open Payments</p></div></div>
+      <div className="mb-6"><Button asChild variant="link"><Link to="/procedures">Or browse Medicare payments by procedure</Link></Button></div>
+      <div className="home-about-tiles"><div><strong>{meta.starting_set_clearances ? Number(meta.starting_set_clearances).toLocaleString('en-US') : '—'}</strong><p>orthopedic 510(k) clearances, from {coverage?.first ?? '—'} to {coverage?.last ?? '—'}</p></div><div><strong>{coverage?.count.toLocaleString('en-US') ?? '—'}</strong><p>orthopedic vendors with 510(k) clearances</p></div><div><strong>5</strong><p>public sources: FDA 510(k) summaries, FDA GUDID, FDA recalls, CMS Open Payments and CMS Medicare hospital payments</p></div></div>
     </section>}
     {selected ? vendorMode ? <ClientOnly><Suspense fallback={<Status busy />}><VendorWorkspace v={v} compare={compare} view={view} onView={setView} mode={own === 'current' ? 'current' : 'pit'} meta={meta} onOwnership={m => void navigate({to:'/',search: prev => ({...prev,own:m === 'current' ? 'current' : undefined}), resetScroll: false})} onCompare={value => void navigate({to:'/',search:prev => ({...prev,compare:value}), resetScroll: false})} /></Suspense></ClientOnly> : <ProductResult key={k} k={k ?? ''} view={view} meta={meta} onView={setView} /> : null}
   </>;

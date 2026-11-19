@@ -4,7 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Vendor, VendorBrief, VendorComparison, PortfolioRow, ProductPayments, OwnershipMode } from './vendor-data';
 import type { DecisionCard, Signals, VendorSignals } from './signals';
 import type { DeviceRecalls, VendorRecalls } from './recalls';
-import type { ProcedureList, ProcedureDetail } from './procedure-data';
+import type { ProcedureList, ProcedureDetail, DeviceProcedures, VendorProcedures } from './procedure-data';
 import { vendorCoverage, type VendorCoverage } from './vendor-coverage';
 import {
   cacheKey,
@@ -180,8 +180,8 @@ export const getProductCodes = resilient(getProductCodesRaw);
 export const searchDevices = resilient(searchDevicesRaw);
 export const getFamily = resilient(getFamilyRaw);
 
-const procedureReads = new Map<string, Promise<ProcedureList | ProcedureDetail>>();
-function cachedProcedureRead<T extends ProcedureList | ProcedureDetail>(key: string, read: () => Promise<T>): Promise<T> {
+const procedureReads = new Map<string, Promise<ProcedureList | ProcedureDetail | DeviceProcedures | VendorProcedures>>();
+function cachedProcedureRead<T extends ProcedureList | ProcedureDetail | DeviceProcedures | VendorProcedures>(key: string, read: () => Promise<T>): Promise<T> {
   const existing = procedureReads.get(key);
   if (existing) return existing as Promise<T>;
   const pending = read();
@@ -201,3 +201,15 @@ const procedureRead = resilient(async (fid: string, vendors_per_code: number): P
 });
 export function getProcedureList() { return cachedProcedureRead('list', procedureListRead); }
 export function getProcedure(fid: string) { return cachedProcedureRead(JSON.stringify([fid, 100]), () => procedureRead(fid, 100)); }
+const deviceProceduresRead = resilient(async (k: string): Promise<DeviceProcedures> => {
+  const {data, error} = await researchClient.rpc('pc_device_procedures', {k});
+  if (error) throw error;
+  return data as DeviceProcedures;
+});
+const vendorProceduresRead = resilient(async (v: string, m: OwnershipMode): Promise<VendorProcedures> => {
+  const {data, error} = await researchClient.rpc('pc_vendor_procedures', {v, m});
+  if (error) throw error;
+  return data as VendorProcedures;
+});
+export function getDeviceProcedures(k: string) { return cachedProcedureRead(JSON.stringify(['device-procedures', k]), () => deviceProceduresRead(k)); }
+export function getVendorProcedures(v: string, m: OwnershipMode) { return cachedProcedureRead(JSON.stringify(['vendor-procedures', v, m]), () => vendorProceduresRead(v, m)); }

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { BriefLink, PdfLink, Status, useRefetch } from './reviewer-shared';
 import { Metrics, Studies } from './payment-shared';
 import { ProductRecallEvidence } from './recall-evidence';
+import { ProductProceduresSection } from './benchmark-procedures';
 import { BottomLine, GlanceTiles, DecisionCards, EvidenceSection, Notes, PrintBrief, useEvidence } from './decision-shared';
 import { getBrief, getFamily, lookupChain, getProductPayments, getSignals } from '@/lib/predicate-data';
 import { withPaymentQuestions, money, dollars, type ProductPayments } from '@/lib/vendor-data';
@@ -129,6 +130,7 @@ export function ProductResult({ k, view, meta, onView }: { k: string; view: View
         {view === 'analyst' && <><h3 className="mt-6">Clearances by year</h3><ClientOnly fallback={<div className="category-chart skeleton" />}><Suspense fallback={<div className="category-chart skeleton" />}><CategoryChart rows={category.by_year ?? []} /></Suspense></ClientOnly><h3>Top companies, all time</h3><div className="brief-table-scroll"><table className="brief-table"><thead><tr><th>Company</th><th>Clearances</th></tr></thead><tbody>{(category.top_companies ?? []).map(r => <tr key={r.applicant}><td>{r.applicant}</td><td>{r.clearances}</td></tr>)}</tbody></table></div></>}
         <p className="section-caption">Counts cover orthopedic 510(k) clearances in this product code through {category.latest_year}.</p>
       </EvidenceSection>}
+      <ProductProceduresSection id="procedures" key={k} k={k} code={code} open={ev.isOpen('procedures')} onToggle={() => ev.toggle('procedures')} />
     </div>
   );
   return <>
