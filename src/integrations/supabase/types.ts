@@ -557,6 +557,234 @@ export type Database = {
         }
         Relationships: []
       }
+      pc_procedure_apc: {
+        Row: {
+          apc: string
+          apc_desc: string | null
+          data_year: number | null
+          hospitals: number | null
+          medicare_pays: number | null
+          patient_other_pays: number | null
+          patients_reported: number | null
+          services: number | null
+          total_allowed: number | null
+        }
+        Insert: {
+          apc: string
+          apc_desc?: string | null
+          data_year?: number | null
+          hospitals?: number | null
+          medicare_pays?: number | null
+          patient_other_pays?: number | null
+          patients_reported?: number | null
+          services?: number | null
+          total_allowed?: number | null
+        }
+        Update: {
+          apc?: string
+          apc_desc?: string | null
+          data_year?: number | null
+          hospitals?: number | null
+          medicare_pays?: number | null
+          patient_other_pays?: number | null
+          patients_reported?: number | null
+          services?: number | null
+          total_allowed?: number | null
+        }
+        Relationships: []
+      }
+      pc_procedure_devices: {
+        Row: {
+          active_vendors: number | null
+          clearances_all: number | null
+          clearances_recent: number | null
+          family_id: string | null
+          fda_name: string | null
+          plain_name: string | null
+          product_code: string | null
+          role: string | null
+          status: string | null
+        }
+        Insert: {
+          active_vendors?: number | null
+          clearances_all?: number | null
+          clearances_recent?: number | null
+          family_id?: string | null
+          fda_name?: string | null
+          plain_name?: string | null
+          product_code?: string | null
+          role?: string | null
+          status?: string | null
+        }
+        Update: {
+          active_vendors?: number | null
+          clearances_all?: number | null
+          clearances_recent?: number | null
+          family_id?: string | null
+          fda_name?: string | null
+          plain_name?: string | null
+          product_code?: string | null
+          role?: string | null
+          status?: string | null
+        }
+        Relationships: []
+      }
+      pc_procedure_drg: {
+        Row: {
+          discharges: number | null
+          drg: string | null
+          drg_desc: string | null
+          family_id: string | null
+          hospital_medicare_median: number | null
+          hospital_medicare_p25: number | null
+          hospital_medicare_p75: number | null
+          hospitals: number | null
+          medicare_pays: number | null
+          note: string | null
+          patient_other_pays: number | null
+          share_of_family: number | null
+          total_payment: number | null
+        }
+        Insert: {
+          discharges?: number | null
+          drg?: string | null
+          drg_desc?: string | null
+          family_id?: string | null
+          hospital_medicare_median?: number | null
+          hospital_medicare_p25?: number | null
+          hospital_medicare_p75?: number | null
+          hospitals?: number | null
+          medicare_pays?: number | null
+          note?: string | null
+          patient_other_pays?: number | null
+          share_of_family?: number | null
+          total_payment?: number | null
+        }
+        Update: {
+          discharges?: number | null
+          drg?: string | null
+          drg_desc?: string | null
+          family_id?: string | null
+          hospital_medicare_median?: number | null
+          hospital_medicare_p25?: number | null
+          hospital_medicare_p75?: number | null
+          hospitals?: number | null
+          medicare_pays?: number | null
+          note?: string | null
+          patient_other_pays?: number | null
+          share_of_family?: number | null
+          total_payment?: number | null
+        }
+        Relationships: []
+      }
+      pc_procedure_outpatient: {
+        Row: {
+          apc: string | null
+          apc_medicare_pays: number | null
+          apc_patient_other_pays: number | null
+          apc_services: number | null
+          apc_total_allowed: number | null
+          cpt: string | null
+          family_id: string | null
+          outpatient_status: string | null
+          procedure: string | null
+          source: string | null
+          source_url: string | null
+        }
+        Insert: {
+          apc?: string | null
+          apc_medicare_pays?: number | null
+          apc_patient_other_pays?: number | null
+          apc_services?: number | null
+          apc_total_allowed?: number | null
+          cpt?: string | null
+          family_id?: string | null
+          outpatient_status?: string | null
+          procedure?: string | null
+          source?: string | null
+          source_url?: string | null
+        }
+        Update: {
+          apc?: string | null
+          apc_medicare_pays?: number | null
+          apc_patient_other_pays?: number | null
+          apc_services?: number | null
+          apc_total_allowed?: number | null
+          cpt?: string | null
+          family_id?: string | null
+          outpatient_status?: string | null
+          procedure?: string | null
+          source?: string | null
+          source_url?: string | null
+        }
+        Relationships: []
+      }
+      pc_procedures: {
+        Row: {
+          data_year: number | null
+          description: string | null
+          discharges: number | null
+          drgs: string | null
+          family_id: string
+          flagship: string | null
+          hospitals: number | null
+          medicare_pays: number | null
+          name: string | null
+          patient_other_pays: number | null
+          patient_other_share: number | null
+          sort_order: number | null
+          supply_medicare_30: number | null
+          supply_medicare_40: number | null
+          supply_medicare_50: number | null
+          supply_total_30: number | null
+          supply_total_40: number | null
+          supply_total_50: number | null
+          total_payment: number | null
+        }
+        Insert: {
+          data_year?: number | null
+          description?: string | null
+          discharges?: number | null
+          drgs?: string | null
+          family_id: string
+          flagship?: string | null
+          hospitals?: number | null
+          medicare_pays?: number | null
+          name?: string | null
+          patient_other_pays?: number | null
+          patient_other_share?: number | null
+          sort_order?: number | null
+          supply_medicare_30?: number | null
+          supply_medicare_40?: number | null
+          supply_medicare_50?: number | null
+          supply_total_30?: number | null
+          supply_total_40?: number | null
+          supply_total_50?: number | null
+          total_payment?: number | null
+        }
+        Update: {
+          data_year?: number | null
+          description?: string | null
+          discharges?: number | null
+          drgs?: string | null
+          family_id?: string
+          flagship?: string | null
+          hospitals?: number | null
+          medicare_pays?: number | null
+          name?: string | null
+          patient_other_pays?: number | null
+          patient_other_share?: number | null
+          sort_order?: number | null
+          supply_medicare_30?: number | null
+          supply_medicare_40?: number | null
+          supply_medicare_50?: number | null
+          supply_total_30?: number | null
+          supply_total_40?: number | null
+          supply_total_50?: number | null
+          total_payment?: number | null
+        }
+        Relationships: []
+      }
       pc_product_codes: {
         Row: {
           anatomy: string | null
@@ -659,6 +887,33 @@ export type Database = {
           terminated?: string | null
           vendor_basis?: string | null
           vendor_id?: string | null
+        }
+        Relationships: []
+      }
+      pc_supply_evidence: {
+        Row: {
+          data_years: string | null
+          measure: string | null
+          procedure: string | null
+          result: string | null
+          source: string | null
+          source_url: string | null
+        }
+        Insert: {
+          data_years?: string | null
+          measure?: string | null
+          procedure?: string | null
+          result?: string | null
+          source?: string | null
+          source_url?: string | null
+        }
+        Update: {
+          data_years?: string | null
+          measure?: string | null
+          procedure?: string | null
+          result?: string | null
+          source?: string | null
+          source_url?: string | null
         }
         Relationships: []
       }
@@ -791,8 +1046,11 @@ export type Database = {
       }
       pc_category: { Args: { code: string }; Returns: Json }
       pc_clean_blanks: { Args: never; Returns: string }
+      pc_code_procedures: { Args: { code: string }; Returns: Json }
+      pc_code_vendors: { Args: { code: string; lim?: number }; Returns: Json }
       pc_compare: { Args: { a: string; b: string }; Returns: Json }
       pc_data_end: { Args: never; Returns: string }
+      pc_device_procedures: { Args: { k: string }; Returns: Json }
       pc_device_recalls: { Args: { k: string }; Returns: Json }
       pc_direct: {
         Args: { k: string }
@@ -824,6 +1082,13 @@ export type Database = {
         Args: { k: string; max_gen?: number }
         Returns: Json
       }
+      pc_procedure: {
+        Args: { fid: string; vendors_per_code?: number }
+        Returns: Json
+      }
+      pc_procedure_list: { Args: never; Returns: Json }
+      pc_procedure_notes: { Args: never; Returns: Json }
+      pc_procedure_worksheet: { Args: never; Returns: Json }
       pc_product_payments: { Args: { k: string }; Returns: Json }
       pc_recall_card_product: {
         Args: { company: string; kn: string }
@@ -884,6 +1149,7 @@ export type Database = {
         }
         Returns: Json
       }
+      pc_vendor_procedures: { Args: { m?: string; v: string }; Returns: Json }
       pc_vendor_recalls: {
         Args: { lim?: number; m?: string; v: string }
         Returns: Json
