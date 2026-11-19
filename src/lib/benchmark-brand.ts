@@ -7,6 +7,8 @@ export const logoSvg = svgWith(logoContents);
 // A rasterized data URL cannot resolve currentColor, so the PDF mark carries explicit ink.
 export const logoDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgWith(logoContents.replace(/currentColor/g, '#0A0A0A')))}`;
 export const faviconSvg = svgWith(`<rect width="64" height="64" rx="14" fill="#0A0A0A"/><g transform="translate(32 32) scale(0.78) translate(-32 -32)">${logoContents.replace(/currentColor/g, '#FFFFFF')}</g>`);
-export const benchmarkTitle = 'OrthoParity: orthopedic device and vendor benchmarks';
+// One tab-title shape everywhere: page name, separator, brand. Matches the procedure pages.
+export const pageTitle = (name: string) => `${name} | OrthoParity`;
+export const benchmarkTitle = pageTitle('Orthopedic device and vendor benchmarks');
 export const benchmarkDescription = 'OrthoParity offers free, open-source orthopedic device and vendor benchmarks, built from public FDA and CMS data.';
 export const benchmarkOrigin = 'https://www.orthoparity.com';

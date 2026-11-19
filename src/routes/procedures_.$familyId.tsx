@@ -5,6 +5,7 @@ import { zodValidator } from '@tanstack/zod-adapter';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { procedureOptions, procedureHead } from '@/lib/procedure-queries';
+import { pageTitle } from '@/lib/benchmark-brand';
 import { procedureDollars } from '@/lib/procedure-data';
 import { ProcedurePending, ProcedureError, ProcedureNotFound, ProcedurePayments } from '@/components/procedure-shared';
 import { ProcedureWorksheet } from '@/components/procedure-worksheet';
@@ -16,7 +17,7 @@ export const Route = createFileRoute('/procedures_/$familyId')({
   staticData: {sitemap: false},
   validateSearch: zodValidator(z.object({hl: z.string().optional(), open: z.string().optional()})),
   loader: async ({context, params}) => {const detail = await context.queryClient.ensureQueryData(procedureOptions(params.familyId)); if (!detail.found) throw notFound(); return detail;},
-  head: ({loaderData, params}) => procedureHead(loaderData ? `${loaderData.family.name}: Medicare payments and device categories | OrthoParity` : 'Procedure unavailable | OrthoParity', loaderData?.family.description ?? 'Original Medicare payments and orthopedic device categories from public CMS and FDA data.', `/procedures/${encodeURIComponent(params.familyId)}`),
+  head: ({loaderData, params}) => procedureHead(loaderData ? pageTitle(`${loaderData.family.name}: Medicare payments and device categories`) : pageTitle('Procedure unavailable'), loaderData?.family.description ?? 'Original Medicare payments and orthopedic device categories from public CMS and FDA data.', `/procedures/${encodeURIComponent(params.familyId)}`),
   pendingMs: 0,
   pendingComponent: ProcedurePending,
   errorComponent: ProcedureError,

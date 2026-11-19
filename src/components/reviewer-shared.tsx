@@ -1,4 +1,5 @@
 import { LOAD_FAILED } from '@/lib/predicate-data';
+import { pageTitle } from '@/lib/benchmark-brand';
 import { Link, useNavigate, useSearch } from '@tanstack/react-router';
 import { useEffect, useState, type ReactNode } from 'react';
 import { LoaderCircle, Moon, Sun } from 'lucide-react';
@@ -62,4 +63,4 @@ export function Status({ error, busy }: { error?: string | undefined; busy?: boo
 }
 export function useRefetch() { const [n, setN] = useState(0); useEffect(() => { const on = () => setN(x => x + 1); window.addEventListener('pc-refetch', on); return () => window.removeEventListener('pc-refetch', on); }, []); return n; }
 export function PageTitle({ name }: { name: string }) { return <div className="page-title"><div className="eyebrow">FDA 510(k) · Orthopedic devices</div><h1>{name}</h1></div>; }
-export function pageHead(name: string, description: string) { const title = `${name} · OrthoParity`; return { meta: [{ title }, { name: 'description', content: description }, { property: 'og:title', content: title }, { property: 'og:description', content: description }, { property: 'og:type', content: 'website' }, { name: 'twitter:card', content: 'summary_large_image' }] }; }
+export function pageHead(name: string, description: string) { const title = pageTitle(name); return { meta: [{ title }, { name: 'description', content: description }, { property: 'og:title', content: title }, { property: 'og:description', content: description }, { property: 'og:type', content: 'website' }, { name: 'twitter:card', content: 'summary_large_image' }] }; }

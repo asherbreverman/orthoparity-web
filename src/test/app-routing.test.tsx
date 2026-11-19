@@ -3,8 +3,14 @@ import { createRouter, rootRouteId } from "@tanstack/react-router";
 import { describe, expect, it } from "vitest";
 
 import { routeTree } from "@/routeTree.gen";
-import { benchmarkOrigin } from '@/lib/benchmark-brand';
+import { benchmarkOrigin, pageTitle, benchmarkTitle } from '@/lib/benchmark-brand';
+import { pageHead } from '@/components/reviewer-shared';
+import { Route as ProceduresIndex } from '@/routes/procedures';
+import { Route as ProcedureDetail } from '@/routes/procedures_.$familyId';
 import { sitemapStaticPaths, sitemapXML } from '@/lib/sitemap';
+
+type HeadMeta = { meta?: { title?: string }[] };
+const titleOf = (head: unknown, ctx: unknown) => (head as ((ctx: unknown) => HeadMeta) | undefined)?.(ctx)?.meta?.find(m => 'title' in m)?.title;
 
 // Match routes without running loaders or rendering: loaders may need a server or
 // network the test run lacks, and jsdom never loads the stylesheets React waits on.
@@ -34,5 +40,14 @@ describe("App routing", () => {
   it('matches a procedure detail as a separate leaf under the root shell', () => {
     const router = createRouter({routeTree, context: {queryClient: new QueryClient()}});
     expect(router.matchRoutes('/procedures/hip_knee_replacement').map(m => m.routeId)).toEqual(['__root__', '/procedures_/$familyId']);
+  });
+
+  it('puts " | OrthoParity" at the end of every page tab title', () => {
+    expect(pageTitle('Medicare payments by procedure')).toBe('Medicare payments by procedure | OrthoParity');
+    expect(benchmarkTitle).toBe('Orthopedic device and vendor benchmarks | OrthoParity');
+    expect(pageHead('LANDMARK Total Knee System', 'A device brief.').meta?.[0]?.title).toBe('LANDMARK Total Knee System | OrthoParity');
+    expect(titleOf(ProceduresIndex.options.head, {})).toBe('Medicare payments by procedure | OrthoParity');
+    expect(titleOf(ProcedureDetail.options.head, { loaderData: null, params: { familyId: 'not_a_family' } })).toBe('Procedure unavailable | OrthoParity');
+    expect(titleOf(ProcedureDetail.options.head, { loaderData: { family: { name: 'Primary hip and knee replacement', description: 'd' } }, params: { familyId: 'hip_knee_replacement' } })).toBe('Primary hip and knee replacement: Medicare payments and device categories | OrthoParity');
   });
 });

@@ -1,13 +1,14 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { procedureListOptions, procedureHead } from '@/lib/procedure-queries';
+import { pageTitle } from '@/lib/benchmark-brand';
 import { flagshipFirst, procedureDollars, procedureNumber } from '@/lib/procedure-data';
 import { ProcedurePending, ProcedureError, ProcedureNotFound, ProcedureNotesBlock } from '@/components/procedure-shared';
 
 export const Route = createFileRoute('/procedures')({
   staticData: {sitemap: true},
   loader: ({context}) => context.queryClient.ensureQueryData(procedureListOptions()),
-  head: () => procedureHead('Medicare payments by procedure | OrthoParity', 'Original Medicare payments, procedure volumes and orthopedic device categories from public CMS and FDA data.', '/procedures'),
+  head: () => procedureHead(pageTitle('Medicare payments by procedure'), 'Original Medicare payments, procedure volumes and orthopedic device categories from public CMS and FDA data.', '/procedures'),
   pendingMs: 0,
   pendingComponent: ProcedurePending,
   errorComponent: ProcedureError,
