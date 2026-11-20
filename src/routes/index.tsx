@@ -14,7 +14,7 @@ import type { View } from '@/lib/signals';
 import { redirectNavigation } from '@/lib/vendor-data';
 import { DockedSearch, ModeTabs } from '@/components/benchmark-navigation';
 const VendorWorkspace = lazy(() => import('@/components/vendor-workspace').then(m => ({default: m.VendorWorkspace})));
-const productExamples: [string, string][] = [['ACCOLADE II hip (K120578)', 'K120578'], ['ATTUNE knee (K140881)', 'K140881'], ['Persona knee (K113369)', 'K113369'], ['POLARSTEM hip (K130728)', 'K130728'], ['CD Horizon spine system (K253335)', 'K253335']];
+const productExamples: [string, string][] = [['ATTUNE knee (K140881)', 'K140881'], ['ACTIS hip (K150862)', 'K150862'], ['ExcelsiusGPS spine robot (K171651)', 'K171651'], ['Equinoxe reverse shoulder (K063569)', 'K063569'], ['Smith+Nephew suture anchors (K151105)', 'K151105']];
 const vendorExamples: [string, string][] = [['Stryker', 'stryker'], ['Johnson & Johnson (DePuy Synthes)', 'jnj_depuy_synthes'], ['Zimmer Biomet', 'zimmer_biomet'], ['Medtronic', 'medtronic'], ['Smith+Nephew', 'smith_nephew']];
 export const Route = createFileRoute('/')({
   staticData: { sitemap: true },
