@@ -1080,7 +1080,6 @@
 .decision-question { font-size: 13px; color: var(--muted-foreground); font-weight: 500; }
 .decision-badge { font-size: 12px; border-radius: 999px; padding: 2px 10px; white-space: normal; max-width: 100%; flex-shrink: 0; }
 .tone-info { background: var(--muted); color: var(--foreground); }
-.tone-attention { background: var(--attention-bg); color: var(--attention-fg); }
 .decision-finding { font-size: 15px; line-height: 1.5; margin: 0; }
 .decision-why, .decision-ask p { font-size: 13px; line-height: 1.5; margin: 0; }
 .decision-why { color: var(--muted-foreground); }
@@ -1278,7 +1277,6 @@ html { scroll-behavior: smooth; scroll-padding-top: 0; }
 .glance-tile { display:flex; flex-direction:column; align-items:flex-start; justify-content:flex-start; gap:12px; background:color-mix(in srgb,var(--hue) 9%,var(--background)); padding:22px 18px; border-radius:28px; min-height:148px; height:auto; white-space:normal; text-align:left; }
 .glance-tile:hover { background:color-mix(in srgb,var(--hue) 14%,var(--background)); color:var(--foreground); }
 .glance-label { color:var(--hue); font-size:14px; font-weight:600; display:flex; gap:6px; align-items:baseline; }
-.warning-dot { display:inline-block; width:8px; height:8px; flex-shrink:0; border-radius:50%; background:var(--attention-fg); box-shadow:0 0 0 4px var(--attention-bg); }
 .glance-tile strong { font-size:20px; line-height:1.2; font-weight:600; overflow-wrap:normal; word-break:normal; }
 .ownership-switch { display:flex; flex-wrap:wrap; gap:3px; padding:3px; background:var(--secondary); width:fit-content; margin:12px 0 0; border-radius:20px; }
 .ownership-switch button { padding:7px 12px; min-height:30px; height:auto; font-size:12px; background:transparent; }
@@ -1301,7 +1299,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 0; }
 .chapter-sidebar { align-self:start; position:sticky; top:170px; min-width:0; }
 .chapter-headline { font-size:48px; font-weight:600; line-height:1.08; margin:0 0 24px; }
 .decision-badge { display:inline-block; color:var(--hue); background:color-mix(in srgb,var(--hue) 10%,var(--background)); padding:7px 13px; font-size:14px; line-height:1.4; }
-.decision-badge.tone-attention { background:var(--attention-bg); color:var(--attention-fg); }
+.decision-badge.tone-info { background:var(--muted); color:var(--foreground); }
 .chapter-content { min-width:0; }
 .decision-finding { font-size:24px; line-height:1.28; margin:0 0 36px; }
 .chapter-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:12px; margin:0 0 12px; }

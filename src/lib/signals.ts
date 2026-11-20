@@ -9,8 +9,6 @@ export interface Acquisition { vendor_id: string; name: string; date: string | n
 export interface VendorSignals { found: boolean; mode: string; vendor: Record<string, unknown>; bottom_line: string; cards: DecisionCard[]; competition: CompetitionRow[]; acquisitions: Acquisition[]; notes: string[] }
 export type View = 'brief' | 'analyst';
 
-/** Only "attention" renders amber; anything else is the neutral info pill. Never a verdict color. */
-export function toneClass(tone: string) { return tone === 'attention' ? 'tone-attention' : 'tone-info'; }
 export function positionClass(position: string) { return position === 'Top 3' ? 'position-top' : position === 'No recent clearances' ? 'position-quiet' : 'position-active'; }
 export function askLines(cards: DecisionCard[]) { return cards.flatMap(c => (c.asks?.length ? c.asks : [c.ask])).filter(Boolean); }
 export function questionHue(index: number) { return `question-hue-${(index % 7) + 1}`; }

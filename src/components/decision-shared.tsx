@@ -2,7 +2,7 @@ import { isValidElement, useCallback, useEffect, useState, type ReactNode } from
 import { StoryReveal, evidenceItems } from './story-shared';
 import { ChevronDown, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { toneClass, evidenceIsOpen, questionHue, type DecisionCard, type View } from '@/lib/signals';
+import { evidenceIsOpen, questionHue, type DecisionCard, type View } from '@/lib/signals';
 import type { Meta } from '@/lib/predicate-chain';
 import { toast } from 'sonner';
 
@@ -45,12 +45,12 @@ function CopyAsk({ text }: { text: string }) {
 
 export function cardHue(_card: DecisionCard, index: number) { return questionHue(index); }
 export function GlanceTiles({ cards }: { cards: DecisionCard[] }) {
-  return <section className="result-glance" aria-label="Questions at a glance"><p className="glance-caption">{cards.length} questions, each with its evidence and a question for the vendor. Select one to go to it.</p><div className={`glance-tiles glance-count-${cards.length}`}>{cards.map((c, i) => <Button asChild variant="ghost" key={c.key} className={`glance-tile ${cardHue(c, i)}`}><a href={`#chapter-${c.key}`}><span className="glance-label">{c.tone === 'attention' && <i className="warning-dot" />}{c.question}</span><strong>{c.badge}</strong></a></Button>)}</div></section>;
+  return <section className="result-glance" aria-label="Questions at a glance"><p className="glance-caption">{cards.length} questions, each with its evidence and a question for the vendor. Select one to go to it.</p><div className={`glance-tiles glance-count-${cards.length}`}>{cards.map((c, i) => <Button asChild variant="ghost" key={c.key} className={`glance-tile ${cardHue(c, i)}`}><a href={`#chapter-${c.key}`}><span className="glance-label">{c.question}</span><strong>{c.badge}</strong></a></Button>)}</div></section>;
 }
 export function DecisionCards({ cards, evidence }: { cards: DecisionCard[]; onEvidence: (id: string, keyboard?: boolean) => void; evidence?: ReactNode }) {
   const sections=evidenceItems(evidence);
   return <section className="decision-grid story-chapters" aria-label="Decision cards">{cards.map((c,index) => <article id={`chapter-${c.key}`} className={`decision-card story-chapter ${cardHue(c,index)}`} key={c.key}><StoryReveal className="chapter-grid">
-    <div className="chapter-sidebar"><h2 className="chapter-headline">{c.question}</h2><span className={`decision-badge ${toneClass(c.tone)}`}>{c.badge}</span></div>
+    <div className="chapter-sidebar"><h2 className="chapter-headline">{c.question}</h2><span className="decision-badge tone-info">{c.badge}</span></div>
     <div className="chapter-content"><p className="decision-finding">{c.finding}</p>
       {!!c.figs?.length && <div className="chapter-stats">{c.figs.map((fig,i) => <div className="chapter-stat" key={i}><strong>{fig.value}</strong><span>{fig.label}</span></div>)}</div>}
       <div className="chapter-context"><div className="decision-why"><h3>Why it matters</h3><p>{c.why}</p></div><div className="decision-ask"><h3>Ask the vendor</h3>{(c.asks?.length ? c.asks : [c.ask]).length === 1 ? <><p>{(c.asks?.length ? c.asks : [c.ask])[0]}</p><CopyAsk text={(c.asks?.length ? c.asks : [c.ask])[0] ?? c.ask} /></> : <ul className="card-questions">{(c.asks?.length ? c.asks : [c.ask]).map((ask, i) => <li key={i}><p>{ask}</p><CopyAsk text={ask} /></li>)}</ul>}</div></div>
