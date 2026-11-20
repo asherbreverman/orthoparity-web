@@ -1389,6 +1389,7 @@ export type Database = {
     Functions: {
       pc_add_on_notes: { Args: never; Returns: Json }
       pc_applicant_vendor: { Args: { name: string }; Returns: string }
+      pc_asks: { Args: { q: string[] }; Returns: Json }
       pc_batch: { Args: { ks: string[] }; Returns: Json }
       pc_brand_family: { Args: { k: string }; Returns: Json }
       pc_brief: { Args: { k: string }; Returns: Json }
@@ -1410,12 +1411,19 @@ export type Database = {
       pc_code_procedures: { Args: { code: string }; Returns: Json }
       pc_code_vendors: { Args: { code: string; lim?: number }; Returns: Json }
       pc_compare: { Args: { a: string; b: string }; Returns: Json }
+      pc_count: {
+        Args: { many: string; n: number; one: string }
+        Returns: string
+      }
+      pc_country: { Args: { c: string }; Returns: string }
       pc_data_end: { Args: never; Returns: string }
       pc_device_add_on: { Args: { k: string }; Returns: Json }
+      pc_device_indications: { Args: { k: string }; Returns: Json }
       pc_device_maude: { Args: { k: string }; Returns: Json }
       pc_device_owner: { Args: { k: string }; Returns: Json }
       pc_device_procedures: { Args: { k: string }; Returns: Json }
       pc_device_recalls: { Args: { k: string }; Returns: Json }
+      pc_device_supplier: { Args: { k: string }; Returns: Json }
       pc_direct: {
         Args: { k: string }
         Returns: {
@@ -1442,6 +1450,10 @@ export type Database = {
       pc_money: { Args: { x: number }; Returns: string }
       pc_num: { Args: { n: number }; Returns: string }
       pc_owner_at: { Args: { d: string; v: string }; Returns: string }
+      pc_pay_range: {
+        Args: { compact?: boolean; hi: number; lo: number }
+        Returns: string
+      }
       pc_peers: { Args: { k: string; lim?: number }; Returns: Json }
       pc_primary_lineage: {
         Args: { k: string; max_gen?: number }
@@ -1487,8 +1499,10 @@ export type Database = {
           segment: string
         }[]
       }
+      pc_short_name: { Args: { n: string }; Returns: string }
       pc_signals: { Args: { k: string }; Returns: Json }
       pc_supplier_notes: { Args: never; Returns: Json }
+      pc_usd: { Args: { x: number }; Returns: string }
       pc_vendor_add_on: { Args: { m?: string; v: string }; Returns: Json }
       pc_vendor_brief: { Args: { m?: string; v: string }; Returns: Json }
       pc_vendor_compare: {
