@@ -52,7 +52,7 @@ export function DecisionCards({ cards, evidence }: { cards: DecisionCard[]; onEv
   return <section className="decision-grid story-chapters" aria-label="Decision cards">{cards.map((c,index) => <article id={`chapter-${c.key}`} className={`decision-card story-chapter ${cardHue(c,index)}`} key={c.key}><StoryReveal className="chapter-grid">
     <div className="chapter-sidebar"><h2 className="chapter-headline">{c.question}</h2><span className="decision-badge tone-info">{c.badge}</span></div>
     <div className="chapter-content"><p className="decision-finding">{c.finding}</p>
-      {!!c.figs?.length && <div className="chapter-stats">{c.figs.map((fig,i) => <div className="chapter-stat" key={i}><strong>{fig.value}</strong><span>{fig.label}</span></div>)}</div>}
+      {!!c.figs?.length && <div className="chapter-stats">{c.figs.map((fig,i) => <div className="chapter-stat" key={i}><strong className={/^[^\d$]*[a-zA-Z].*\s/.test(String(fig.value)) ? 'stat-text' : undefined}>{fig.value}</strong><span>{fig.label}</span></div>)}</div>}
       <div className="chapter-context"><div className="decision-why"><h3>Why it matters</h3><p>{c.why}</p></div><div className="decision-ask"><h3>Ask the vendor</h3>{(c.asks?.length ? c.asks : [c.ask]).length === 1 ? <><p>{(c.asks?.length ? c.asks : [c.ask])[0]}</p><CopyAsk text={(c.asks?.length ? c.asks : [c.ask])[0] ?? c.ask} /></> : <ul className="card-questions">{(c.asks?.length ? c.asks : [c.ask]).map((ask, i) => <li key={i}><p>{ask}</p><CopyAsk text={ask} /></li>)}</ul>}</div></div>
     </div></StoryReveal>
     {cards.findIndex(card=>card.evidence===c.evidence)===index && sections.filter(node=>isValidElement<{id?:string}>(node)&&(node.props.id===c.evidence || (c.evidence==='alternatives' && node.props.id==='category')))}

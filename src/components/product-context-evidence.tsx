@@ -3,6 +3,7 @@ import { ChevronDown, ExternalLink } from 'lucide-react';
 import { Button } from './ui/button';
 import { BriefLink, PdfLink, Status, useRefetch } from './reviewer-shared';
 import { getDeviceIndications } from '@/lib/predicate-data';
+import { longDate } from '@/lib/signals';
 import type { DeviceIndications } from '@/lib/signals';
 import type { DeviceOwner } from '@/lib/vendor-data';
 
@@ -10,7 +11,7 @@ function IndicationsQuote({ text }: { text: string }) {
   const [expanded, setExpanded] = useState(false);
   return <><blockquote className={`ifu-quote ${expanded ? '' : 'clamped'}`}>{text}</blockquote><Button variant="link" size="sm" aria-expanded={expanded} onClick={() => setExpanded(!expanded)}>{expanded ? 'Show less' : 'Show more'}<ChevronDown className={expanded ? 'rotate-180' : ''} /></Button></>;
 }
-export function ProductIndicationsEvidence({ k, summaryUrl }: { k: string; summaryUrl: string | null | undefined }) {
+export function ProductIndicationsEvidence({ k, fullName, plain, code, cleared, deviceClass, summaryUrl }: { k: string; fullName: string; plain: string; code: string; cleared: string | null | undefined; deviceClass: string | number | null | undefined; summaryUrl: string | null | undefined }) {
   const [result, setResult] = useState<DeviceIndications | null>(null);
   const [error, setError] = useState('');
   const reload = useRefetch();
@@ -20,13 +21,16 @@ export function ProductIndicationsEvidence({ k, summaryUrl }: { k: string; summa
     return () => { active = false; };
   }, [k, reload]);
   const data = result?.knumber === k ? result : null;
-  if (!data) return <Status busy={!error} error={error} />;
   return <>
+    <p className="section-caption"><strong>Clearance:</strong> {k} · {plain} ({code}) · Cleared {longDate(cleared)} · Class {deviceClass ?? 'NOT FOUND'} · <PdfLink url={summaryUrl ?? null} /></p>
+    <p className="section-caption">Device name as filed: {fullName}</p>
+    {!data ? <Status busy={!error} error={error} /> : <>
     <h3>This 510(k)</h3>
     {data.found && data.ifu_text ? <><IndicationsQuote text={data.ifu_text} /><p className="section-caption">From the 510(k) summary, page {data.page ?? 'NOT FOUND'}. <PdfLink url={summaryUrl ?? null} /></p></> : <p className="section-caption">NOT FOUND: we couldn't extract the Indications for Use from this 510(k) summary.</p>}
     {data.predicate && <h3>Primary predicate: <BriefLink k={data.predicate.knumber} /> {data.predicate.device_name ?? 'NOT FOUND'}</h3>}
     {data.predicate?.ifu_text ? <IndicationsQuote text={data.predicate.ifu_text} /> : <p className="section-caption">NOT FOUND: the primary predicate's Indications for Use isn't on file.</p>}
     {data.similarity != null && <p className="section-caption">The wording is {Math.round(data.similarity * 100)}% similar to the primary predicate's. This compares wording only. It doesn't judge whether the cleared use is broader or narrower.</p>}
+    </>}
   </>;
 }
 export function ProductOwnerEvidence({ owner }: { owner: DeviceOwner | null }) {

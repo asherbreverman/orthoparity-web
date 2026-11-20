@@ -86,3 +86,9 @@
 - [x] Support all triggered questions, matching cyclic hues, full glance labels and wrapped sticky tabs.
 - [x] Match each box to its evidence, including indications, owner, product supplier and empty states.
 - [x] Verify live 12/11-box pages, copying, printing, analyst view and phone layouts; update and run tests.
+
+# Product and vendor layout fixes
+- [x] Shorten displayed product names and simplify headers without removing clearance or owner evidence.
+- [x] Align glance answers and keep stat numbers on one line at desktop, tablet and phone widths.
+- [x] Add URL-based product comparison using cached signals and the shared sheet.
+- [x] Test formatting helpers and verify the requested live pages, comparison and all existing tests.

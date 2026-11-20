@@ -4,7 +4,7 @@ import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Copy, Check, Download, FileSpreadsheet, ChevronDown, Info, ExternalLink } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { BriefLink, PdfLink, Status, useRefetch } from './reviewer-shared';
+import { BriefLink, Status, useRefetch } from './reviewer-shared';
 import { Metrics, Studies } from './payment-shared';
 import { ProductRecallEvidence } from './recall-evidence';
 import { ProductMaudeSection } from './maude-evidence';
@@ -15,7 +15,10 @@ import { ProductSupplierSection } from './supplier-evidence';
 import { BottomLine, GlanceTiles, DecisionCards, EvidenceSection, Notes, PrintBrief, useEvidence } from './decision-shared';
 import { getBrief, getFamily, lookupChain, getProductPayments, getSignals, getDeviceOwner } from '@/lib/predicate-data';
 import { ownerLine, withPaymentQuestions, money, dollars, type ProductPayments } from '@/lib/vendor-data';
-import { LocalBar, ExtraEvidence } from './story-shared';
+import { LocalBar, ExtraEvidence, ComparisonSheet } from './story-shared';
+import { ProductCompare } from './product-compare';
+import { shortDeviceName, productSentence } from '@/lib/format';
+import { headerOwnerChanged } from '@/lib/product-comparison';
 import { toast } from 'sonner';
 import { dateLabel, type Meta } from '@/lib/predicate-chain';
 import { filterPeers, lineageSentence, patternExplanation, unreviewedLow, questionGroups, questionsText, type Brief, type QuestionGroup } from '@/lib/reviewer-data';
@@ -24,7 +27,10 @@ const CategoryChart = lazy(() => import('./category-chart'));
 const PaymentYears = lazy(() => import('./payment-charts').then(m => ({ default: m.PaymentYears })));
 const Evidence = lazy(() => import('./predicate-evidence').then(m => ({ default: m.PredicateEvidence })));
 
-export function ProductResult({ k, view, meta, onView }: { k: string; view: View; meta: Meta; onView: (v: View) => void }) {
+export function ProductResult({ k, compare, view, meta, onView, onCompare }: { k: string; compare?: string | undefined; view: View; meta: Meta; onView: (v: View) => void; onCompare: (k: string) => void }) {
+  const [compareOpen, setCompareOpen] = useState(!!compare);
+  useEffect(() => { setCompareOpen(!!compare); }, [compare]);
+  const closeCompare = () => { setCompareOpen(false); onCompare(''); };
   const [brief, setBrief] = useState<Brief | null>(null);
   const [signals, setSignals] = useState<Signals | null>(null);
   const [payments, setPayments] = useState<ProductPayments | null>(null);
@@ -55,7 +61,7 @@ export function ProductResult({ k, view, meta, onView }: { k: string; view: View
   }, [k, reload]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (brief?.found) top.current?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' }); }, [brief]);
 
-  useEffect(() => { const title = signals?.header?.device_name ?? brief?.device?.device_name; if (title) window.dispatchEvent(new CustomEvent('benchmark-name', { detail: title })); }, [brief, signals]);
+  useEffect(() => { const title = signals?.header?.device_name ?? brief?.device?.device_name; if (title) window.dispatchEvent(new CustomEvent('benchmark-name', { detail: shortDeviceName(title) })); }, [brief, signals]);
 
   if (!brief) return <Status error={error} busy={busy} />;
   const device = brief.device;
@@ -73,9 +79,10 @@ export function ProductResult({ k, view, meta, onView }: { k: string; view: View
   const altRows = s?.alternatives.rows ?? [];
   const card = (key: string) => cards.find(c => c.key === key);
   const p = payments;
-  const ownerNow = !!ownerLine(owner);
-  const ownerLink = !!owner?.found && !owner.now_part_of && !!owner.owner_vendor_id && !!owner.owner_name;
-  const name = h?.device_name ?? device.device_name ?? device.knumber;
+  const filer = owner?.filer ?? h?.company ?? device.applicant ?? 'NOT FOUND';
+  const ownerNow = !!ownerLine(owner) || (!!owner?.found && headerOwnerChanged(filer, owner.owner_name ?? ''));
+  const fullName = h?.device_name ?? device.device_name ?? device.knumber;
+  const name = shortDeviceName(fullName);
   const plain = h?.plain_name ?? brief.product_code?.plain_name ?? h?.fda_name ?? brief.product_code?.fda_name ?? 'Category unavailable';
   const code = h?.product_code ?? device.product_code ?? 'NOT FOUND';
   async function copy(which: 'all' | 'selected' | 'asks') {
@@ -95,7 +102,7 @@ export function ProductResult({ k, view, meta, onView }: { k: string; view: View
         <ProductRecallEvidence k={k} />
       </EvidenceSection>
       <ProductMaudeSection id="maude" k={k} open={ev.isOpen('maude')} onToggle={() => ev.toggle('maude')} />
-      <EvidenceSection id="indications" title="Indications for Use" summary={card('indications')?.badge ?? ''} open={ev.isOpen('indications')} onToggle={() => ev.toggle('indications')}><ProductIndicationsEvidence k={k} summaryUrl={h?.summary_url ?? device.summary_url} /></EvidenceSection>
+      <EvidenceSection id="indications" title="Indications for Use" summary={card('indications')?.badge ?? ''} open={ev.isOpen('indications')} onToggle={() => ev.toggle('indications')}><ProductIndicationsEvidence k={k} fullName={fullName} plain={plain} code={code} cleared={h?.cleared ?? device.decision_date} deviceClass={h?.device_class ?? device.device_class} summaryUrl={h?.summary_url ?? device.summary_url} /></EvidenceSection>
       <EvidenceSection id="owner" title="Who sells it today" summary={card('owner')?.badge ?? ''} open={ev.isOpen('owner')} onToggle={() => ev.toggle('owner')}><ProductOwnerEvidence owner={owner} /></EvidenceSection>
       <ProductSupplierSection id="supplier" k={k} open={ev.isOpen('supplier')} onToggle={() => ev.toggle('supplier')} />
       <EvidenceSection id="predicates" title="Predicates and lineage" summary={`${brief.direct_predicates?.length ?? 0} direct predicates · ${lineageSentence(brief.lineage)}`} open={ev.isOpen('predicates')} onToggle={() => ev.toggle('predicates')}>
@@ -112,7 +119,7 @@ export function ProductResult({ k, view, meta, onView }: { k: string; view: View
         {brief.ifu?.found && brief.ifu.ifu_text ? <><blockquote className={`ifu-quote ${expanded ? '' : 'clamped'}`}>{brief.ifu.ifu_text}</blockquote><div className="section-note">From the 510(k) Indications for Use, page {brief.ifu.page ?? 'NOT FOUND'}<Button variant="link" size="sm" onClick={() => setExpanded(!expanded)}>{expanded ? 'Show less' : 'Show more'}<ChevronDown className={expanded ? 'rotate-180' : ''} /></Button></div></> : <p className="text-sm text-muted-foreground">Indications for Use not found in the summary. See the FDA PDF.</p>}
       </EvidenceSection>
       <EvidenceSection id="alternatives" title="Alternatives in this category" summary={s ? `${s.alternatives.companies.toLocaleString('en-US')} other companies · ${brief.peers.total.toLocaleString('en-US')} peers on the same predicates` : 'Loading…'} open={ev.isOpen('alternatives')} onToggle={() => ev.toggle('alternatives')}>
-        {s && <><p className="section-caption">{s.alternatives.window}</p><div className="brief-table-scroll"><table className="brief-table"><thead><tr><th>Company</th><th>Clearances · last five years</th><th>Latest device</th><th>Latest 510(k)</th><th>Latest date</th></tr></thead><tbody>{(allAlternatives ? altRows : altRows.slice(0, 10)).map(r => <tr key={r.vendor_id}><td>{r.company}</td><td>{r.clearances.toLocaleString('en-US')}</td><td>{r.latest_device ?? 'NOT FOUND'}</td><td>{r.latest_knumber ? <BriefLink k={r.latest_knumber} /> : 'NOT FOUND'}</td><td>{longDate(r.latest_date)}</td></tr>)}</tbody></table></div>{altRows.length > 10 && <Button variant="link" className="px-0" onClick={() => setAllAlternatives(!allAlternatives)}>{allAlternatives ? 'Show fewer' : `Show all ${altRows.length}`}</Button>}{!altRows.length && <p className="section-note">No other companies cleared this category in the window.</p>}</>}
+        {s && <><p className="section-caption">{s.alternatives.window}</p><div className="brief-table-scroll"><table className="brief-table"><thead><tr><th>Company</th><th>Clearances · last five years</th><th>Latest device</th><th>Latest 510(k)</th><th>Latest date</th></tr></thead><tbody>{(allAlternatives ? altRows : altRows.slice(0, 10)).map(r => <tr key={r.vendor_id}><td>{r.company}</td><td>{r.clearances.toLocaleString('en-US')}</td><td>{r.latest_device ? shortDeviceName(r.latest_device) : 'NOT FOUND'}</td><td>{r.latest_knumber ? <BriefLink k={r.latest_knumber} /> : 'NOT FOUND'}</td><td>{longDate(r.latest_date)}</td></tr>)}</tbody></table></div>{altRows.length > 10 && <Button variant="link" className="px-0" onClick={() => setAllAlternatives(!allAlternatives)}>{allAlternatives ? 'Show fewer' : `Show all ${altRows.length}`}</Button>}{!altRows.length && <p className="section-note">No other companies cleared this category in the window.</p>}</>}
         <h3 className="mt-6">Peers cleared against the same predicates</h3><p className="section-caption">Cleared against the same predicate devices.</p>
         <p className="section-lead">{brief.peers.total} other orthopedic clearances from {brief.peers.other_companies} other companies were cleared against at least one of the same predicates.</p>
         <div className="peer-filters"><Button variant={other ? 'secondary' : 'outline'} size="sm" aria-pressed={other} onClick={() => setOther(!other)}>{other && <Check />}Other companies only</Button><Button variant={sameCode ? 'secondary' : 'outline'} size="sm" aria-pressed={sameCode} onClick={() => setSameCode(!sameCode)}>{sameCode && <Check />}Same product code only</Button><span className="section-note">{peers.length} records</span></div>
@@ -149,22 +156,20 @@ export function ProductResult({ k, view, meta, onView }: { k: string; view: View
   );
   return <>
     <Status error={error} />
-    <PrintBrief evidence={<ProductAddOnPrint k={k} />} meta={meta} title={name} subtitle={`${owner?.filer ?? h?.company ?? device.applicant ?? 'NOT FOUND'}${ownerNow ? `, now part of ${owner?.owner_name}` : ''} · ${plain} (${code}) · ${device.knumber} · cleared ${longDate(h?.cleared ?? device.decision_date)}`} bottomLine={s?.bottom_line ?? ''} cards={cards} table={{ caption: `Alternatives in this category · ${s?.alternatives.window ?? ''}`, head: ['Company', 'Clearances', 'Latest device', 'Latest 510(k)', 'Latest date'], rows: altRows.map(r => [r.company, r.clearances, r.latest_device ?? 'NOT FOUND', r.latest_knumber ?? 'NOT FOUND', longDate(r.latest_date)]) }} questions={asks} notes={s?.notes ?? []} />
+    <PrintBrief evidence={<ProductAddOnPrint k={k} />} meta={meta} title={name} subtitle={`${owner?.filer ?? h?.company ?? device.applicant ?? 'NOT FOUND'}${ownerNow ? `, now part of ${owner?.owner_name}` : ''} · ${plain} (${code}) · ${device.knumber} · cleared ${longDate(h?.cleared ?? device.decision_date)}`} bottomLine={s?.bottom_line ?? ''} cards={cards} table={{ caption: `Alternatives in this category · ${s?.alternatives.window ?? ''}`, head: ['Company', 'Clearances', 'Latest device', 'Latest 510(k)', 'Latest date'], rows: altRows.map(r => [r.company, r.clearances, r.latest_device ? shortDeviceName(r.latest_device) : 'NOT FOUND', r.latest_knumber ?? 'NOT FOUND', longDate(r.latest_date)]) }} questions={asks} notes={s?.notes ?? []} />
     <section ref={top} className="result-header" aria-label="Device">
       <div className="result-heading">
-        <div><h2 className="result-title">{name}</h2>
-          {brief.product_code?.plain_description && <p className="plain-description">{brief.product_code.plain_description}</p>}
-          <p className="result-meta">{device.knumber} · {owner?.filer ?? h?.company ?? device.applicant ?? 'NOT FOUND'} · {plain} ({code}) · Cleared {longDate(h?.cleared ?? device.decision_date)} · Class {h?.device_class ?? device.device_class ?? 'NOT FOUND'}</p>
-          {ownerNow && owner && <p className="result-meta">Now part of {owner.owner_name}. {owner.explanation}{owner.divested && owner.source_url && /^https:\/\//.test(owner.source_url) && <> <a className="brief-link" href={owner.source_url} target="_blank" rel="noopener noreferrer">Source<ExternalLink size={12} /></a></>} <Button asChild variant="link" size="sm"><Link to="/" search={{ v: owner.owner_vendor_id ?? undefined }}>Benchmark {owner.owner_name}</Link></Button></p>}
-          {(h?.procedures ?? brief.product_code?.procedures) && <p className="result-meta">Procedures: {h?.procedures ?? brief.product_code?.procedures}</p>}
-          {brief.product_code?.reviewed === false && <span className="review-tag">Plain-English description drafted from FDA's definition, pending expert review</span>}
+        <div><h2 className="result-title line-clamp-2 max-[760px]:line-clamp-3" title={fullName}>{name}</h2>
+          <p className="result-meta">{owner?.found && owner.owner_vendor_id ? <Link className="brief-link" to="/" search={{ v: owner.owner_vendor_id }}>{filer}{ownerNow ? `, now part of ${owner.owner_name}` : ''}</Link> : filer}</p>
+          <p className="plain-description">{productSentence(brief.product_code?.plain_description ?? `Cleared by FDA as ${plain}`, h?.procedures ?? brief.product_code?.procedures)}{brief.product_code?.reviewed === false && <> <span className="review-tag" title="Plain-English description drafted from FDA's definition, pending expert review." tabIndex={0}>Draft</span></>}</p>
         </div>
-        <div className="result-actions"><div className="no-print result-buttons"><Button onClick={() => window.print()}>Download brief</Button><PdfLink url={h?.summary_url ?? device.summary_url} /><Button variant="link" disabled={!asks.length} onClick={() => void copy('asks')}>Copy questions ›</Button>{ownerLink && owner && <Button asChild variant="link"><Link to="/" search={{ v: owner.owner_vendor_id ?? undefined }}>Benchmark {owner.owner_name}</Link></Button>}</div></div>
+        <div className="result-actions"><div className="no-print result-buttons"><Button onClick={() => window.print()}>Download brief</Button><Button variant="link" onClick={() => setCompareOpen(true)} aria-expanded={compareOpen}>Compare with another product ›</Button></div></div>
       </div>
       {s && <BottomLine text={s.bottom_line} />}
       {s && <GlanceTiles cards={cards} />}
     </section>
     <LocalBar name={name} cards={cards} view={view} onView={onView} />
+    <ComparisonSheet title="Compare products" open={compareOpen} onClose={closeCompare}>{compareOpen && <ProductCompare k={k} compare={compare} onCompare={onCompare} onClose={closeCompare} />}</ComparisonSheet>
     {!s && <Status busy={!signals && !error} error={signals && !signals.found ? 'Decision signals are unavailable for this clearance.' : undefined} />}
     {s && <DecisionCards cards={cards} onEvidence={ev.reveal} evidence={evidenceSections} />}
     <section id="all-questions" className="brief-section question-section"><div className="section-heading"><h2>Questions for the vendor</h2><div className="question-actions no-print"><Button size="sm" onClick={() => void copy('all')}>{copied === 'all' ? <Check /> : <Copy />}Copy all</Button>{selected.size > 0 && <Button variant="outline" size="sm" onClick={() => void copy('selected')}>{copied === 'selected' ? <Check /> : <Copy />}Copy selected</Button>}<Button onClick={() => window.print()}>Download brief</Button></div></div>

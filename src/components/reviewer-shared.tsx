@@ -1,4 +1,5 @@
 import { LOAD_FAILED } from '@/lib/predicate-data';
+import { shortDeviceName } from '@/lib/format';
 import { pageTitle } from '@/lib/benchmark-brand';
 import { Link, useNavigate, useSearch } from '@tanstack/react-router';
 import { useEffect, useState, type ReactNode } from 'react';
@@ -47,7 +48,7 @@ export function ReviewerShell({ children }: { children: ReactNode }) {
   </div>;
 }
 const devices = new Map<string, SearchResult>();
-const loadDevices = async (q: string, signal: AbortSignal) => (await searchDevices(q, signal)).map(row => { devices.set(row.knumber, row); return { id: row.knumber, name: row.device_name ?? row.knumber, detail: `${row.knumber} · ${row.applicant ?? 'NOT FOUND'}`, date: dateLabel(row.decision_date), extra: row.match === 'close spelling' ? 'close spelling' : undefined }; });
+const loadDevices = async (q: string, signal: AbortSignal) => (await searchDevices(q, signal)).map(row => { devices.set(row.knumber, row); return { id: row.knumber, name: shortDeviceName(row.device_name ?? row.knumber), detail: `${row.knumber} · ${row.applicant ?? 'NOT FOUND'}`, date: dateLabel(row.decision_date), extra: row.match === 'close spelling' ? 'close spelling' : undefined }; });
 export function DeviceSearch({ label = 'Identify an orthopedic device to benchmark', resetKey = '', initialValue, onSelect }: { label?: string; resetKey?: string; initialValue?: string; onSelect: (row: SearchResult) => void }) {
   const [name, setName] = useState(initialValue ?? resetKey);
   useEffect(() => { setName(initialValue ?? resetKey); const update = (event: Event) => { if (event instanceof CustomEvent && typeof event.detail === 'string') setName(event.detail); }; window.addEventListener('benchmark-name', update); return () => window.removeEventListener('benchmark-name', update); }, [initialValue, resetKey]);
