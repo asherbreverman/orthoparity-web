@@ -37,7 +37,7 @@ export function ReviewerShell({ children }: { children: ReactNode }) {
   function theme() { setDark(!dark); try { localStorage.setItem('orthoparity-theme', dark ? 'light' : 'dark'); } catch {} }
   return <div className="app-shell reviewer-shell">
     <header className={`topbar no-print ${selected || scrolled ? 'is-docked' : ''}`}><div className="topbar-inner">
-      <Button asChild variant="ghost" className="benchmark-home"><Link to="/" search={{}} onClick={() => { window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' }); }} aria-label="OrthoParity home"><BrandMark /><span className="benchmark-wordmark"><strong>Ortho</strong><span>Parity</span></span></Link></Button>
+      <Button asChild variant="ghost" className="benchmark-home"><Link to="/" search={{}} onClick={() => { window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' }); }} aria-label="OrthoParity home"><BrandMark /><span className="benchmark-wordmark"><strong>Ortho</strong><span>Parity</span></span>{!selected && <span className="brand-tagline">Orthopedic device and vendor benchmarks</span>}</Link></Button>
       <div id="docked-search" className="docked-search" />
       <div className="header-tools">{selected && <ModeTabs compact vendor={!!search.v || search.mode === 'vendor'} onChange={vendor => void navigate({ to: '/', search: vendor ? {mode: 'vendor'} : {} })} />}<Button size="icon" variant="ghost" className="theme-toggle" aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'} title={dark ? 'Switch to light mode' : 'Switch to dark mode'} onClick={theme}>{dark ? <Sun /> : <Moon />}</Button></div></div>
     </header>

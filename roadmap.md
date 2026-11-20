@@ -92,3 +92,8 @@
 - [x] Align glance answers and keep stat numbers on one line at desktop, tablet and phone widths.
 - [x] Add URL-based product comparison using cached signals and the shared sheet.
 - [x] Test formatting helpers and verify the requested live pages, comparison and all existing tests.
+
+# Site tagline
+- [x] Add the responsive header tagline and home introduction.
+- [x] Update the share description and printed brief headers.
+- [x] Verify the requested desktop and phone widths, print text, metadata and tests.

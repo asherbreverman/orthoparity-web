@@ -10,5 +10,5 @@ export const faviconSvg = svgWith(`<rect width="64" height="64" rx="14" fill="#0
 // One tab-title shape everywhere: page name, separator, brand. Matches the procedure pages.
 export const pageTitle = (name: string) => `${name} | OrthoParity`;
 export const benchmarkTitle = pageTitle('Orthopedic device and vendor benchmarks');
-export const benchmarkDescription = 'OrthoParity offers free, open-source orthopedic device and vendor benchmarks, built from public FDA and CMS data.';
+export const benchmarkDescription = 'Free orthopedic device and vendor benchmarks from public FDA and CMS data, the same for everyone. Open source.';
 export const benchmarkOrigin = 'https://www.orthoparity.com';

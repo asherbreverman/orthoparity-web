@@ -36,6 +36,7 @@ function DeviceBrief() {
   const search = vendorMode ? <VendorSearch key={v ?? 'vendor'} initialValue={v ?? ''} onSelect={row => void navigate({to:'/',search:{v:row.vendor_id, from: row.via_vendor_id ?? undefined, view: view === 'analyst' ? 'analyst' : undefined}, viewTransition: !window.matchMedia('(prefers-reduced-motion: reduce)').matches})} /> : <DeviceSearch resetKey={k ?? ''} onSelect={row => void navigate({ to: '/', search: { k: row.knumber, view: view === 'analyst' ? 'analyst' : undefined }, viewTransition: !window.matchMedia('(prefers-reduced-motion: reduce)').matches })} />;
   return <>
     {selected ? <DockedSearch>{search}</DockedSearch> : <section className="identify-step home-hero">
+      <p className="home-tagline">Free, public FDA and CMS data on orthopedic devices and vendors, the same for everyone.</p>
       <ModeTabs vendor={vendorMode} onChange={changeMode} />
       <h1>{vendorMode ? 'Identify an orthopedic vendor to benchmark' : 'Identify an orthopedic device to benchmark'}</h1>
       <p>{vendorMode ? 'Search by vendor name and get a vendor brief: 11 questions, the evidence, and what to ask.' : 'Search by 510(k) number, product name or company and get a decision brief: 12 questions, the evidence, and what to ask the vendor.'}</p>

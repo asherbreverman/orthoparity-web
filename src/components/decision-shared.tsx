@@ -81,7 +81,7 @@ export function Notes({ notes }: { notes: string[] }) {
 export function PrintBrief({ title, subtitle, bottomLine, cards, table, questions, notes, meta, evidence }: { evidence?: ReactNode; title: string; subtitle: string; bottomLine: string; cards: DecisionCard[]; table: { caption: string; head: string[]; rows: (string | number)[][] }; questions: string[]; notes: string[]; meta: Meta }) {
   const url = typeof window === 'undefined' ? '' : window.location.href;
   return <div className="print-brief" aria-hidden="true">
-    <div className="print-brand"><strong>Ortho</strong>Parity</div>
+    <div className="print-brand"><strong>Ortho</strong>Parity | Orthopedic device and vendor benchmarks</div>
     <h1>{title}</h1><p className="print-sub">{subtitle}</p>
     <div className="print-bottom"><strong>Bottom line</strong><p>{bottomLine}</p></div>
     {cards.map(c => <div className="print-card" key={c.key}><h3>{c.question} · {c.badge}</h3><p>{c.finding}</p><p><em>Why it matters:</em> {c.why}</p><p><em>Ask:</em></p><ol>{(c.asks?.length ? c.asks : [c.ask]).map((ask, i) => <li key={i}>{ask}</li>)}</ol></div>)}
