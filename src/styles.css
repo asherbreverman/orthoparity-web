@@ -1370,6 +1370,8 @@ html { scroll-behavior: smooth; scroll-padding-top: 0; }
 .comparison-overlay { position:fixed; inset:0; z-index:60; background:var(--glass); backdrop-filter:blur(20px); }
 .comparison-sheet { position:fixed; inset:24px; z-index:61; background:var(--background); border:1px solid var(--border); border-radius:28px; overflow:auto; padding:40px 0; }
 .sheet-close,.sheet-close:focus-visible { position:fixed; right:40px; top:40px; z-index:62; }
+.product-comparison-table { table-layout:fixed; }
+.product-comparison-table th { white-space:normal; }
 .closing-download { max-width:1120px; margin:auto; padding:0 28px 40px; }
 .story-reveal[data-revealed=true] { animation:story-arrive 300ms var(--ease-ui-out) both; }
 @keyframes story-arrive { from { opacity:.8; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
