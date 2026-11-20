@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      pc_compliance_action: {
+        Row: {
+          action_date: string | null
+          action_type: string | null
+          case_id: string | null
+          fei_number: string | null
+          legal_name: string | null
+          product_type: string | null
+        }
+        Insert: {
+          action_date?: string | null
+          action_type?: string | null
+          case_id?: string | null
+          fei_number?: string | null
+          legal_name?: string | null
+          product_type?: string | null
+        }
+        Update: {
+          action_date?: string | null
+          action_type?: string | null
+          case_id?: string | null
+          fei_number?: string | null
+          legal_name?: string | null
+          product_type?: string | null
+        }
+        Relationships: []
+      }
       pc_devices: {
         Row: {
           applicant: string | null
@@ -116,6 +143,81 @@ export type Database = {
         }
         Relationships: []
       }
+      pc_establishment: {
+        Row: {
+          activities: string | null
+          city: string | null
+          company_vendor_id: string | null
+          country: string | null
+          fei_number: string
+          knumbers: number | null
+          makes_devices: boolean | null
+          name: string | null
+          owner_operator_name: string | null
+          owner_operator_number: string | null
+          product_codes: string | null
+          reg_expiry_year: number | null
+          registration_number: string | null
+          state: string | null
+        }
+        Insert: {
+          activities?: string | null
+          city?: string | null
+          company_vendor_id?: string | null
+          country?: string | null
+          fei_number: string
+          knumbers?: number | null
+          makes_devices?: boolean | null
+          name?: string | null
+          owner_operator_name?: string | null
+          owner_operator_number?: string | null
+          product_codes?: string | null
+          reg_expiry_year?: number | null
+          registration_number?: string | null
+          state?: string | null
+        }
+        Update: {
+          activities?: string | null
+          city?: string | null
+          company_vendor_id?: string | null
+          country?: string | null
+          fei_number?: string
+          knumbers?: number | null
+          makes_devices?: boolean | null
+          name?: string | null
+          owner_operator_name?: string | null
+          owner_operator_number?: string | null
+          product_codes?: string | null
+          reg_expiry_year?: number | null
+          registration_number?: string | null
+          state?: string | null
+        }
+        Relationships: []
+      }
+      pc_establishment_510k: {
+        Row: {
+          activities: string | null
+          fei_number: string
+          knumber: string
+          makes_device: boolean | null
+          proprietary_names: string | null
+        }
+        Insert: {
+          activities?: string | null
+          fei_number: string
+          knumber: string
+          makes_device?: boolean | null
+          proprietary_names?: string | null
+        }
+        Update: {
+          activities?: string | null
+          fei_number?: string
+          knumber?: string
+          makes_device?: boolean | null
+          proprietary_names?: string | null
+        }
+        Relationships: []
+      }
       pc_flags: {
         Row: {
           detail: string | null
@@ -164,6 +266,69 @@ export type Database = {
           knumber?: string
           page?: string | null
           source?: string | null
+        }
+        Relationships: []
+      }
+      pc_inspection: {
+        Row: {
+          classification: string | null
+          end_date: string | null
+          fei_number: string | null
+          fiscal_year: number | null
+          inspection_id: string | null
+          legal_name: string | null
+          posted_citations: boolean | null
+          product_type: string | null
+          project_area: string | null
+        }
+        Insert: {
+          classification?: string | null
+          end_date?: string | null
+          fei_number?: string | null
+          fiscal_year?: number | null
+          inspection_id?: string | null
+          legal_name?: string | null
+          posted_citations?: boolean | null
+          product_type?: string | null
+          project_area?: string | null
+        }
+        Update: {
+          classification?: string | null
+          end_date?: string | null
+          fei_number?: string | null
+          fiscal_year?: number | null
+          inspection_id?: string | null
+          legal_name?: string | null
+          posted_citations?: boolean | null
+          product_type?: string | null
+          project_area?: string | null
+        }
+        Relationships: []
+      }
+      pc_inspection_citation: {
+        Row: {
+          cfr: string | null
+          end_date: string | null
+          fei_number: string | null
+          inspection_id: string | null
+          program_area: string | null
+          short_description: string | null
+        }
+        Insert: {
+          cfr?: string | null
+          end_date?: string | null
+          fei_number?: string | null
+          inspection_id?: string | null
+          program_area?: string | null
+          short_description?: string | null
+        }
+        Update: {
+          cfr?: string | null
+          end_date?: string | null
+          fei_number?: string | null
+          inspection_id?: string | null
+          program_area?: string | null
+          short_description?: string | null
         }
         Relationships: []
       }
@@ -1234,6 +1399,7 @@ export type Database = {
         }[]
       }
       pc_signals: { Args: { k: string }; Returns: Json }
+      pc_supplier_notes: { Args: never; Returns: Json }
       pc_vendor_brief: { Args: { m?: string; v: string }; Returns: Json }
       pc_vendor_compare: {
         Args: { a: string; b: string; m?: string }
@@ -1275,6 +1441,7 @@ export type Database = {
       pc_vendor_search: { Args: { lim?: number; q: string }; Returns: Json }
       pc_vendor_signals: { Args: { m?: string; v: string }; Returns: Json }
       pc_vendor_step: { Args: { v: string }; Returns: Json }
+      pc_vendor_supplier: { Args: { m?: string; v: string }; Returns: Json }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
     }
