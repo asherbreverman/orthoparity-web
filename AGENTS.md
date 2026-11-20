@@ -57,3 +57,4 @@ use the editor.
 - Load benchmark procedure links only when their evidence section opens, cache by subject and ownership mode, and keep them out of cards and exports; this preserves lazy research and existing briefs.
 - Benchmark a vendor always shows the parent company: resolve v with pc_vendor_resolve, redirect with from=, and call vendor RPCs with m='current'.
 - Cache MAUDE reads by product or vendor/ownership mode in the read-only adapter; place lazy-chart evidence after recalls, hiding unreported products and fetching vendors only on opening, without persistent storage.
+- Keep supplier reads in the read-only supplier adapter, cached by vendor/mode and prefetched for collapsed summaries; this shares one request with opened evidence.

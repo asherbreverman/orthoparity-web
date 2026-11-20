@@ -72,3 +72,7 @@
 # Company MAUDE evidence
 - [x] Add cached vendor MAUDE reads and lazy evidence immediately after recalls.
 - [x] Test caching and ownership keys; verify live table, summary, product links and phone layout.
+
+# Supplier record
+- [x] Add cached supplier reads, prefetched summary and evidence tables above recalls.
+- [x] Add focused tests and verify live data, table expansion and phone layout.

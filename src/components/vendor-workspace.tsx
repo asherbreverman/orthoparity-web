@@ -5,6 +5,8 @@ import {Button} from '@/components/ui/button';
 import {getVendorBrief,getVendorComparison,getVendorSignals,getCachedPortfolio,resolveVendor,getVendorMaude} from '@/lib/predicate-data';
 import {maudeNumber} from '@/lib/maude';
 import {VendorMaudeEvidence} from './maude-evidence';
+import {getVendorSupplier,supplierNumber,type VendorSupplier} from '@/lib/supplier';
+import {VendorSupplierEvidence} from './supplier-evidence';
 import {askLines,positionClass,longDate,brandsOutOfDistribution,type View,type VendorSignals,type CompetitionRow} from '@/lib/signals';
 import {BottomLine,GlanceTiles,DecisionCards,EvidenceSection,Notes,PrintBrief,useEvidence} from './decision-shared';
 import {emptyProfile,money,dollars,percent,ratio,sourceLinks,showsRedirectNote,type OwnershipMode,type VendorBrief,type VendorComparison,type VendorResolve} from '@/lib/vendor-data';
@@ -29,6 +31,8 @@ export function VendorWorkspace({v,from,compare,meta,view,onView,onRedirect,onDi
  },[v,reload]);
  useEffect(()=>{if(brief?.found)window.dispatchEvent(new CustomEvent('benchmark-name',{detail:brief.vendor.display_name}));},[brief]);
  const scrolled=useRef('');
+ const [supplier,setSupplier]=useState<{v:string;data:VendorSupplier}|null>(null);
+ useEffect(()=>{let active=true;if(!v||!brief?.found)return;getVendorSupplier(v,mode).then(data=>{if(active)setSupplier({v,data});}).catch(()=>{});return()=>{active=false;};},[v,brief]);
  const [maudeSummary,setMaudeSummary]=useState<{v:string;reports:number|null}|null>(null);
  const maudeOpen=ev.isOpen('maude');
  useEffect(()=>{let active=true;if(!v||!maudeOpen)return;getVendorMaude(v,mode).then(data=>{if(active)setMaudeSummary({v,reports:data.last5.reports});}).catch(()=>{});return()=>{active=false;};},[v,maudeOpen]);
@@ -48,6 +52,7 @@ export function VendorWorkspace({v,from,compare,meta,view,onView,onRedirect,onDi
 <div className="evidence-list">
   <EvidenceSection id="competition" title="Where they compete" summary={card('breadth')?.badge ?? ''} open={ev.isOpen('competition')} onToggle={()=>ev.toggle('competition')}><div className="brief-table-scroll"><table className="brief-table"><thead><tr><th>Category</th><th>Anatomy</th><th>Clearances</th><th>Last five years</th><th>Share of category</th><th>Rank</th><th>Competitors</th><th>Position</th></tr></thead><tbody>{(allRows?comp:comp.slice(0,12)).map(c=><tr key={c.product_code}><td>{catName(c)} <span className="text-muted-foreground font-mono">{c.product_code}</span></td><td>{c.anatomy??'NOT FOUND'}</td><td>{c.clearances.toLocaleString('en-US')}</td><td>{c.last5.toLocaleString('en-US')}</td><td>{c.last5>0?`${c.share_last5_pct}%`:'NOT FOUND'}</td><td>{c.rank_last5??'NOT FOUND'}</td><td>{c.competitors_last5.toLocaleString('en-US')}</td><td><span className={`position-pill ${positionClass(c.position)}`}>{c.position}</span></td></tr>)}</tbody></table></div>{comp.length>12&&<Button variant="link" className="px-0" onClick={()=>setAllRows(!allRows)}>{allRows?'Show fewer':`Show all ${comp.length}`}</Button>}<p className="section-caption">Rank and share count 510(k) clearances in each product code over the last five years of data. Clearances measure product activity, not sales.</p></EvidenceSection>
   <VendorProceduresSection id="procedures" v={v} mode={mode} open={ev.isOpen('procedures')} onToggle={()=>ev.toggle('procedures')} />
+  <EvidenceSection id="supplier" title="Supplier record" summary={supplier?.v===v?`${supplierNumber(supplier.data.sites?.company_sites)} company sites · ${supplierNumber(supplier.data.inspections_last5?.inspections)} device inspections and ${supplierNumber(supplier.data.warning_letters?.company_last5)} warning letters in five years`:'Sites, inspections and warning letters'} open={ev.isOpen('supplier')} onToggle={()=>ev.toggle('supplier')}><VendorSupplierEvidence v={v} mode={mode}/></EvidenceSection>
   <EvidenceSection id="recalls" title="Recalls" summary={card('recalls')?.badge??''} open={ev.isOpen('recalls')} onToggle={()=>ev.toggle('recalls')}><VendorRecallEvidence v={v} mode={mode}/></EvidenceSection>
   <EvidenceSection id="maude" title="Adverse event reports (MAUDE)" summary={maudeSummary?.v===v?`${maudeNumber(maudeSummary.reports)} in five years`:'Adverse event reports'} open={maudeOpen} onToggle={()=>ev.toggle('maude')}><VendorMaudeEvidence v={v} mode={mode}/></EvidenceSection>
   <EvidenceSection id="portfolio" title="Portfolio" summary={`${brief.portfolio.clearances} clearances · ${brief.portfolio.last5_clearances} in the last five years · ${brief.portfolio.first_year}–${brief.portfolio.last_year}`} open={ev.isOpen('portfolio')} onToggle={()=>ev.toggle('portfolio')}>{card('momentum')&&<p className="section-lead">{card('momentum')?.finding}</p>}<VendorPortfolio key={`${v}-${mode}`} v={v} mode={mode} brief={brief} initiallyOpen/></EvidenceSection>

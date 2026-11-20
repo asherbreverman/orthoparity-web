@@ -55,7 +55,7 @@ export function DecisionCards({ cards, evidence }: { cards: DecisionCard[]; onEv
       {!!c.figs?.length && <div className="chapter-stats">{c.figs.map((fig,i) => <div className="chapter-stat" key={i}><strong>{fig.value}</strong><span>{fig.label}</span></div>)}</div>}
       <div className="chapter-context"><div className="decision-why"><h3>Why it matters</h3><p>{c.why}</p></div><div className="decision-ask"><h3>Ask the vendor</h3><p>{c.ask}</p><CopyAsk text={c.ask} /></div></div>
     </div></StoryReveal>
-    {cards.findIndex(card=>card.evidence===c.evidence)===index && sections.filter(node=>isValidElement<{id?:string}>(node)&&(node.props.id===c.evidence || (c.evidence==='recalls' && node.props.id==='maude') || (c.evidence==='alternatives' && node.props.id==='category')))}
+    {cards.findIndex(card=>card.evidence===c.evidence)===index && sections.filter(node=>isValidElement<{id?:string}>(node)&&(node.props.id===c.evidence || (c.evidence==='recalls' && (node.props.id==='maude' || node.props.id==='supplier')) || (c.evidence==='alternatives' && node.props.id==='category')))}
   </article>)}</section>;
 }
 
