@@ -28,6 +28,11 @@
 - [x] Preserve live calls, all evidence, questions, exports, comparison, ownership and limitations.
 - [x] Verify live product/vendor flows, mobile, keyboard, theme preferences, motion and tests.
 
+# Tab-specific home examples
+- [x] Five product examples on the product tab, five company examples on the company tab, each opening its brief directly.
+- [x] Drop the CREO and Globus buttons and the unused example-name state; update the vendor search placeholder.
+- [x] Verify every button opens its brief in the preview, buttons wrap on phone width, and tests pass.
+
 # Public site URLs
 - [x] Use the www origin for canonical and social URLs and absolute site links.
 - [x] Add the missing sitemap with the www origin and verify metadata and sitemap output.
