@@ -1,0 +1,6 @@
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import type { DeviceMaude } from '@/lib/maude';
+
+export default function MaudeChart({ rows }: { rows: DeviceMaude['by_year'] }) {
+  return <div className="recall-chart" role="img" aria-label="MAUDE reports by year FDA received them"><ResponsiveContainer width="100%" height="100%"><BarChart data={rows} margin={{ top: 12, right: 16, bottom: 12, left: 0 }}><CartesianGrid vertical={false} stroke="var(--border)" /><XAxis dataKey="year" tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} axisLine={false} tickLine={false} minTickGap={24} tickFormatter={v => v === null ? 'NOT FOUND' : String(v)} /><YAxis tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} axisLine={false} tickLine={false} allowDecimals={false} /><Tooltip filterNull={false} formatter={v => v === null ? 'NOT FOUND' : Number(v).toLocaleString('en-US')} contentStyle={{ background: 'var(--card)', color: 'var(--foreground)', borderColor: 'var(--border)', borderRadius: 4 }} cursor={{ fill: 'var(--muted)' }} /><Bar dataKey="reports" name="Reports" fill="var(--predicate)" radius={[2, 2, 0, 0]} isAnimationActive={false} /></BarChart></ResponsiveContainer></div>;
+}

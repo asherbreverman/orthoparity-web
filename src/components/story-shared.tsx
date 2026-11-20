@@ -11,7 +11,7 @@ export function StoryReveal({children,className = ''}: {children: ReactNode;clas
   return <div ref={ref} className={`story-reveal ${className}`}>{children}</div>;
 }
 export function evidenceItems(node: ReactNode): ReactNode[] { return isValidElement<{children?:ReactNode}>(node) ? Children.toArray(node.props.children) : Children.toArray(node); }
-export function ExtraEvidence({sections,cards}: {sections:ReactNode;cards:DecisionCard[]}) {const used=new Set(cards.map(c=>c.evidence));if(used.has('alternatives'))used.add('category');return <div className="extra-evidence">{evidenceItems(sections).filter(node=>isValidElement<{id?:string}>(node)&&!used.has(node.props.id ?? ''))}</div>;}
+export function ExtraEvidence({sections,cards}: {sections:ReactNode;cards:DecisionCard[]}) {const used=new Set(cards.map(c=>c.evidence));if(used.has('alternatives'))used.add('category');if(used.has('recalls'))used.add('maude');return <div className="extra-evidence">{evidenceItems(sections).filter(node=>isValidElement<{id?:string}>(node)&&!used.has(node.props.id ?? ''))}</div>;}
 export function LocalBar({name,cards,vendor=false,view,onView}: {name:string;cards:DecisionCard[];vendor?:boolean;view:View;onView:(view:View)=>void}) {
   const [active,setActive]=useState('');
   useEffect(()=>{const ids=[...cards.map(c=>`chapter-${c.key}`),'all-questions',...(!vendor?['ancestry']:[])];const update=()=>{let next='';for(const id of ids){const node=document.getElementById(id);if(node&&node.getBoundingClientRect().top<=220)next=id;}setActive(next);};update();window.addEventListener('scroll',update,{passive:true});return()=>window.removeEventListener('scroll',update);},[cards,vendor]);

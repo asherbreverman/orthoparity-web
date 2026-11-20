@@ -64,3 +64,7 @@
 # Data-driven update audit
 - [x] Verify named home, procedure, product and vendor flows against live data.
 - [x] Check phone light/dark, keyboard use and em dashes; run the full tests and report limits.
+
+# Product MAUDE evidence
+- [x] Add cached read-only MAUDE data and conditional product evidence with a lazy chart.
+- [x] Test zero/null values, conditional visibility and caching; verify live product flows and phone layout.
