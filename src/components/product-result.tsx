@@ -10,6 +10,8 @@ import { ProductRecallEvidence } from './recall-evidence';
 import { ProductMaudeSection } from './maude-evidence';
 import { ProductAddOnSection, ProductAddOnPrint } from './add-on-evidence';
 import { ProductProceduresSection } from './benchmark-procedures';
+import { ProductIndicationsEvidence, ProductOwnerEvidence } from './product-context-evidence';
+import { ProductSupplierSection } from './supplier-evidence';
 import { BottomLine, GlanceTiles, DecisionCards, EvidenceSection, Notes, PrintBrief, useEvidence } from './decision-shared';
 import { getBrief, getFamily, lookupChain, getProductPayments, getSignals, getDeviceOwner } from '@/lib/predicate-data';
 import { ownerLine, withPaymentQuestions, money, dollars, type ProductPayments } from '@/lib/vendor-data';
@@ -93,6 +95,9 @@ export function ProductResult({ k, view, meta, onView }: { k: string; view: View
         <ProductRecallEvidence k={k} />
       </EvidenceSection>
       <ProductMaudeSection id="maude" k={k} open={ev.isOpen('maude')} onToggle={() => ev.toggle('maude')} />
+      <EvidenceSection id="indications" title="Indications for Use" summary={card('indications')?.badge ?? ''} open={ev.isOpen('indications')} onToggle={() => ev.toggle('indications')}><ProductIndicationsEvidence k={k} summaryUrl={h?.summary_url ?? device.summary_url} /></EvidenceSection>
+      <EvidenceSection id="owner" title="Who sells it today" summary={card('owner')?.badge ?? ''} open={ev.isOpen('owner')} onToggle={() => ev.toggle('owner')}><ProductOwnerEvidence owner={owner} /></EvidenceSection>
+      <ProductSupplierSection id="supplier" k={k} open={ev.isOpen('supplier')} onToggle={() => ev.toggle('supplier')} />
       <EvidenceSection id="predicates" title="Predicates and lineage" summary={`${brief.direct_predicates?.length ?? 0} direct predicates · ${lineageSentence(brief.lineage)}`} open={ev.isOpen('predicates')} onToggle={() => ev.toggle('predicates')}>
         <h3>Cleared as equivalent to</h3>
         <div className="brief-table-scroll"><table className="brief-table"><thead><tr><th>510(k)</th><th>Product</th><th>Company</th><th>Year</th><th>Role</th><th>Notes</th></tr></thead><tbody>{(brief.direct_predicates ?? []).map(pr => <tr key={pr.predicate}><td><BriefLink k={pr.predicate} /></td><td>{pr.device_name ?? 'NOT FOUND'}</td><td>{pr.applicant ?? 'NOT FOUND'}</td><td>{pr.decision_year ?? 'NOT FOUND'}</td><td>{pr.role === 'primary' || pr.role === 'primary predicate' ? 'Primary' : 'Additional'}</td><td><div className="cell-tags">{pr.same_company && <span className="data-tag">Same company</span>}{pr.same_code && <span className="data-tag">Same product code</span>}{unreviewedLow(pr) && <span className="data-tag">Low confidence</span>}{pr.number_as_printed && <span>Corrected from {pr.number_as_printed}</span>}</div></td></tr>)}</tbody></table></div>

@@ -1,5 +1,6 @@
 export type Tone = 'info' | 'attention';
-export interface DecisionCard { key: string; question: string; short?: string; figs?: { value: string | number; label: string }[]; badge: string; tone: Tone | string; finding: string; why: string; ask: string; evidence: string }
+export interface DecisionCard { key: string; question: string; short?: string; asks?: string[]; headline?: string; figs?: { value: string | number; label: string }[]; badge: string; tone: Tone | string; finding: string; why: string; ask: string; evidence: string }
+export interface DeviceIndications { knumber: string; found: boolean; ifu_text: string | null; page: string | null; predicate: { knumber: string; device_name: string | null; ifu_text: string | null } | null; similarity: number | null }
 export interface AlternativeRow { vendor_id: string; company: string; clearances: number; latest_knumber: string | null; latest_device: string | null; latest_date: string | null }
 export interface SignalHeader { device_name: string | null; company: string | null; owner: string | null; plain_name: string | null; fda_name: string | null; product_code: string | null; cleared: string | null; device_class: string | null; procedures: string | null; anatomy: string | null; kind: string | null; summary_url: string | null; pattern: string | null }
 export interface Signals { found: boolean; knumber: string; header: SignalHeader; bottom_line: string; cards: DecisionCard[]; alternatives: { window: string; companies: number; rows: AlternativeRow[] }; notes: string[] }
@@ -11,7 +12,8 @@ export type View = 'brief' | 'analyst';
 /** Only "attention" renders amber; anything else is the neutral info pill. Never a verdict color. */
 export function toneClass(tone: string) { return tone === 'attention' ? 'tone-attention' : 'tone-info'; }
 export function positionClass(position: string) { return position === 'Top 3' ? 'position-top' : position === 'No recent clearances' ? 'position-quiet' : 'position-active'; }
-export function askLines(cards: DecisionCard[]) { return cards.map(c => c.ask).filter(Boolean); }
+export function askLines(cards: DecisionCard[]) { return cards.flatMap(c => (c.asks?.length ? c.asks : [c.ask])).filter(Boolean); }
+export function questionHue(index: number) { return `question-hue-${(index % 7) + 1}`; }
 export function numberedText(lines: string[]) { return lines.map((q, i) => `${i + 1}. ${q}`).join('\n'); }
 export function longDate(value: string | null | undefined) {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(value ?? '');

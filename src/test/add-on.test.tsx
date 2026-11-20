@@ -29,11 +29,11 @@ describe('Medicare add-on evidence', () => {
     await waitFor(() => expect(screen.getByText('Up to $21,125 per case')).toBeInTheDocument());
     expect(screen.getByText('Inpatient NTAP')).toBeInTheDocument();
   });
-  it('hides products with no direct or category add-on', async () => {
+  it('keeps the evidence section with no direct or category add-on', async () => {
     vi.mocked(getDeviceAddOn).mockResolvedValue({ ...data, has_add_on: false, items: [], category: [] });
     const screen = render(<ProductAddOnSection k="K230088" open onToggle={vi.fn()} />);
     await waitFor(() => expect(getDeviceAddOn).toHaveBeenCalledWith('K230088'));
-    expect(screen.container.childElementCount).toBe(0);
+    expect(screen.container.childElementCount).toBe(1);
   });
   it('shows the supplied TPT code and expiry', async () => {
     vi.mocked(getVendorAddOn).mockResolvedValue({ vendor_id: 'company', ntap: 0, pass_through: 1, notes: [], items: [{ ...item, program: 'TPT', hcpcs: 'C1737', pass_through_ends: 'during CY 2027' }] });
@@ -51,6 +51,7 @@ describe('Medicare add-on evidence', () => {
     const screen = render(<ProductAddOnSection k="K230088" open={false} onToggle={vi.fn()} />);
     await waitFor(() => expect(screen.container.childElementCount).toBe(1));
     screen.rerender(<ProductAddOnSection k="K171651" open={false} onToggle={vi.fn()} />);
-    expect(screen.container.childElementCount).toBe(0);
+    expect(screen.container.childElementCount).toBe(1);
+    expect(screen.queryByText('1 add-on payment for this product line')).not.toBeInTheDocument();
   });
 });

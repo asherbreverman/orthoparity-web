@@ -81,3 +81,8 @@
 - [x] Add cached read-only product/company calls and shared evidence tables.
 - [x] Place sections as requested, prefetch company summaries and preserve existing styles.
 - [x] Test payment/status rules, caching and live desktop/phone flows, category links and printed briefs.
+
+# Expanded question boxes
+- [x] Support all triggered questions, matching cyclic hues, full glance labels and wrapped sticky tabs.
+- [x] Match each box to its evidence, including indications, owner, product supplier and empty states.
+- [x] Verify live 12/11-box pages, copying, printing, analyst view and phone layouts; update and run tests.

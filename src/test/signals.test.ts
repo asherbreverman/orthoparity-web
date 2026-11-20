@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { money } from '@/lib/vendor-data';
-import { toneClass, positionClass, longDate, evidenceIsOpen, brandsOutOfDistribution } from '@/lib/signals';
+import { toneClass, positionClass, longDate, evidenceIsOpen, brandsOutOfDistribution, askLines, questionHue, type DecisionCard } from '@/lib/signals';
 describe('decision brief rules', () => {
+  const card: DecisionCard = { key: 'novelty', question: 'Is it new?', badge: '', tone: 'info', finding: '', why: '', ask: 'First question', evidence: 'predicates' };
+  it('includes every triggered question in card order', () => expect(askLines([{ ...card, asks: ['First question', 'Second question'] }, { ...card, ask: 'Third question' }])).toEqual(['First question', 'Second question', 'Third question']));
+  it('falls back to ask for absent or empty asks and filters blank questions', () => expect(askLines([{ ...card, asks: [] }, { ...card, asks: ['', 'Next question'] }, { ...card, ask: '' }])).toEqual(['First question', 'Next question']));
+  it('cycles the seven existing hues through twelve positions', () => expect(Array.from({ length: 12 }, (_, i) => questionHue(i))).toEqual(['question-hue-1','question-hue-2','question-hue-3','question-hue-4','question-hue-5','question-hue-6','question-hue-7','question-hue-1','question-hue-2','question-hue-3','question-hue-4','question-hue-5']));
   it('formats money as $32.0M, $722K, $6.9K, $137', () => { expect(money(32_000_000)).toBe('$32.0M'); expect(money(722_000)).toBe('$722K'); expect(money(6_900)).toBe('$6.9K'); expect(money(137.4)).toBe('$137'); });
   it('never shows $0.00', () => { expect(money(0)).toBe('None'); expect(money(null)).toBe('None'); });
   it('uses amber only for attention, neutral otherwise', () => { expect(toneClass('attention')).toBe('tone-attention'); expect(toneClass('info')).toBe('tone-info'); expect(toneClass('anything')).toBe('tone-info'); });

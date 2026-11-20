@@ -59,3 +59,4 @@ use the editor.
 - Cache MAUDE reads by product or vendor/ownership mode in the read-only adapter; place lazy-chart evidence after recalls, hiding unreported products and fetching vendors only on opening, without persistent storage.
 - Keep supplier reads in the read-only supplier adapter, cached by vendor/mode and prefetched for collapsed summaries; this shares one request with opened evidence.
 - Keep Medicare add-on reads in the read-only add-on adapter with session promise caches and shared tables; prefetched company summaries reuse the opened evidence request.
+- Match signal boxes to their evidence ids and share positional hues and question flattening across views; cached indications and supplier reads keep new product evidence read-only.

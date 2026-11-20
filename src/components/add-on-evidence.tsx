@@ -52,7 +52,8 @@ function useProductAddOn(k: string) {
 export function ProductAddOnSection({ k, open, onToggle }: { id?: 'addon'; k: string; open: boolean; onToggle: () => void }) {
   const { data, error } = useProductAddOn(k);
   if (error) return <Status error={error} />;
-  if (!data || (!data.items.length && !data.category.length)) return null;
+  if (!data) return <EvidenceSection id="addon" title="Medicare add-on payments" summary="Loading…" open={open} onToggle={onToggle}><Status busy /></EvidenceSection>;
+  if (!data.items.length && !data.category.length) return <EvidenceSection id="addon" title="Medicare add-on payments" summary="None" open={open} onToggle={onToggle}><p className="section-caption">No FY 2027 inpatient NTAP or CY 2027 outpatient pass-through code names this product line or its product code.</p><AddOnNotes notes={data.notes} items={[]} /></EvidenceSection>;
   const n = data.items.length;
   return <EvidenceSection id="addon" title="Medicare add-on payments" summary={data.has_add_on ? `${n} add-on payment${n === 1 ? '' : 's'} for this product line` : `None for this product · ${data.category.length} in product code ${text(data.product_code)}`} open={open} onToggle={onToggle}><ProductAddOnContent data={data} /></EvidenceSection>;
 }

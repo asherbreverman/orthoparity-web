@@ -2,7 +2,7 @@ import { isValidElement, useCallback, useEffect, useState, type ReactNode } from
 import { StoryReveal, evidenceItems } from './story-shared';
 import { ChevronDown, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { toneClass, evidenceIsOpen, type DecisionCard, type View } from '@/lib/signals';
+import { toneClass, evidenceIsOpen, questionHue, type DecisionCard, type View } from '@/lib/signals';
 import type { Meta } from '@/lib/predicate-chain';
 import { toast } from 'sonner';
 
@@ -43,9 +43,9 @@ function CopyAsk({ text }: { text: string }) {
   return <Button variant="ghost" size="sm" className="copy-ask" aria-label="Copy question" onClick={async () => { try { await navigator.clipboard.writeText(text); setDone(true); toast.success('Question copied'); setTimeout(() => setDone(false), 2000); } catch { toast.error('Copy was unavailable.'); } }}>{done ? <Check /> : <Copy />}Copy question</Button>;
 }
 
-export function cardHue(card: DecisionCard, index: number) { return `question-hue-${card.key === 'recalls' ? 7 : index + 1}`; }
+export function cardHue(_card: DecisionCard, index: number) { return questionHue(index); }
 export function GlanceTiles({ cards }: { cards: DecisionCard[] }) {
-  return <section className="result-glance" aria-label="Questions at a glance"><p className="glance-caption">{cards.length} questions, each with its evidence and a question for the vendor. Select one to go to it.</p><div className={`glance-tiles glance-count-${cards.length}`}>{cards.map((c, i) => <Button asChild variant="ghost" key={c.key} className={`glance-tile ${cardHue(c, i)}`}><a href={`#chapter-${c.key}`}><span className="glance-label">{c.tone === 'attention' && <i className="warning-dot" />}{c.short ?? c.question}</span><strong>{c.badge}</strong></a></Button>)}</div></section>;
+  return <section className="result-glance" aria-label="Questions at a glance"><p className="glance-caption">{cards.length} questions, each with its evidence and a question for the vendor. Select one to go to it.</p><div className={`glance-tiles glance-count-${cards.length}`}>{cards.map((c, i) => <Button asChild variant="ghost" key={c.key} className={`glance-tile ${cardHue(c, i)}`}><a href={`#chapter-${c.key}`}><span className="glance-label">{c.tone === 'attention' && <i className="warning-dot" />}{c.question}</span><strong>{c.badge}</strong></a></Button>)}</div></section>;
 }
 export function DecisionCards({ cards, evidence }: { cards: DecisionCard[]; onEvidence: (id: string, keyboard?: boolean) => void; evidence?: ReactNode }) {
   const sections=evidenceItems(evidence);
@@ -53,9 +53,9 @@ export function DecisionCards({ cards, evidence }: { cards: DecisionCard[]; onEv
     <div className="chapter-sidebar"><h2 className="chapter-headline">{c.question}</h2><span className={`decision-badge ${toneClass(c.tone)}`}>{c.badge}</span></div>
     <div className="chapter-content"><p className="decision-finding">{c.finding}</p>
       {!!c.figs?.length && <div className="chapter-stats">{c.figs.map((fig,i) => <div className="chapter-stat" key={i}><strong>{fig.value}</strong><span>{fig.label}</span></div>)}</div>}
-      <div className="chapter-context"><div className="decision-why"><h3>Why it matters</h3><p>{c.why}</p></div><div className="decision-ask"><h3>Ask the vendor</h3><p>{c.ask}</p><CopyAsk text={c.ask} /></div></div>
+      <div className="chapter-context"><div className="decision-why"><h3>Why it matters</h3><p>{c.why}</p></div><div className="decision-ask"><h3>Ask the vendor</h3>{(c.asks?.length ? c.asks : [c.ask]).length === 1 ? <><p>{(c.asks?.length ? c.asks : [c.ask])[0]}</p><CopyAsk text={(c.asks?.length ? c.asks : [c.ask])[0] ?? c.ask} /></> : <ul className="card-questions">{(c.asks?.length ? c.asks : [c.ask]).map((ask, i) => <li key={i}><p>{ask}</p><CopyAsk text={ask} /></li>)}</ul>}</div></div>
     </div></StoryReveal>
-    {cards.findIndex(card=>card.evidence===c.evidence)===index && sections.filter(node=>isValidElement<{id?:string}>(node)&&(node.props.id===c.evidence || (c.evidence==='recalls' && (node.props.id==='maude' || node.props.id==='supplier')) || (c.evidence==='alternatives' && node.props.id==='category')))}
+    {cards.findIndex(card=>card.evidence===c.evidence)===index && sections.filter(node=>isValidElement<{id?:string}>(node)&&(node.props.id===c.evidence || (c.evidence==='alternatives' && node.props.id==='category')))}
   </article>)}</section>;
 }
 
@@ -84,7 +84,7 @@ export function PrintBrief({ title, subtitle, bottomLine, cards, table, question
     <div className="print-brand"><strong>Ortho</strong>Parity</div>
     <h1>{title}</h1><p className="print-sub">{subtitle}</p>
     <div className="print-bottom"><strong>Bottom line</strong><p>{bottomLine}</p></div>
-    {cards.map(c => <div className="print-card" key={c.key}><h3>{c.question} · {c.badge}</h3><p>{c.finding}</p><p><em>Why it matters:</em> {c.why}</p><p><em>Ask:</em> {c.ask}</p></div>)}
+    {cards.map(c => <div className="print-card" key={c.key}><h3>{c.question} · {c.badge}</h3><p>{c.finding}</p><p><em>Why it matters:</em> {c.why}</p><p><em>Ask:</em></p><ol>{(c.asks?.length ? c.asks : [c.ask]).map((ask, i) => <li key={i}>{ask}</li>)}</ol></div>)}
     {table.rows.length > 0 && <><h2>{table.caption}</h2><table><thead><tr>{table.head.map(h => <th key={h}>{h}</th>)}</tr></thead><tbody>{table.rows.slice(0, 10).map((r, i) => <tr key={i}>{r.map((c, j) => <td key={j}>{c}</td>)}</tr>)}</tbody></table></>}
     {evidence}
     <h2>Questions for the vendor</h2><ol>{questions.map((q, i) => <li key={i}>{q}</li>)}</ol>

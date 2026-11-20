@@ -2,7 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Brief, Comparison, BatchRow, ProductCode } from "./reviewer-data";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Vendor, VendorResolve, DeviceOwner, VendorBrief, VendorComparison, PortfolioRow, ProductPayments, OwnershipMode } from './vendor-data';
-import type { DecisionCard, Signals, VendorSignals } from './signals';
+import type { DecisionCard, DeviceIndications, Signals, VendorSignals } from './signals';
 import type { DeviceRecalls, VendorRecalls } from './recalls';
 import type { DeviceMaude, VendorMaude } from './maude';
 import type { ProcedureList, ProcedureDetail, DeviceProcedures, VendorProcedures } from './procedure-data';
@@ -169,6 +169,17 @@ const ownerRead = resilient(async (k: string): Promise<DeviceOwner> => {
   const {data, error} = await researchClient.rpc('pc_device_owner', {k}); if (error) throw error; return data as DeviceOwner;
 });
 const owners = new Map<string, Promise<DeviceOwner>>();
+const indicationsRead = resilient(async (k: string): Promise<DeviceIndications> => {
+  const {data, error} = await researchClient.rpc('pc_device_indications', {k});
+  if (error) throw error;
+  return data as DeviceIndications;
+});
+const indications = new Map<string, Promise<DeviceIndications>>();
+export function getDeviceIndications(k: string) {
+  let pending = indications.get(k);
+  if (!pending) { pending = indicationsRead(k); indications.set(k, pending); pending.catch(() => indications.delete(k)); }
+  return pending;
+}
 export function getDeviceOwner(k: string) {
   let p = owners.get(k);
   if (!p) { p = ownerRead(k); owners.set(k, p); p.catch(() => owners.delete(k)); }

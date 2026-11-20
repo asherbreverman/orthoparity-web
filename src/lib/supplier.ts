@@ -39,6 +39,28 @@ export type VendorSupplier = Nullable<{
 }>;
 
 const researchClient: SupabaseClient = supabase;
+export interface DeviceSupplier {
+  knumber: string; since: string; inspections_through: string;
+  sites: number; making_sites: number; company_sites: number; partner_sites: number; other_company_sites: number;
+  partner_making: string[]; countries_making: string[]; inspections_last5: number; oai_last5: number;
+  warning_letters_last5: number; flagged_sites: string[];
+  rows: { fei: string; name: string; owner: string | null; city: string | null; state: string | null; country: string | null;
+    relation: 'company' | 'partner' | 'other_company' | 'other company'; makes: boolean; activities: string | null;
+    inspections_last5: number; oai_last5: number; warning_letters_last5: number;
+    last_inspection: { date: string; classification: string } | null }[];
+  notes: string[]; sources: { sites: string; inspections: string; compliance: string };
+}
+const deviceRead = resilient(async (k: string): Promise<DeviceSupplier> => {
+  const { data, error } = await researchClient.rpc('pc_device_supplier', { k });
+  if (error) throw error;
+  return data as DeviceSupplier;
+});
+const deviceReads = new Map<string, Promise<DeviceSupplier>>();
+export function getDeviceSupplier(k: string) {
+  let pending = deviceReads.get(k);
+  if (!pending) { pending = deviceRead(k); deviceReads.set(k, pending); pending.catch(() => deviceReads.delete(k)); }
+  return pending;
+}
 const supplierRead = resilient(async (v: string, m: OwnershipMode): Promise<VendorSupplier> => {
   const { data, error } = await researchClient.rpc('pc_vendor_supplier', { v, m });
   if (error) throw error;

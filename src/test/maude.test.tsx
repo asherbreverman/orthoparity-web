@@ -23,22 +23,23 @@ describe('MAUDE counts and dates', () => {
   it('marks missing dates as missing', () => expect(maudeDate(null)).toBe('NOT FOUND'));
 });
 describe('Conditional MAUDE evidence', () => {
-  it('renders nothing while loading', () => {
+  it('keeps the evidence section while loading', () => {
     vi.mocked(getDeviceMaude).mockReturnValue(new Promise(() => {}));
     const screen = render(<ProductMaudeSection k="K120578" open={false} onToggle={vi.fn()} />);
-    expect(screen.container.childElementCount).toBe(0);
+    expect(screen.container.childElementCount).toBe(1);
   });
-  it('renders nothing for a product without reports', async () => {
+  it('keeps the evidence section for a product without reports', async () => {
     vi.mocked(getDeviceMaude).mockResolvedValue({ ...data, has_reports: false });
     const screen = render(<ProductMaudeSection k="K120578" open={false} onToggle={vi.fn()} />);
     await waitFor(() => expect(getDeviceMaude).toHaveBeenCalledWith('K120578'));
-    expect(screen.container.childElementCount).toBe(0);
+    expect(screen.container.childElementCount).toBe(1);
   });
   it('does not carry reported evidence into a different product while loading', async () => {
     vi.mocked(getDeviceMaude).mockResolvedValueOnce(data).mockReturnValueOnce(new Promise(() => {}));
     const screen = render(<ProductMaudeSection k="K120578" open={false} onToggle={vi.fn()} />);
     await waitFor(() => expect(screen.container.childElementCount).toBe(1));
     screen.rerender(<ProductMaudeSection k="K140881" open={false} onToggle={vi.fn()} />);
-    expect(screen.container.childElementCount).toBe(0);
+    expect(screen.container.childElementCount).toBe(1);
+    expect(screen.queryByText('1,000 reports · 5 in the last five years')).not.toBeInTheDocument();
   });
 });

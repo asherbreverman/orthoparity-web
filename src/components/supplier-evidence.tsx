@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { Button } from './ui/button';
-import { Status } from './reviewer-shared';
+import { Status, useRefetch } from './reviewer-shared';
+import { EvidenceSection } from './decision-shared';
 import { maudeDate } from '@/lib/maude';
-import { getVendorSupplier, supplierNumber as n, supplierActivities, supplierLocation, inspectionName, type SupplierSite, type VendorSupplier } from '@/lib/supplier';
+import { getDeviceSupplier, getVendorSupplier, supplierNumber as n, supplierActivities, supplierLocation, inspectionName, type DeviceSupplier, type SupplierSite, type VendorSupplier } from '@/lib/supplier';
 import type { OwnershipMode } from '@/lib/vendor-data';
 
 function SourceLink({ url, children }: { url: string | null | undefined; children: React.ReactNode }) {
@@ -12,6 +13,29 @@ function SourceLink({ url, children }: { url: string | null | undefined; childre
 function SitesTable({ rows, partner = false }: { rows: (SupplierSite & { owner?: string | null })[]; partner?: boolean }) {
   const [all, setAll] = useState(false);
   return <><div className="brief-table-scroll" tabIndex={0}><table className="brief-table"><thead><tr><th>Site</th>{partner && <th>Owner</th>}<th>Location</th><th>What the site does</th><th>510(k)s listed</th><th>Last inspection</th><th>Inspections (5 yrs)</th><th>Warning letters (5 yrs)</th></tr></thead><tbody>{(all ? rows : rows.slice(0, 10)).map((row, i) => <tr key={`${row.fei}-${i}`}><td>{row.name ?? 'NOT FOUND'}</td>{partner && <td>{row.owner ?? 'NOT FOUND'}</td>}<td>{supplierLocation(row)}</td><td>{supplierActivities(row.activities)}</td><td>{n(row.products)}</td><td>{row.last_inspection ? <>{maudeDate(row.last_inspection.date)} <span title={inspectionName(row.last_inspection.classification)}>{row.last_inspection.classification ?? 'NOT FOUND'}</span></> : "None in FDA's data"}</td><td>{n(row.inspections_last5)}</td><td>{n(row.warning_letters_last5)}</td></tr>)}</tbody></table></div>{rows.length > 10 && <Button variant="link" className="px-0" aria-expanded={all} onClick={() => setAll(!all)}>{all ? 'Show fewer' : `Show all ${rows.length}`}</Button>}</>;
+}
+export function ProductSupplierSection({ k, open, onToggle }: { id?: 'supplier'; k: string; open: boolean; onToggle: () => void }) {
+  const [result, setResult] = useState<DeviceSupplier | null>(null);
+  const [error, setError] = useState('');
+  const reload = useRefetch();
+  useEffect(() => {
+    let active = true; setError('');
+    getDeviceSupplier(k).then(data => { if (active) setResult(data); }).catch(e => { if (active) setError(e.message); });
+    return () => { active = false; };
+  }, [k, reload]);
+  const data = result?.knumber === k ? result : null;
+  return <EvidenceSection id="supplier" title="Supplier record" summary={data ? `${n(data.sites)} sites · ${n(data.inspections_last5)} inspections in five years` : 'Loading…'} open={open} onToggle={onToggle}>
+    {!data ? <Status busy={!error} error={error} /> : <>
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">{[
+        ['Sites listing this 510(k)', n(data.sites)], ['Sites that make or sterilize it', n(data.making_sites)],
+        ['Device inspections (last five years)', n(data.inspections_last5)], ['Warning letters (last five years)', n(data.warning_letters_last5)],
+      ].map(([label, value]) => <div className="metric" key={label}><div className="metric-label">{label}</div><div className="metric-value">{value}</div></div>)}</div>
+      {data.rows.length ? <div className="brief-table-scroll" tabIndex={0}><table className="brief-table"><thead><tr><th>Site</th><th>Relation</th><th>Location</th><th>Makes it</th><th>Activities</th><th>Last inspection</th><th>Inspections last five years</th><th>OAI</th><th>Warning letters</th></tr></thead><tbody>{data.rows.map(row => <tr key={row.fei}><td>{row.name}<div className="text-sm text-muted-foreground">{row.fei}</div></td><td>{row.relation === 'company' ? 'Company' : row.relation === 'partner' ? 'Partner' : 'Other company'}</td><td>{supplierLocation(row)}</td><td>{row.makes ? 'Yes' : 'No'}</td><td>{supplierActivities(row.activities)}</td><td>{row.last_inspection ? <>{maudeDate(row.last_inspection.date)} <span title={inspectionName(row.last_inspection.classification)}>{row.last_inspection.classification}</span></> : "None in FDA's data"}</td><td>{n(row.inspections_last5)}</td><td>{n(row.oai_last5)}</td><td>{n(row.warning_letters_last5)}</td></tr>)}</tbody></table></div> : <p className="section-caption">NOT FOUND: no current FDA establishment registration lists this 510(k).</p>}
+      <h3>How to read this</h3><ul className="decision-notes">{data.notes.map((note, i) => <li key={i}>{note}</li>)}</ul>
+      <p className="section-caption"><SourceLink url={data.sources.sites}>FDA establishment registration and listing</SourceLink>{' '}<SourceLink url={data.sources.inspections}>FDA inspections</SourceLink>{' '}<SourceLink url={data.sources.compliance}>FDA compliance actions</SourceLink></p>
+      <p className="section-caption">Inspections through {data.inspections_through}.</p>
+    </>}
+  </EvidenceSection>;
 }
 export function VendorSupplierEvidence({ v, mode }: { v: string; mode: OwnershipMode }) {
   const [result, setResult] = useState<{ v: string; mode: OwnershipMode; data: VendorSupplier } | null>(null);

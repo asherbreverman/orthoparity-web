@@ -38,14 +38,17 @@ export function VendorMaudeEvidence({ v, mode }: { v: string; mode: OwnershipMod
 
 export function ProductMaudeSection({ k, open, onToggle }: { id?: 'maude'; k: string; open: boolean; onToggle: () => void }) {
   const [result, setResult] = useState<{ k: string; data: DeviceMaude } | null>(null);
+  const [error, setError] = useState('');
   useEffect(() => {
     let active = true;
+    setError('');
     getDeviceMaude(k).then(data => { if (active) setResult({ k, data }); })
-      .catch(error => console.error('MAUDE reports unavailable.', error));
+      .catch(error => { console.error('MAUDE reports unavailable.', error); if (active) setError(error.message); });
     return () => { active = false; };
   }, [k]);
   const data = result?.k === k ? result.data : null;
-  if (!data?.has_reports) return null;
+  if (!data) return <EvidenceSection id="maude" title="Adverse event reports (MAUDE)" summary="Loading…" open={open} onToggle={onToggle}><Status busy={!error} error={error} /></EvidenceSection>;
+  if (!data.has_reports) return <EvidenceSection id="maude" title="Adverse event reports (MAUDE)" summary="No reports" open={open} onToggle={onToggle}><p className="section-caption">No FDA adverse event report (MAUDE) names this 510(k) number.</p><ul className="decision-notes">{data.notes.map((note, i) => <li key={i}>{note}</li>)}</ul></EvidenceSection>;
   const n = maudeNumber;
   const c = data.category;
   return <EvidenceSection id="maude" title="Adverse event reports (MAUDE)" summary={`${n(data.reports)} reports · ${n(data.last5.reports)} in the last five years`} open={open} onToggle={onToggle}>
