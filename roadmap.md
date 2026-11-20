@@ -68,3 +68,7 @@
 # Product MAUDE evidence
 - [x] Add cached read-only MAUDE data and conditional product evidence with a lazy chart.
 - [x] Test zero/null values, conditional visibility and caching; verify live product flows and phone layout.
+
+# Company MAUDE evidence
+- [x] Add cached vendor MAUDE reads and lazy evidence immediately after recalls.
+- [x] Test caching and ownership keys; verify live table, summary, product links and phone layout.

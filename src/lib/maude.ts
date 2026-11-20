@@ -31,6 +31,28 @@ export function maudeNumber(value: number | null) {
   return value === null ? 'NOT FOUND' : value.toLocaleString('en-US');
 }
 
+export type VendorMaude = MaudeCounts & {
+  vendor_id: string;
+  products: number | null;
+  products_with_reports: number | null;
+  last5: MaudeCounts & { since: string | null };
+  by_year: DeviceMaude['by_year'];
+  top_products: {
+    knumber: string;
+    device_name: string | null;
+    product_code: string | null;
+    reports: number | null;
+    reports_last5: number | null;
+    deaths_last5: number | null;
+    injuries_last5: number | null;
+    malfunctions_last5: number | null;
+  }[];
+  data_through: string | null;
+  source: string;
+  maude_url: string;
+  notes: string[];
+};
+
 export function maudeDate(value: string | null, monthOnly = false) {
   if (!value) return 'NOT FOUND';
   const date = new Date(value);

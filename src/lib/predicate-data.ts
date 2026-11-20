@@ -4,7 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Vendor, VendorResolve, DeviceOwner, VendorBrief, VendorComparison, PortfolioRow, ProductPayments, OwnershipMode } from './vendor-data';
 import type { DecisionCard, Signals, VendorSignals } from './signals';
 import type { DeviceRecalls, VendorRecalls } from './recalls';
-import type { DeviceMaude } from './maude';
+import type { DeviceMaude, VendorMaude } from './maude';
 import type { ProcedureList, ProcedureDetail, DeviceProcedures, VendorProcedures } from './procedure-data';
 import { vendorCoverage, type VendorCoverage } from './vendor-coverage';
 import {
@@ -204,6 +204,22 @@ export function getDeviceMaude(k: string) {
   return pending;
 }
 export const getBrief = resilient(getBriefRaw);
+const vendorMaudeRead = resilient(async (v: string, m: OwnershipMode): Promise<VendorMaude> => {
+  const { data, error } = await researchClient.rpc('pc_vendor_maude', { v, m, lim: 10 });
+  if (error) throw error;
+  return data as VendorMaude;
+});
+const vendorMaudeReads = new Map<string, Promise<VendorMaude>>();
+export function getVendorMaude(v: string, m: OwnershipMode) {
+  const key = JSON.stringify([v, m]);
+  let pending = vendorMaudeReads.get(key);
+  if (!pending) {
+    pending = vendorMaudeRead(v, m);
+    vendorMaudeReads.set(key, pending);
+    pending.catch(() => vendorMaudeReads.delete(key));
+  }
+  return pending;
+}
 export const compareDevices = resilient(compareDevicesRaw);
 export const batchDevices = resilient(batchDevicesRaw);
 export const getProductCodes = resilient(getProductCodesRaw);
