@@ -76,3 +76,8 @@
 # Supplier record
 - [x] Add cached supplier reads, prefetched summary and evidence tables above recalls.
 - [x] Add focused tests and verify live data, table expansion and phone layout.
+
+# Medicare add-on payments
+- [x] Add cached read-only product/company calls and shared evidence tables.
+- [x] Place sections as requested, prefetch company summaries and preserve existing styles.
+- [x] Test payment/status rules, caching and live desktop/phone flows, category links and printed briefs.

@@ -8,6 +8,7 @@ import { BriefLink, PdfLink, Status, useRefetch } from './reviewer-shared';
 import { Metrics, Studies } from './payment-shared';
 import { ProductRecallEvidence } from './recall-evidence';
 import { ProductMaudeSection } from './maude-evidence';
+import { ProductAddOnSection, ProductAddOnPrint } from './add-on-evidence';
 import { ProductProceduresSection } from './benchmark-procedures';
 import { BottomLine, GlanceTiles, DecisionCards, EvidenceSection, Notes, PrintBrief, useEvidence } from './decision-shared';
 import { getBrief, getFamily, lookupChain, getProductPayments, getSignals, getDeviceOwner } from '@/lib/predicate-data';
@@ -137,12 +138,13 @@ export function ProductResult({ k, view, meta, onView }: { k: string; view: View
         {view === 'analyst' && <><h3 className="mt-6">Clearances by year</h3><ClientOnly fallback={<div className="category-chart skeleton" />}><Suspense fallback={<div className="category-chart skeleton" />}><CategoryChart rows={category.by_year ?? []} /></Suspense></ClientOnly><h3>Top companies, all time</h3><div className="brief-table-scroll"><table className="brief-table"><thead><tr><th>Company</th><th>Clearances</th></tr></thead><tbody>{(category.top_companies ?? []).map(r => <tr key={r.applicant}><td>{r.applicant}</td><td>{r.clearances}</td></tr>)}</tbody></table></div></>}
         <p className="section-caption">Counts cover orthopedic 510(k) clearances in this product code through {category.latest_year}.</p>
       </EvidenceSection>}
+      <ProductAddOnSection id="addon" k={k} open={ev.isOpen('addon')} onToggle={() => ev.toggle('addon')} />
       <ProductProceduresSection id="procedures" key={k} k={k} code={code} open={ev.isOpen('procedures')} onToggle={() => ev.toggle('procedures')} />
     </div>
   );
   return <>
     <Status error={error} />
-    <PrintBrief meta={meta} title={name} subtitle={`${owner?.filer ?? h?.company ?? device.applicant ?? 'NOT FOUND'}${ownerNow ? `, now part of ${owner?.owner_name}` : ''} · ${plain} (${code}) · ${device.knumber} · cleared ${longDate(h?.cleared ?? device.decision_date)}`} bottomLine={s?.bottom_line ?? ''} cards={cards} table={{ caption: `Alternatives in this category · ${s?.alternatives.window ?? ''}`, head: ['Company', 'Clearances', 'Latest device', 'Latest 510(k)', 'Latest date'], rows: altRows.map(r => [r.company, r.clearances, r.latest_device ?? 'NOT FOUND', r.latest_knumber ?? 'NOT FOUND', longDate(r.latest_date)]) }} questions={asks} notes={s?.notes ?? []} />
+    <PrintBrief evidence={<ProductAddOnPrint k={k} />} meta={meta} title={name} subtitle={`${owner?.filer ?? h?.company ?? device.applicant ?? 'NOT FOUND'}${ownerNow ? `, now part of ${owner?.owner_name}` : ''} · ${plain} (${code}) · ${device.knumber} · cleared ${longDate(h?.cleared ?? device.decision_date)}`} bottomLine={s?.bottom_line ?? ''} cards={cards} table={{ caption: `Alternatives in this category · ${s?.alternatives.window ?? ''}`, head: ['Company', 'Clearances', 'Latest device', 'Latest 510(k)', 'Latest date'], rows: altRows.map(r => [r.company, r.clearances, r.latest_device ?? 'NOT FOUND', r.latest_knumber ?? 'NOT FOUND', longDate(r.latest_date)]) }} questions={asks} notes={s?.notes ?? []} />
     <section ref={top} className="result-header" aria-label="Device">
       <div className="result-heading">
         <div><h2 className="result-title">{name}</h2>
