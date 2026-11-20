@@ -167,6 +167,78 @@ export type Database = {
         }
         Relationships: []
       }
+      pc_maude_product: {
+        Row: {
+          data_through: string | null
+          deaths: number | null
+          deaths_last5: number | null
+          first_year: number | null
+          injuries: number | null
+          injuries_last5: number | null
+          knumber: string
+          last_year: number | null
+          malfunctions: number | null
+          malfunctions_last5: number | null
+          other: number | null
+          other_last5: number | null
+          reports: number | null
+          reports_last5: number | null
+          window_start: string | null
+        }
+        Insert: {
+          data_through?: string | null
+          deaths?: number | null
+          deaths_last5?: number | null
+          first_year?: number | null
+          injuries?: number | null
+          injuries_last5?: number | null
+          knumber: string
+          last_year?: number | null
+          malfunctions?: number | null
+          malfunctions_last5?: number | null
+          other?: number | null
+          other_last5?: number | null
+          reports?: number | null
+          reports_last5?: number | null
+          window_start?: string | null
+        }
+        Update: {
+          data_through?: string | null
+          deaths?: number | null
+          deaths_last5?: number | null
+          first_year?: number | null
+          injuries?: number | null
+          injuries_last5?: number | null
+          knumber?: string
+          last_year?: number | null
+          malfunctions?: number | null
+          malfunctions_last5?: number | null
+          other?: number | null
+          other_last5?: number | null
+          reports?: number | null
+          reports_last5?: number | null
+          window_start?: string | null
+        }
+        Relationships: []
+      }
+      pc_maude_year: {
+        Row: {
+          knumber: string
+          reports: number | null
+          year: number
+        }
+        Insert: {
+          knumber: string
+          reports?: number | null
+          year: number
+        }
+        Update: {
+          knumber?: string
+          reports?: number | null
+          year?: number
+        }
+        Relationships: []
+      }
       pc_meta: {
         Row: {
           key: string
@@ -1086,6 +1158,7 @@ export type Database = {
       pc_code_vendors: { Args: { code: string; lim?: number }; Returns: Json }
       pc_compare: { Args: { a: string; b: string }; Returns: Json }
       pc_data_end: { Args: never; Returns: string }
+      pc_device_maude: { Args: { k: string }; Returns: Json }
       pc_device_owner: { Args: { k: string }; Returns: Json }
       pc_device_procedures: { Args: { k: string }; Returns: Json }
       pc_device_recalls: { Args: { k: string }; Returns: Json }
@@ -1110,6 +1183,7 @@ export type Database = {
       pc_fig: { Args: { label: string; v: string }; Returns: Json }
       pc_figs: { Args: { f: Json[] }; Returns: Json }
       pc_lookup: { Args: { max_gen?: number; roots: string[] }; Returns: Json }
+      pc_maude_notes: { Args: never; Returns: Json }
       pc_mode: { Args: { m: string }; Returns: string }
       pc_money: { Args: { x: number }; Returns: string }
       pc_num: { Args: { n: number }; Returns: string }
@@ -1175,6 +1249,10 @@ export type Database = {
           source_url: string
           vendor_id: string
         }[]
+      }
+      pc_vendor_maude: {
+        Args: { lim?: number; m?: string; v: string }
+        Returns: Json
       }
       pc_vendor_parent: { Args: { v: string }; Returns: string }
       pc_vendor_portfolio: {
