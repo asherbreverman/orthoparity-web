@@ -14,6 +14,93 @@ export type Database = {
   }
   public: {
     Tables: {
+      pc_add_on_payment: {
+        Row: {
+          apc: string | null
+          cms_codes: string | null
+          cms_descriptor: string | null
+          cms_source: string | null
+          company: string | null
+          effective: string | null
+          fda_numbers: string | null
+          fda_source: string | null
+          hcpcs: string | null
+          max_payment: number | null
+          note: string | null
+          pass_through_ends: string | null
+          pathway: string | null
+          period: string | null
+          program: string | null
+          status: string | null
+          tech_id: string
+          technology: string | null
+          vendor_id: string | null
+        }
+        Insert: {
+          apc?: string | null
+          cms_codes?: string | null
+          cms_descriptor?: string | null
+          cms_source?: string | null
+          company?: string | null
+          effective?: string | null
+          fda_numbers?: string | null
+          fda_source?: string | null
+          hcpcs?: string | null
+          max_payment?: number | null
+          note?: string | null
+          pass_through_ends?: string | null
+          pathway?: string | null
+          period?: string | null
+          program?: string | null
+          status?: string | null
+          tech_id: string
+          technology?: string | null
+          vendor_id?: string | null
+        }
+        Update: {
+          apc?: string | null
+          cms_codes?: string | null
+          cms_descriptor?: string | null
+          cms_source?: string | null
+          company?: string | null
+          effective?: string | null
+          fda_numbers?: string | null
+          fda_source?: string | null
+          hcpcs?: string | null
+          max_payment?: number | null
+          note?: string | null
+          pass_through_ends?: string | null
+          pathway?: string | null
+          period?: string | null
+          program?: string | null
+          status?: string | null
+          tech_id?: string
+          technology?: string | null
+          vendor_id?: string | null
+        }
+        Relationships: []
+      }
+      pc_add_on_payment_510k: {
+        Row: {
+          knumber: string
+          product_code: string | null
+          tech_id: string
+          vendor_id: string | null
+        }
+        Insert: {
+          knumber: string
+          product_code?: string | null
+          tech_id: string
+          vendor_id?: string | null
+        }
+        Update: {
+          knumber?: string
+          product_code?: string | null
+          tech_id?: string
+          vendor_id?: string | null
+        }
+        Relationships: []
+      }
       pc_compliance_action: {
         Row: {
           action_date: string | null
@@ -1300,6 +1387,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      pc_add_on_notes: { Args: never; Returns: Json }
       pc_applicant_vendor: { Args: { name: string }; Returns: string }
       pc_batch: { Args: { ks: string[] }; Returns: Json }
       pc_brand_family: { Args: { k: string }; Returns: Json }
@@ -1323,6 +1411,7 @@ export type Database = {
       pc_code_vendors: { Args: { code: string; lim?: number }; Returns: Json }
       pc_compare: { Args: { a: string; b: string }; Returns: Json }
       pc_data_end: { Args: never; Returns: string }
+      pc_device_add_on: { Args: { k: string }; Returns: Json }
       pc_device_maude: { Args: { k: string }; Returns: Json }
       pc_device_owner: { Args: { k: string }; Returns: Json }
       pc_device_procedures: { Args: { k: string }; Returns: Json }
@@ -1400,6 +1489,7 @@ export type Database = {
       }
       pc_signals: { Args: { k: string }; Returns: Json }
       pc_supplier_notes: { Args: never; Returns: Json }
+      pc_vendor_add_on: { Args: { m?: string; v: string }; Returns: Json }
       pc_vendor_brief: { Args: { m?: string; v: string }; Returns: Json }
       pc_vendor_compare: {
         Args: { a: string; b: string; m?: string }
