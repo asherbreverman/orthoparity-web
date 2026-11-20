@@ -62,3 +62,4 @@ use the editor.
 - Match signal boxes to their evidence ids and share positional hues and question flattening across views; cached indications and supplier reads keep new product evidence read-only.
 - Keep displayed device names and product sentences in pure formatting helpers; preserve filed names in clearance evidence and title tooltips.
 - Compare products through the shared sheet and URL compare parameter using cached signal reads and key-matched rows; this avoids new data access and preserves source badges.
+- Keep Letter briefs in shared print-only markup and light-theme print tokens; native printing waits for fonts and restores the document title, preserving screen layouts and source content.

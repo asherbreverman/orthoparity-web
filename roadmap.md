@@ -97,3 +97,8 @@
 - [x] Add the responsive header tagline and home introduction.
 - [x] Update the share description and printed brief headers.
 - [x] Verify the requested desktop and phone widths, print text, metadata and tests.
+
+# Printer-friendly downloadable briefs
+- [x] Redesign the Letter summary, colored question blocks, inline tables/add-on evidence and separate vendor worksheet.
+- [x] Wait for fonts, set and restore PDF titles, and preserve screen layouts and existing content.
+- [x] Check the three requested live briefs, dark/grayscale printing, pagination and all tests.
