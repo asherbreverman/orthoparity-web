@@ -1263,6 +1263,8 @@ html { scroll-behavior: smooth; scroll-padding-top: 0; }
 .identify-step .search-box input { font-size:17px; }
 .try-examples { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:8px; margin:24px 0 60px; color:var(--ink-3); font-size:14px; }
 .try-examples .ui-button { min-height:32px; font-size:13px; height:auto; }
+.identify-step.home-hero>p.home-pill { display:block; width:fit-content; max-width:100%; margin:-40px auto 20px; padding:8px 16px; border-radius:999px; background:color-mix(in srgb,var(--hue) 9%,var(--background)); color:var(--foreground); font-size:13px; font-weight:600; line-height:1.4; }
+@media(max-width:480px) { .identify-step.home-hero>p.home-pill { margin-top:-20px; } }
 .home-about-tiles { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; max-width:980px; margin:auto; text-align:left; }
 .home-about-tiles>div { border-radius:28px; background:var(--secondary); padding:26px; }
 .home-about-tiles strong { font-size:40px; line-height:1.15; font-weight:600; }

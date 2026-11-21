@@ -58,9 +58,10 @@ function DeviceBrief() {
       <p className="home-tagline">Free and open source, for ASCs and IDNs. Built from public FDA and CMS data.</p>
       <ModeTabs vendor={vendorMode} onChange={changeMode} />
       <h1>Know what the vendor knows.</h1>
-      <p>{vendorMode ? 'Search any orthopedic company. See its portfolio, risk record and competitors, rolled up to the parent company, without a GPO.' : 'Search any orthopedic product by 510(k) number, name or company. See its predicate, its equivalents, its risk record and the questions to ask, without a GPO.'}</p>
+      <p>{vendorMode ? 'Their public record plus your private pricing. Search any orthopedic company and benchmark it against the vendors you already buy from, without a GPO.' : 'Their public record plus your private pricing. Search any orthopedic product by 510(k) number, name or company, and benchmark it against what you already pay, without a GPO.'}</p>
       {search}
       <div className="try-examples"><span>Try:</span>{vendorMode ? vendorExamples.map(([label, id]) => <Button key={id} variant="secondary" size="sm" onClick={() => void navigate({to:'/',search:{v:id}})}>{label}</Button>) : productExamples.map(([label, id]) => <Button key={id} variant="secondary" size="sm" onClick={() => void navigate({to:'/',search:{k:id}})}>{label}</Button>)}</div>
+      <p className="home-pill question-hue-5">Your pricing stays yours. OrthoParity never asks for it: no login, nothing to upload.</p>
       <div className="mb-6"><Button asChild variant="link"><Link to="/procedures">Or browse Medicare payments by procedure</Link></Button></div>
       <div className="how-it-works">
         <p className="glance-caption">How it works</p>
