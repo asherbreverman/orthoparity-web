@@ -34,6 +34,6 @@ describe('Public page reads', () => {
   it('falls back to the home title and description after an unsuccessful lookup', () => {
     const home = previewMetadata({ k: 'K000000', v: '' }, null);
     expect(home.title).toBe('Know what the vendor knows: free orthopedic device and vendor benchmarks | OrthoParity');
-    expect(home.description).toBe('Benchmark orthopedic products and vendors yourself, without a GPO. Free, open-source briefs built from public FDA and CMS data: predicates, equivalents, recalls, adverse events and the questions to ask the vendor.');
+    expect(home.description).toBe('Their public record plus your private pricing. Benchmark any new orthopedic product or vendor yourself, without a GPO. Free, open-source briefs built from public FDA and CMS data. OrthoParity never asks for your pricing.');
   });
 });
