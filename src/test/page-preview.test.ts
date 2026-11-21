@@ -31,5 +31,9 @@ describe('Public page reads', () => {
   });
   it('canonicalizes the product without transient comparison or view state', () => expect(previewMetadata({ k: 'K151105', v: '' }, null).url).toBe('https://www.orthoparity.com/?k=K151105'));
   it('canonicalizes the vendor without dropping its id', () => expect(previewMetadata({ k: '', v: 'stryker' }, null).url).toBe('https://www.orthoparity.com/?v=stryker'));
-  it('falls back to the home title after an unsuccessful lookup', () => expect(previewMetadata({ k: 'K000000', v: '' }, null).title).toBe('Orthopedic device and vendor benchmarks | OrthoParity'));
+  it('falls back to the home title and description after an unsuccessful lookup', () => {
+    const home = previewMetadata({ k: 'K000000', v: '' }, null);
+    expect(home.title).toBe('Know what the vendor knows: free orthopedic device and vendor benchmarks | OrthoParity');
+    expect(home.description).toBe('Benchmark orthopedic products and vendors yourself, without a GPO. Free, open-source briefs built from public FDA and CMS data: predicates, equivalents, recalls, adverse events and the questions to ask the vendor.');
+  });
 });
