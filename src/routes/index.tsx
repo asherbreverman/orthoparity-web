@@ -2,7 +2,11 @@ import { ClientOnly, createFileRoute, Link, useNavigate } from '@tanstack/react-
 import { z } from 'zod';
 import { fallback, zodValidator } from '@tanstack/zod-adapter';
 import { lazy, Suspense, useEffect, useState } from 'react';
-import { benchmarkTitle, benchmarkDescription, benchmarkOrigin } from '@/lib/benchmark-brand';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { publicPageOptions } from '@/lib/page-queries';
+import { pageSubject, previewMetadata } from '@/lib/page-preview';
+import { ProcedureError, ProcedureNotFound } from '@/components/procedure-shared';
+import { benchmarkOrigin } from '@/lib/benchmark-brand';
 import shareImage from '@/assets/orthoparity-share.png.asset.json';
 import { Button } from '@/components/ui/button';
 import { DeviceSearch, Status, useRelease } from '@/components/reviewer-shared';
@@ -19,18 +23,26 @@ const vendorExamples: [string, string][] = [['Stryker', 'stryker'], ['Johnson & 
 export const Route = createFileRoute('/')({
   staticData: { sitemap: true },
   validateSearch: zodValidator(z.object({k: fallback(z.string(), '').optional(), v: fallback(z.string(), '').optional(), compare: fallback(z.string(), '').optional(), from: fallback(z.string(), '').optional(), mode: fallback(z.string(), '').optional(), view: fallback(z.string(), '').optional()})),
-  head: () => ({ meta: [{ title: benchmarkTitle }, { name: 'description', content: benchmarkDescription }, { property: 'og:title', content: benchmarkTitle }, { property: 'og:description', content: benchmarkDescription }, { property: 'og:type', content: 'website' }, { property: 'og:url', content: benchmarkOrigin + '/' }, { property: 'og:image', content: new URL(shareImage.url, benchmarkOrigin).href }, { name: 'twitter:image', content: new URL(shareImage.url, benchmarkOrigin).href }, { name: 'twitter:card', content: 'summary_large_image' }], links: [{ rel: 'canonical', href: benchmarkOrigin + '/' }] }),
+  loaderDeps: ({ search }) => pageSubject(search),
+  loader: ({ context, deps }) => context.queryClient.ensureQueryData(publicPageOptions(deps)),
+  errorComponent: ProcedureError,
+  notFoundComponent: ProcedureNotFound,
+  head: ({ loaderData, match }) => {
+    const { title, description, url } = previewMetadata(match.loaderDeps, loaderData?.preview ?? null);
+    return { meta: [{ title }, { name: 'description', content: description }, { property: 'og:title', content: title }, { property: 'og:description', content: description }, { property: 'og:type', content: 'website' }, { property: 'og:url', content: url }, { property: 'og:image', content: new URL(shareImage.url, benchmarkOrigin).href }, { name: 'twitter:image', content: new URL(shareImage.url, benchmarkOrigin).href }, { name: 'twitter:title', content: title }, { name: 'twitter:description', content: description }, { name: 'twitter:card', content: 'summary_large_image' }], links: [{ rel: 'canonical', href: url }] };
+  },
   component: DeviceBrief,
 });
 function DeviceBrief() {
   const { k, v, compare, from, mode, view: viewParam } = Route.useSearch();
+  const { data: initial } = useSuspenseQuery(publicPageOptions(pageSubject({ k, v })));
   const view: View = viewParam === 'analyst' ? 'analyst' : 'brief';
   const vendorMode = !!v || mode === 'vendor';
   const selected = !!k || !!v;
   const navigate = useNavigate();
-  const { meta } = useRelease();
-  const [coverage, setCoverage] = useState<VendorCoverage | null>(null);
-  useEffect(() => { let active = true; getVendorCoverage().then(data => { if (active) setCoverage(data); }).catch(() => {}); return () => { active = false; }; }, []);
+  const { meta } = useRelease(initial.meta ?? undefined);
+  const [coverage, setCoverage] = useState<VendorCoverage | null>(initial.coverage);
+  useEffect(() => { if (initial.coverage) { setCoverage(initial.coverage); return; } let active = true; getVendorCoverage().then(data => { if (active) setCoverage(data); }).catch(() => {}); return () => { active = false; }; }, [initial.coverage]);
   const setView = (next: View) => void navigate({ to: '/', search: prev => ({ ...prev, view: next === 'analyst' ? 'analyst' : undefined }), replace: true, resetScroll: false });
   const changeMode = (vendor: boolean) => void navigate({ to: '/', search: vendor ? { mode: 'vendor' } : {} });
   const search = vendorMode ? <VendorSearch key={v ?? 'vendor'} initialValue={v ?? ''} onSelect={row => void navigate({to:'/',search:{v:row.vendor_id, from: row.via_vendor_id ?? undefined, view: view === 'analyst' ? 'analyst' : undefined}, viewTransition: !window.matchMedia('(prefers-reduced-motion: reduce)').matches})} /> : <DeviceSearch resetKey={k ?? ''} onSelect={row => void navigate({ to: '/', search: { k: row.knumber, view: view === 'analyst' ? 'analyst' : undefined }, viewTransition: !window.matchMedia('(prefers-reduced-motion: reduce)').matches })} />;

@@ -11,7 +11,7 @@ import { useEvidence } from '@/components/decision-shared';
 
 const evidenceIds = ['drgs', 'outpatient', 'devices', 'evidence', 'notes'];
 export const Route = createFileRoute('/procedures_/$familyId')({
-  staticData: {sitemap: false},
+  staticData: {sitemap: true},
   validateSearch: zodValidator(z.object({hl: z.string().optional(), open: z.string().optional()})),
   loader: async ({context, params}) => {const detail = await context.queryClient.ensureQueryData(procedureOptions(params.familyId)); if (!detail.found) throw notFound(); return detail;},
   head: ({loaderData, params}) => procedureHead(loaderData ? pageTitle(`${loaderData.family.name}: Medicare payments and device categories`) : pageTitle('Procedure unavailable'), loaderData?.family.description ?? 'Original Medicare payments and orthopedic device categories from public CMS and FDA data.', `/procedures/${encodeURIComponent(params.familyId)}`),

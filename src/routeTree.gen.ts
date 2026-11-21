@@ -10,13 +10,20 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProceduresRouteImport } from './routes/procedures'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ProceduresFamilyIdRouteImport } from './routes/procedures_.$familyId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProceduresRoute = ProceduresRouteImport.update({
@@ -29,6 +36,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProceduresFamilyIdRoute = ProceduresFamilyIdRouteImport.update({
   id: '/procedures_/$familyId',
   path: '/procedures/$familyId',
@@ -37,36 +49,62 @@ const ProceduresFamilyIdRoute = ProceduresFamilyIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/privacy': typeof PrivacyRoute
   '/procedures': typeof ProceduresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/procedures/$familyId': typeof ProceduresFamilyIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/privacy': typeof PrivacyRoute
   '/procedures': typeof ProceduresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/procedures/$familyId': typeof ProceduresFamilyIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/privacy': typeof PrivacyRoute
   '/procedures': typeof ProceduresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/procedures_/$familyId': typeof ProceduresFamilyIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/procedures' | '/sitemap.xml' | '/procedures/$familyId'
+  fullPaths:
+    | '/'
+    | '/privacy'
+    | '/procedures'
+    | '/sitemap.xml'
+    | '/terms'
+    | '/procedures/$familyId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/procedures' | '/sitemap.xml' | '/procedures/$familyId'
+  to:
+    | '/'
+    | '/privacy'
+    | '/procedures'
+    | '/sitemap.xml'
+    | '/terms'
+    | '/procedures/$familyId'
   id:
-    '__root__' | '/' | '/procedures' | '/sitemap.xml' | '/procedures_/$familyId'
+    | '__root__'
+    | '/'
+    | '/privacy'
+    | '/procedures'
+    | '/sitemap.xml'
+    | '/terms'
+    | '/procedures_/$familyId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PrivacyRoute: typeof PrivacyRoute
   ProceduresRoute: typeof ProceduresRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TermsRoute: typeof TermsRoute
   ProceduresFamilyIdRoute: typeof ProceduresFamilyIdRoute
 }
 
@@ -77,6 +115,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/procedures': {
@@ -93,6 +138,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/procedures_/$familyId': {
       id: '/procedures_/$familyId'
       path: '/procedures/$familyId'
@@ -105,8 +157,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PrivacyRoute: PrivacyRoute,
   ProceduresRoute: ProceduresRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TermsRoute: TermsRoute,
   ProceduresFamilyIdRoute: ProceduresFamilyIdRoute,
 }
 export const routeTree = rootRouteImport

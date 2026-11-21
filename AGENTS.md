@@ -63,3 +63,4 @@ use the editor.
 - Keep displayed device names and product sentences in pure formatting helpers; preserve filed names in clearance evidence and title tooltips.
 - Compare products through the shared sheet and URL compare parameter using cached signal reads and key-matched rows; this avoids new data access and preserves source badges.
 - Keep Letter briefs in shared print-only markup and light-theme print tokens; native printing waits for fonts and restores the document title, preserving screen layouts and source content.
+- Read public search previews through the adapter with an anonymous server client, a two-second deadline and hourly edge/query caches; this keeps source HTML useful without blocking slow reads.

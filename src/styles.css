@@ -1440,6 +1440,10 @@ html { scroll-behavior: smooth; scroll-padding-top: 0; }
 @media print { .print-brief .procedure-payments { grid-template-columns:repeat(3,minmax(0,1fr)); gap:8pt; } .print-brief .metric { padding:8pt; min-height:0; background:var(--background); } .print-brief .metric-label { font-size:10pt; } .print-brief .metric-value,.print-brief .metric:last-child .metric-value { font-size:16pt; color:inherit; } .print-brief .section-caption { font-size:9pt; } .print-brief .vendor-questions { font-size:10pt; margin:12pt 0; } .print-brief .vendor-questions li { margin-bottom:8pt; } .print-brief .vendor-questions li::marker { font-size:10pt; color:inherit; } }
 
 /* Letter reports reuse the site's light palette, regardless of screen theme. */
+.legal-page .section-lead { margin: 16px 0; font-size: 16px; line-height: 1.65; }
+.legal-page .brief-section { overflow-wrap: anywhere; }
+.legal-page .brief-link { text-decoration: underline; text-underline-offset: 3px; }
+.legal-page .legal-intro { padding-top: 0; padding-bottom: 0; }
 :root {
  --print-paper: oklch(1 0 0); --print-ink: oklch(from #0b0b0d l c h);
  --print-muted: oklch(from #55555c l c h); --print-surface: oklch(from #f5f5f7 l c h);

@@ -7,7 +7,7 @@ import { benchmarkOrigin, pageTitle, benchmarkTitle } from '@/lib/benchmark-bran
 import { pageHead } from '@/components/reviewer-shared';
 import { Route as ProceduresIndex } from '@/routes/procedures';
 import { Route as ProcedureDetail } from '@/routes/procedures_.$familyId';
-import { sitemapStaticPaths, sitemapXML } from '@/lib/sitemap';
+import { sitemapStaticPaths, sitemapXML, sitemapPathForLocation } from '@/lib/sitemap';
 
 type HeadMeta = { meta?: { title?: string }[] };
 const titleOf = (head: unknown, ctx: unknown) => (head as ((ctx: unknown) => HeadMeta) | undefined)?.(ctx)?.meta?.find(m => 'title' in m)?.title;
@@ -30,11 +30,18 @@ describe("App routing", () => {
   it('includes the public home and procedure index in the sitemap with the www URL', () => {
     const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
     const paths = sitemapStaticPaths(router);
-    expect(paths).toEqual(['/', '/procedures']);
+    expect(paths).toEqual(['/', '/privacy', '/procedures', '/terms']);
     const xml = sitemapXML(benchmarkOrigin, paths.map(path => ({ path })));
     expect(xml).toContain('<loc>https://www.orthoparity.com/</loc>');
     expect(xml).toContain('<loc>https://www.orthoparity.com/procedures</loc>');
     expect(xml).not.toContain('<lastmod>');
+  });
+
+  it('includes real procedure detail locations but not invented routes', () => {
+    const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
+    const path = '/procedures/hip_knee_replacement';
+    expect(sitemapPathForLocation(router, { pathname: path, publicHref: path }, '/procedures_/$familyId')).toBe(path);
+    expect(sitemapPathForLocation(router, { pathname: '/internal', publicHref: '/internal' }, '/procedures_/$familyId')).toBeUndefined();
   });
 
   it('matches a procedure detail as a separate leaf under the root shell', () => {

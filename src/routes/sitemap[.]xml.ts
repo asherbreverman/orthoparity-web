@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { getRouterInstance } from '@tanstack/react-start';
 import { benchmarkOrigin } from '@/lib/benchmark-brand';
-import { sitemapStaticPaths, sitemapXML } from '@/lib/sitemap';
+import { sitemapStaticPaths, sitemapXML, sitemapPathForLocation } from '@/lib/sitemap';
 
 export const Route = createFileRoute('/sitemap.xml')({
   staticData: { sitemap: false },
@@ -10,6 +10,15 @@ export const Route = createFileRoute('/sitemap.xml')({
       GET: async () => {
         const router = await getRouterInstance();
         const entries = sitemapStaticPaths(router).map(path => ({ path }));
+        try {
+          const { readPublicProcedurePaths } = await import('@/lib/page-data.server');
+          for (const path of await readPublicProcedurePaths()) {
+            const included = sitemapPathForLocation(router, { pathname: path, publicHref: path }, '/procedures_/$familyId');
+            if (included) entries.push({ path: included });
+          }
+        } catch {
+          return new Response('The public procedure index is temporarily unavailable.', { status: 503, headers: { 'Cache-Control': 'no-store' } });
+        }
         if (entries.length === 0) {
           return new Response('No pages are included in this sitemap.', {
             status: 404, headers: { 'Cache-Control': 'no-store' },

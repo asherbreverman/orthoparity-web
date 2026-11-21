@@ -102,3 +102,9 @@
 - [x] Redesign the Letter summary, colored question blocks, inline tables/add-on evidence and separate vendor worksheet.
 - [x] Wait for fonts, set and restore PDF titles, and preserve screen layouts and existing content.
 - [x] Check the three requested live briefs, dark/grayscale printing, pagination and all tests.
+
+# Legal pages and search metadata
+- [x] Add Terms and accurate Privacy pages, shared footer links and printed URLs.
+- [x] Render live home counts and subject-specific metadata with a two-second limit and hourly caching.
+- [ ] Add Google verification once the real code is supplied (waiting on user).
+- [x] Verify source HTML, sitemap, live pages, mobile layout and all tests.

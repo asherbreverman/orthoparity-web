@@ -7,6 +7,7 @@ import type { DeviceRecalls, VendorRecalls } from './recalls';
 import type { DeviceMaude, VendorMaude } from './maude';
 import type { ProcedureList, ProcedureDetail, DeviceProcedures, VendorProcedures } from './procedure-data';
 import { vendorCoverage, type VendorCoverage } from './vendor-coverage';
+import { productPreview, vendorPreview, type PageSubject, type PagePreview } from './page-preview';
 import {
   cacheKey,
   preferredSearchResults,
@@ -17,6 +18,39 @@ import {
 } from "./predicate-chain";
 
 function getClient() { return supabase; }
+export async function publicProcedureList(client: SupabaseClient, signal: AbortSignal): Promise<ProcedureList> {
+  const { data, error } = await client.rpc('pc_procedure_list').abortSignal(signal);
+  if (error) throw error;
+  return data as ProcedureList;
+}
+/** Public SSR reads use the supplied anonymous client and only existing research access. */
+export function publicPageReads(client: SupabaseClient, subject: PageSubject, signal: AbortSignal) {
+  return {
+    meta: async (): Promise<Meta> => {
+      const { data, error } = await client.from('pc_meta').select('key,value').abortSignal(signal);
+      if (error) throw error;
+      return Object.fromEntries((data ?? []).map(row => [row.key, row.value ?? '']));
+    },
+    coverage: async (): Promise<VendorCoverage> => {
+      const { data, error } = await client.rpc('pc_vendor_coverage').abortSignal(signal);
+      if (error) throw error;
+      return vendorCoverage(data?.parent_companies ?? null, data?.first_year, data?.last_year);
+    },
+    preview: async (): Promise<PagePreview | null> => {
+      if (subject.k) {
+        const { data, error } = await client.rpc('pc_brief', { k: subject.k }).abortSignal(signal);
+        if (error) throw error;
+        return data ? productPreview(data as Brief) : null;
+      }
+      if (subject.v) {
+        const { data, error } = await client.rpc('pc_vendor_signals', { v: subject.v, m: 'current' }).abortSignal(signal);
+        if (error) throw error;
+        return data ? vendorPreview(data as VendorSignals) : null;
+      }
+      return null;
+    },
+  };
+}
 export const LOAD_FAILED = "This brief didn't load. Try again in a moment.";
 const TIMEOUT_MS = 8000;
 function attempt<T>(run: () => Promise<T>): Promise<T> {
