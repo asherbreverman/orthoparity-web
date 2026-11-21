@@ -48,10 +48,10 @@ function DeviceBrief() {
   const search = vendorMode ? <VendorSearch key={v ?? 'vendor'} initialValue={v ?? ''} onSelect={row => void navigate({to:'/',search:{v:row.vendor_id, from: row.via_vendor_id ?? undefined, view: view === 'analyst' ? 'analyst' : undefined}, viewTransition: !window.matchMedia('(prefers-reduced-motion: reduce)').matches})} /> : <DeviceSearch resetKey={k ?? ''} onSelect={row => void navigate({ to: '/', search: { k: row.knumber, view: view === 'analyst' ? 'analyst' : undefined }, viewTransition: !window.matchMedia('(prefers-reduced-motion: reduce)').matches })} />;
   return <>
     {selected ? <DockedSearch>{search}</DockedSearch> : <section className="identify-step home-hero">
-      <p className="home-tagline">Free, public FDA and CMS data on orthopedic devices and vendors, the same for everyone.</p>
+      <p className="home-tagline">Free and open source, for ASCs and IDNs. Built from public FDA and CMS data.</p>
       <ModeTabs vendor={vendorMode} onChange={changeMode} />
-      <h1>{vendorMode ? 'Identify an orthopedic vendor to benchmark' : 'Identify an orthopedic device to benchmark'}</h1>
-      <p>{vendorMode ? 'Search by vendor name and get a vendor brief: 11 questions, the evidence, and what to ask.' : 'Search by 510(k) number, product name or company and get a decision brief: 12 questions, the evidence, and what to ask the vendor.'}</p>
+      <h1>Know what the vendor knows.</h1>
+      <p>{vendorMode ? 'Search any orthopedic company. See its portfolio, risk record and competitors, rolled up to the parent company, without a GPO.' : 'Search any orthopedic product by 510(k) number, name or company. See its predicate, its equivalents, its risk record and the questions to ask, without a GPO.'}</p>
       {search}
       <div className="try-examples"><span>Try:</span>{vendorMode ? vendorExamples.map(([label, id]) => <Button key={id} variant="secondary" size="sm" onClick={() => void navigate({to:'/',search:{v:id}})}>{label}</Button>) : productExamples.map(([label, id]) => <Button key={id} variant="secondary" size="sm" onClick={() => void navigate({to:'/',search:{k:id}})}>{label}</Button>)}</div>
       <div className="mb-6"><Button asChild variant="link"><Link to="/procedures">Or browse Medicare payments by procedure</Link></Button></div>
