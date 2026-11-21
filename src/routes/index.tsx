@@ -25,7 +25,7 @@ const howItWorks = [
   { hue: 4, label: 'Step 2', title: 'Find the equivalents', body: 'Every device sharing that predicate or product code.' },
   { hue: 2, label: 'Step 3', title: 'Compare the risk', body: 'Recalls, adverse events and inspections next to your current vendors.' },
   { hue: 5, label: 'Step 4', title: 'Make them compete', body: 'Novel or commodity, and who else already fills the need.' },
-  { hue: 6, label: 'Step 5', title: 'Turn questions into leverage', body: 'Hard questions, backed by data, in a printable worksheet.' },
+  { hue: 6, label: 'Step 5', title: 'Benchmark against your pricing', body: 'Per item, construct or procedure, against what you already pay.' },
 ];
 export const Route = createFileRoute('/')({
   staticData: { sitemap: true },
@@ -64,9 +64,16 @@ function DeviceBrief() {
       <p className="home-pill question-hue-5">Your pricing stays yours. OrthoParity never asks for it: no login, nothing to upload.</p>
       <div className="mb-6"><Button asChild variant="link"><Link to="/procedures">Or browse Medicare payments by procedure</Link></Button></div>
       <div className="how-it-works">
-        <p className="glance-caption">How it works</p>
+        <p className="glance-caption">Five steps for every new product or vendor request</p>
         <div className="how-tiles">{howItWorks.map(s => <div key={s.label} className={`how-tile question-hue-${s.hue}`}><span className="glance-label">{s.label}</span><strong>{s.title}</strong><p>{s.body}</p></div>)}</div>
-        <p className="how-note">All from public FDA and CMS data. No GPO required.</p>
+        <div className="how-equation">
+          <div className="how-eq-tile question-hue-1"><span className="glance-label">From OrthoParity</span><strong>Their public record</strong></div>
+          <span className="how-eq-op">+</span>
+          <div className="how-eq-tile question-hue-5"><span className="glance-label">From you, kept private</span><strong>Your own pricing</strong></div>
+          <span className="how-eq-op">=</span>
+          <div className="how-eq-tile how-eq-result"><span className="glance-label">At the table</span><strong>Leverage</strong></div>
+        </div>
+        <p className="how-equation-note">OrthoParity never asks for your prices or your data. You bring them to the table, not to the website.</p>
       </div>
       <div className="home-about-tiles auto-rows-fr"><div><strong>{meta.starting_set_clearances ? Number(meta.starting_set_clearances).toLocaleString('en-US') : '…'}</strong><p>orthopedic 510(k) clearances, from {coverage?.first ?? '…'} to {coverage?.last ?? '…'}</p></div><div><strong>{coverage?.count.toLocaleString('en-US') ?? '…'}</strong><p>orthopedic companies with 510(k) clearances, counted by parent company</p></div><div><strong>9</strong><p className="text-sm!">public sources: FDA 510(k)s, GUDID, recalls, adverse event reports (MAUDE), establishment registrations, and inspections and warning letters; CMS Open Payments, Medicare hospital payments and Medicare add-on payments</p></div></div>
       <p className="section-caption home-about-note">Every answer traces to a public record.</p>

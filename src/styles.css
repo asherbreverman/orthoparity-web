@@ -1275,8 +1275,15 @@ html { scroll-behavior: smooth; scroll-padding-top: 0; }
 .how-tile strong { align-self:start; font-size:20px; line-height:1.2; font-weight:600; overflow-wrap:normal; word-break:normal; }
 .how-tile p { align-self:start; font-size:15px; line-height:1.45; color:var(--muted-foreground); }
 .how-note { margin:16px 0 0; font-size:17px; line-height:1.47; color:var(--muted-foreground); }
+.how-equation { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr); gap:12px; align-items:stretch; margin-top:12px; }
+.how-eq-tile { display:flex; flex-direction:column; gap:12px; align-items:stretch; justify-content:flex-start; text-align:left; background:color-mix(in srgb,var(--hue) 9%,var(--background)); padding:22px 18px; border-radius:28px; min-height:148px; white-space:normal; }
+.how-eq-tile strong { align-self:start; font-size:20px; line-height:1.2; font-weight:600; overflow-wrap:normal; word-break:normal; }
+.how-eq-op { align-self:center; justify-self:center; color:var(--muted-foreground); font-size:32px; font-weight:400; line-height:1; }
+.how-eq-result { background:var(--primary); }
+.how-eq-result .glance-label,.how-eq-result strong { color:var(--primary-foreground); }
+.how-equation-note { margin:16px 0 0; font-size:17px; line-height:1.47; font-weight:600; }
 @media(max-width:1099px) { .how-tiles { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-@media(max-width:760px) { .how-tiles { grid-template-columns:minmax(0,1fr); } .how-tile { padding:24px; } }
+@media(max-width:760px) { .how-tiles { grid-template-columns:minmax(0,1fr); } .how-tile { padding:24px; } .how-equation { grid-template-columns:minmax(0,1fr); } .how-eq-tile { padding:24px; } }
 .result-header { max-width:1176px; margin:auto; padding:40px 28px 56px; text-align:left; scroll-margin-top:64px; }
 .result-heading { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); gap:32px; align-items:end; max-width:none; margin:0; }
 .result-title,.result-title.vendor-name { font-size:40px !important; line-height:1.12; font-weight:600; margin:0 0 10px !important; }
