@@ -1282,7 +1282,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 0; }
 .bottom-line p { font-size:22px; line-height:1.4; color:var(--foreground); max-width:950px; }
 .glance-caption { font-size:15px; color:var(--ink-3); margin-bottom:16px; }
 .glance-tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); grid-auto-rows:auto; gap:12px; }
-.glance-tile { display:grid !important; grid-row:span 2; grid-template-rows:subgrid; align-content:start; align-items:start; row-gap:12px; background:color-mix(in srgb,var(--hue) 9%,var(--background)); padding:22px 18px; border-radius:28px; min-height:148px; height:auto; white-space:normal; text-align:left; }
+.glance-tile { display:grid !important; grid-row:span 2; grid-template-rows:subgrid; align-content:start; align-items:start; row-gap:12px; justify-content:start; justify-items:stretch; grid-template-columns:minmax(0,1fr); text-align:left; background:color-mix(in srgb,var(--hue) 9%,var(--background)); padding:22px 18px; border-radius:28px; min-height:148px; height:auto; white-space:normal; }
 .glance-tile:hover { background:color-mix(in srgb,var(--hue) 14%,var(--background)); color:var(--foreground); }
 .glance-label { align-self:start; color:var(--hue); font-size:14px; font-weight:600; display:flex; gap:6px; align-items:baseline; }
 .glance-tile strong { align-self:start; font-size:20px; line-height:1.2; font-weight:600; overflow-wrap:normal; word-break:normal; }
