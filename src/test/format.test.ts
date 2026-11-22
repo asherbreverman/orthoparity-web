@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { displayName, productSentence, shortDeviceName } from '@/lib/format';
+import { companyName, displayName, productSentence, shortDeviceName } from '@/lib/format';
 
 describe('display names', () => {
   it('title-cases FDA names without correcting filed spelling', () => {
@@ -39,3 +39,25 @@ describe('product description sentences', () => {
   it('adds only one period without procedures', () => expect(productSentence('An implant.')).toBe('An implant.'));
   it('adds procedures to the FDA fallback', () => expect(productSentence('Cleared by FDA as Soft-tissue anchor, absorbable.', 'Rotator cuff repair')).toBe('Cleared by FDA as Soft-tissue anchor, absorbable, used in rotator cuff repair.'));
 });
+ describe('company display names', () => {
+  it('removes the compound company suffix', () => expect(companyName('GS Medical Co., Ltd.')).toBe('GS Medical'));
+  it('handles a comma without a space', () => expect(companyName('Corentec America,Inc.')).toBe('Corentec America'));
+  it('preserves SI-BONE when removing Inc', () => expect(companyName('SI-BONE, INC.')).toBe('SI-BONE'));
+  it('repeats suffix removal', () => expect(companyName('Medical Corporation, LLC')).toBe('Medical'));
+  it('keeps suffix-like words inside names', () => expect(companyName('Inc Medical, Research')).toBe('Inc Medical, Research'));
+  it.each(['Inc', 'Incorporated', 'LLC', 'L.L.C.', 'Ltd', 'Limited', 'Private Limited', 'Pvt. Ltd', 'GmbH & Co. KG', 'GmbH', 'Corp', 'Corporation', 'Co., Ltd', 'Co. Ltd', 'Co Ltd', 'S.A.S.', 'S.A. de C.V.', 'S.A.', 'S.R.L.', 'S.p.A.', 'B.V.', 'N.V.', 'NV', 'AG', 'SAS', 'Pty Ltd', 'Pty', 'L.P.', 'LP', 'ULC', 'UC', 'PLC', 'SE'])('removes trailing %s with or without its final period', suffix => {
+    expect(companyName(`Medical, ${suffix}`)).toBe('Medical');
+    expect(companyName(`Medical ${suffix.replace(/\.$/, '')}`)).toBe('Medical');
+  });
+ });
+ describe('device acronyms and trademarks', () => {
+  it('preserves PFN in parentheses', () => expect(displayName('PROXIMAL FEMORAL NAIL (PFN) SYSTEM')).toBe('Proximal Femoral Nail (PFN) System'));
+  it('preserves USA in parentheses', () => expect(displayName('SYNTHES (USA)')).toBe('Synthes (USA)'));
+  it('preserves unlisted short parenthetical acronyms', () => expect(displayName('NAIL (ABCD) SYSTEM')).toBe('Nail (ABCD) System'));
+  it('replaces a mixed-case trademark marker', () => expect(displayName('NextAR(TM) Spine')).toBe('NextAR™ Spine'));
+  it('replaces lowercase trademark and registered markers', () => expect(displayName('NextAR(tm) Spine(R)')).toBe('NextAR™ Spine®'));
+  it('preserves the additional uppercase tokens', () => {
+    const tokens = 'PFN PFNA DBM PMMA CMF TMJ VBR IBF PSI ACDF OLIF UKA MP EBI HA CT MRI';
+    expect(displayName(`SYSTEM ${tokens}`)).toBe(`System ${tokens}`);
+  });
+ });

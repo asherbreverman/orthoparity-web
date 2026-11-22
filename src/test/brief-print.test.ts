@@ -15,6 +15,9 @@ describe('native brief printing', () => {
     expect(briefFileName('Smith and Nephew Suture Anchors', 'K151105')).toBe('OrthoParity brief - K151105 - Smith and Nephew Suture Anchors');
     expect(briefFileName('Smith+Nephew')).toBe('OrthoParity brief - Smith+Nephew');
   });
+  it('formats the PFN product name in the PDF filename', () => {
+    expect(briefFileName('PROXIMAL FEMORAL NAIL (PFN) SYSTEM', 'K970097')).toBe('OrthoParity brief - K970097 - Proximal Femoral Nail (PFN) System');
+  });
   it('waits for fonts before calling native print', async () => {
     let finishFonts: (() => void) | undefined;
     const ready = new Promise<void>(resolve => { finishFonts = resolve; });

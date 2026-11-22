@@ -1,3 +1,4 @@
+import { displayName } from './format';
 import type { DecisionCard } from './signals';
 
 /** Keep the browser's native Save as PDF flow, after its fonts have settled. */
@@ -27,7 +28,7 @@ export function fitSummaryQuestions(summary: HTMLElement) {
 }
 
 export function briefFileName(name: string, knumber?: string) {
-  return `OrthoParity brief - ${knumber ? `${knumber} - ` : ''}${name}`;
+  return `OrthoParity brief - ${knumber ? `${knumber} - ` : ''}${displayName(name)}`;
 }
 
 /** Group the existing question list without changing its wording or numbering. */

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { getSignals } from '@/lib/predicate-data';
-import { shortDeviceName } from '@/lib/format';
+import { companyName, displayName, shortDeviceName } from '@/lib/format';
 import { productComparisonRows } from '@/lib/product-comparison';
 import { longDate, type Signals } from '@/lib/signals';
 import { DeviceSearch, Status, useRefetch } from './reviewer-shared';
@@ -27,8 +27,8 @@ export function ProductCompare({ k, compare, onCompare, onClose }: { k: string; 
     {result?.a.found && result.b.found && <>
       {result.a.header.product_code !== result.b.header.product_code && <p className="section-caption">These products are in different FDA product codes, so some questions compare different categories.</p>}
       <div className="brief-table-scroll" tabIndex={0}><table className="brief-table product-comparison-table"><thead><tr><th scope="col">Question</th><th scope="col">{k}</th><th scope="col">{compare}</th></tr></thead><tbody>
-        {row('Product', <Link to="/" search={{ k }} className="brief-link">{shortDeviceName(result.a.header.device_name ?? k)}</Link>, <Link to="/" search={{ k: compare }} className="brief-link">{shortDeviceName(result.b.header.device_name ?? compare ?? 'NOT FOUND')}</Link>)}
-        {row('Company', result.a.header.company ?? 'NOT FOUND', result.b.header.company ?? 'NOT FOUND')}
+        {row('Product', <Link to="/" search={{ k }} className="brief-link">{shortDeviceName(displayName(result.a.header.device_name ?? k))}</Link>, <Link to="/" search={{ k: compare }} className="brief-link">{shortDeviceName(displayName(result.b.header.device_name ?? compare ?? 'NOT FOUND'))}</Link>)}
+        {row('Company', companyName(result.a.header.company ?? 'NOT FOUND'), companyName(result.b.header.company ?? 'NOT FOUND'))}
         {row('Cleared', longDate(result.a.header.cleared), longDate(result.b.header.cleared))}
         {row('Product code', category(result.a), category(result.b))}
         {productComparisonRows(result.a.cards, result.b.cards).map(r => <tr key={r.key} data-question-key={r.key}><th scope="row">{r.question}</th><td>{r.a}</td><td>{r.b}</td></tr>)}

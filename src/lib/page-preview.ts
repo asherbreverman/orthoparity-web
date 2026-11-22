@@ -1,5 +1,5 @@
 import { benchmarkDescription, benchmarkOrigin, benchmarkTitle, pageTitle } from './benchmark-brand';
-import { productSentence, shortDeviceName } from './format';
+import { companyName, displayName, productSentence, shortDeviceName } from './format';
 import type { Brief } from './reviewer-data';
 import type { VendorSignals } from './signals';
 import type { Meta } from './predicate-chain';
@@ -20,14 +20,14 @@ export function productPreview(brief: Brief): PagePreview | null {
   const device = brief.device;
   const category = brief.product_code;
   return {
-    title: pageTitle(`${shortDeviceName(device.device_name ?? device.knumber)} (${device.knumber})`),
+    title: pageTitle(`${shortDeviceName(displayName(device.device_name ?? device.knumber))} (${device.knumber})`),
     description: productSentence(category?.plain_description ?? `Cleared by FDA as ${category?.plain_name ?? category?.fda_name ?? 'Category unavailable'}`, category?.procedures),
   };
 }
 export function vendorPreview(signals: VendorSignals): PagePreview | null {
   const name = signals.vendor?.['display_name'];
   if (!signals.found || typeof name !== 'string' || !name) return null;
-  return { title: pageTitle(`${name}: orthopedic devices, payments and recalls`), description: signals.bottom_line };
+  return { title: pageTitle(`${companyName(name)}: orthopedic devices, payments and recalls`), description: signals.bottom_line };
 }
 export function previewMetadata(subject: PageSubject, preview: PagePreview | null) {
   const url = new URL('/', benchmarkOrigin);

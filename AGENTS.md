@@ -60,7 +60,7 @@ use the editor.
 - Keep supplier reads in the read-only supplier adapter, cached by vendor/mode and prefetched for collapsed summaries; this shares one request with opened evidence.
 - Keep Medicare add-on reads in the read-only add-on adapter with session promise caches and shared tables; prefetched company summaries reuse the opened evidence request.
 - Match signal boxes to their evidence ids and share positional hues and question flattening across views; cached indications and supplier reads keep new product evidence read-only.
-- Keep displayName casing at presentation boundaries for specified product/company names, including print props; pure formatting helpers preserve source payloads, filed spelling and original-name tooltips.
+- Keep displayName and companyName at presentation boundaries, including search, comparisons, metadata and print filenames; pure helpers preserve source payloads and spelling while companyName strips terminal legal forms.
 - Compare products through the shared sheet and URL compare parameter using cached signal reads and key-matched rows; this avoids new data access and preserves source badges.
 - Keep full and summary Letter markup separate with shared print tokens; native print measures summary questions after fonts settle and restores title/mode, preserving full briefs.
 - Read public search previews through the adapter with an anonymous server client, a two-second deadline and hourly edge/query caches; this keeps source HTML useful without blocking slow reads.

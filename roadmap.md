@@ -123,3 +123,8 @@
 - [x] Clarify search request privacy and inpatient NTAP amount wording.
 - [x] Label inpatient procedure payments and add the scope caption.
 - [x] Verify affected pages and run matching tests.
+
+# Company and device display names
+- [x] Extend acronym/trademark formatting and add terminal company-suffix removal.
+- [x] Apply presentation helpers to requested headers, search, comparisons, print and metadata.
+- [x] Verify name rules, live pages and downloads (84 focused tests pass; full suite has one live-data question-count mismatch).

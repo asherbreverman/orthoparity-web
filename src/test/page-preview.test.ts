@@ -29,6 +29,10 @@ describe('Public page reads', () => {
     const signals: VendorSignals = { found: true, mode: 'current', vendor: { display_name: 'Stryker' }, bottom_line: 'Public orthopedic records.', cards: [], competition: [], acquisitions: [], notes: [] };
     expect(vendorPreview(signals)).toEqual({ title: 'Stryker: orthopedic devices, payments and recalls | OrthoParity', description: 'Public orthopedic records.' });
   });
+  it('formats the PFN product tab without changing the clearance number', () => {
+    const brief = { found: true, device: { device_name: 'PROXIMAL FEMORAL NAIL (PFN) SYSTEM', knumber: 'K970097' } } as Brief;
+    expect(productPreview(brief)?.title).toBe('Proximal Femoral Nail (PFN) System (K970097) | OrthoParity');
+  });
   it('canonicalizes the product without transient comparison or view state', () => expect(previewMetadata({ k: 'K151105', v: '' }, null).url).toBe('https://www.orthoparity.com/?k=K151105'));
   it('canonicalizes the vendor without dropping its id', () => expect(previewMetadata({ k: '', v: 'stryker' }, null).url).toBe('https://www.orthoparity.com/?v=stryker'));
   it('falls back to the home title and description after an unsuccessful lookup', () => {
