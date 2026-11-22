@@ -82,8 +82,8 @@ export function Notes({ notes }: { notes: string[] }) {
 }
 
 /** Print-only brief; screen CSS hides it and print CSS hides everything else. */
-export function PrintBrief({ title, subtitle, description, details, scope, knumber, fullDeviceName, tableEvidence, bottomLine, newClearanceNote, cards, table, questions, notes, meta, evidence }: {
-  evidence?: ReactNode; title: string; subtitle: string; description?: string; details?: string; scope?: string; knumber?: string; fullDeviceName?: string;
+export function PrintBrief({ title, subtitle, description, kindLabel, details, scope, knumber, fullDeviceName, tableEvidence, bottomLine, newClearanceNote, cards, table, questions, notes, meta, evidence }: {
+  evidence?: ReactNode; title: string; subtitle: string; description?: string; kindLabel?: string; details?: string; scope?: string; knumber?: string; fullDeviceName?: string;
   tableEvidence: 'alternatives' | 'competition'; bottomLine: string; newClearanceNote?: string; cards: DecisionCard[];
   table: { caption: string; head: string[]; rows: (string | number)[][] }; questions: string[]; notes: string[]; meta: Meta;
 }) {
@@ -107,6 +107,7 @@ export function PrintBrief({ title, subtitle, description, details, scope, knumb
       <div className="print-brand-bar"><div className="print-brand-lockup"><BrandMark /><span className="print-wordmark"><strong>Ortho</strong><span>Parity</span></span><span className="print-tagline">Orthopedic device and vendor benchmarks</span></div><p className="print-generated">Brief generated {generated} · FDA data as of {meta.exported_utc ?? 'NOT FOUND'}</p></div>
       <h1>{title}</h1><p className="print-sub">{subtitle}</p>
       {description && <p className="print-description">{description}</p>}
+      {kindLabel && <p className="section-caption">{kindLabel}</p>}
       {details && <p className="print-details">{details}</p>}
       {scope && <p className="print-details">{scope}</p>}
       <div className="print-bottom"><strong>Bottom line</strong><p>{bottomLine}</p></div>

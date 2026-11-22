@@ -138,3 +138,7 @@
 - [x] Shorten product titles and expose full names by click and hover.
 - [x] Shorten alternatives and vendor device tables and retain full print-only FDA names.
 - [x] Verify title limits, live tables, expansion and one-page summary printing.
+
+# Product code context labels
+- [x] Name alternatives by product code and show non-implant kind in the header and full brief.
+- [x] Verify non-implant and implant pages and printing.
