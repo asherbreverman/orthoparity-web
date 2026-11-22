@@ -138,7 +138,8 @@ export function ProductResult({ k, compare, view, meta, onView, onCompare }: { k
           <p className="section-caption">{p.exact.label}<br />{p.brand_match.label}<br />{p.note}</p>
           <a className="brief-link" href="https://openpaymentsdata.cms.gov" target="_blank" rel="noopener noreferrer">Look up individual payments at openpaymentsdata.cms.gov<ExternalLink size={12} /></a></>}
       </EvidenceSection>
-      <EvidenceSection id="research" title="Research" summary={p ? (p.research?.length ? `${p.research.length} linked studies` : 'No linked studies') : 'Loading…'} open={ev.isOpen('research')} onToggle={() => ev.toggle('research')}>
+      <EvidenceSection id="research" title="Industry-funded research" summary={p ? (p.research?.length ? `${p.research.length} industry-funded studies` : 'None in Open Payments') : 'Loading…'} open={ev.isOpen('research')} onToggle={() => ev.toggle('research')}>
+        <p className="section-caption">Studies come from research payments that companies report to CMS Open Payments. Published papers and registry data are not included yet.</p>
         {p ? <Studies rows={p.research ?? []} /> : <Status busy={!paymentError} error={paymentError} />}
       </EvidenceSection>
       <EvidenceSection id="catalog" title="Catalog" summary={card('catalog')?.badge ?? 'Catalog items'} open={ev.isOpen('catalog')} onToggle={() => ev.toggle('catalog')}>
