@@ -1,4 +1,4 @@
-const uppercaseNameTokens = new Set('CR PS PS2 HA PEEK MIS ALIF LLIF TLIF PLIF XLIF ACL PCL PK UHMWPE TKA THA UKA SI USA US II III IV 3D AR MR CT NTAP SI-BONE PFN PFNA DBM PMMA CMF TMJ VBR IBF PSI ACDF OLIF MP EBI MRI'.split(' '));
+const uppercaseNameTokens = new Set('CR PS PS2 HA PEEK MIS ALIF LLIF TLIF PLIF XLIF ACL PCL PK UHMWPE TKA THA UKA SI USA US II III IV 3D AR MR CT NTAP SI-BONE PFN PFNA DBM PMMA CMF TMJ VBR IBF PSI ACDF OLIF MP EBI MRI GPS CD LCP TSRH LDR TCP DHS DCP SMR GMK CMC MTP DBX NCB LPS PSS FMS BSM'.split(' '));
 const smallNameWords = new Set('and or of for the with to in'.split(' '));
 
 /** Presentation only: preserve filed spelling, punctuation and mixed-case names. */
@@ -12,9 +12,13 @@ export function displayName(text: string): string {
     const isFirst = firstWord;
     firstWord = false;
     const upper = word.toUpperCase();
+    if (/^(MM|CM|KG|ML)$/.test(upper)) return word.toLowerCase();
+    if (/^[B-DF-HJ-NP-TVWXZ]{2,4}$/.test(upper)) return upper;
     if (uppercaseNameTokens.has(upper) || /\p{N}/u.test(word) || (word.length >= 2 && word.length <= 4 && normalized[offset - 1] === '(' && normalized[offset + word.length] === ')')) return upper;
     return word.split('-').map((part, index) => {
       const token = part.toUpperCase();
+      if (/^(MM|CM|KG|ML)$/.test(token)) return part.toLowerCase();
+      if (/^[B-DF-HJ-NP-TVWXZ]{2,4}$/.test(token)) return token;
       if (uppercaseNameTokens.has(token)) return token;
       const lower = part.toLowerCase();
       if (smallNameWords.has(lower) && !(isFirst && index === 0)) return lower;

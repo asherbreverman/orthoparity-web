@@ -2,6 +2,25 @@ import { describe, expect, it } from 'vitest';
 import { companyName, displayName, productDisplayTitle, productSentence, shortDeviceName } from '@/lib/format';
 
 describe('display names', () => {
+  it.each([
+    ['EXCELSIUS GPS', 'Excelsius GPS'],
+    ['MODIFICATION TO CD HORIZON SPINAL SYSTEM', 'Modification to CD Horizon Spinal System'],
+    ['SYNTHES 4.0 AND 5.0 MM LOCKING SCREWS', 'Synthes 4.0 and 5.0 mm Locking Screws'],
+    ['SYNTHES (USA) LOCKING CONDYLAR PLATE (LCP) SYSTEM', 'Synthes (USA) Locking Condylar Plate (LCP) System'],
+    ['TELESCOPIC PLATE SPACER THORACOLUMBAR (TPS-TL)', 'Telescopic Plate Spacer Thoracolumbar (TPS-TL)'],
+    ['ExcelsiusGPS', 'ExcelsiusGPS'],
+  ])('formats %s as %s', (source, expected) => expect(displayName(source)).toBe(expected));
+  it('preserves all additional device tokens', () => {
+    const tokens = 'GPS CD LCP TSRH LDR TCP DHS DCP SMR GMK CMC MTP DBX NCB LPS PSS FMS BSM';
+    expect(displayName(`SYSTEM ${tokens}`)).toBe(`System ${tokens}`);
+  });
+  it('preserves short consonant-only words and hyphenated parts', () => {
+    expect(displayName('SYSTEM PLS TL FX TPS-TL BONE-FX')).toBe('System PLS TL FX TPS-TL Bone-FX');
+  });
+  it('keeps units lowercase, including hyphenated and parenthetical units', () => {
+    expect(displayName('SYSTEM MM CM KG ML MM-CM (KG)')).toBe('System mm cm kg ml mm-cm (kg)');
+  });
+  it('counts Y as a vowel for unlisted short words', () => expect(displayName('SYSTEM SKY')).toBe('System Sky'));
   it('title-cases FDA names without correcting filed spelling', () => {
     expect(displayName('DEPUY ATTUNE KNEE SYSTEM - CEMENTLESS CR AND PS FEMORAL COMPONENETS')).toBe('Depuy Attune Knee System - Cementless CR and PS Femoral Componenets');
   });
