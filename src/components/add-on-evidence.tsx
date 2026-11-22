@@ -16,7 +16,7 @@ export function AddOnTable({ items, showProducts = false }: { items: AddOnItem[]
         <td>{item.program === 'NTAP' ? 'Inpatient NTAP' : item.program === 'TPT' ? 'Outpatient pass-through' : 'NOT FOUND'}</td>
         <td>{text(item.technology)}<div className="text-sm text-muted-foreground">{text(item.company)}</div>{item.example_knumber && <BriefLink k={item.example_knumber} />}</td>
         <td>{addOnStatus(item)}</td>
-        <td>{item.program === 'NTAP' ? item.status === 'discontinued' ? `Was up to ${addOnAmount(item.max_payment)} in FY 2026` : `Up to ${addOnAmount(item.max_payment)} per case` : item.program === 'TPT' ? `HCPCS ${text(item.hcpcs)}` : 'NOT FOUND'}</td>
+        <td>{item.program === 'NTAP' ? item.status === 'discontinued' ? `Was up to ${addOnAmount(item.max_payment)} in FY 2026` : `Up to ${addOnAmount(item.max_payment)} per inpatient case` : item.program === 'TPT' ? `HCPCS ${text(item.hcpcs)}` : 'NOT FOUND'}</td>
         <td>{external(item.fda_source) ? <a className="brief-link" href={item.fda_source ?? ''} target="_blank" rel="noopener noreferrer">{text(item.fda_numbers)}<ExternalLink size={12} /></a> : text(item.fda_numbers)}</td>
         {showProducts && <td>{text(item.products)}</td>}
       </tr>

@@ -26,7 +26,7 @@ describe('Medicare add-on evidence', () => {
   it('shows the supplied NTAP payment and program', async () => {
     vi.mocked(getDeviceAddOn).mockResolvedValue(data);
     const screen = render(<ProductAddOnSection k="K230088" open onToggle={vi.fn()} />);
-    await waitFor(() => expect(screen.getByText('Up to $21,125 per case')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('Up to $21,125 per inpatient case')).toBeInTheDocument());
     expect(screen.getByText('Inpatient NTAP')).toBeInTheDocument();
   });
   it('keeps the evidence section with no direct or category add-on', async () => {

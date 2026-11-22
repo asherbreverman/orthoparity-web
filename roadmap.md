@@ -118,3 +118,8 @@
 - [x] Add product download menu and separate summary print markup.
 - [x] Fit Letter summaries without body text below 10pt, dropping questions 4 and 5 first.
 - [x] Verify real PDFs, full-brief preservation and tests.
+
+# Privacy and inpatient wording
+- [x] Clarify search request privacy and inpatient NTAP amount wording.
+- [x] Label inpatient procedure payments and add the scope caption.
+- [x] Verify affected pages and run matching tests.

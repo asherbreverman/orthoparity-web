@@ -32,7 +32,7 @@ function ProcedurePage() {
   const toggle = (id: string) => {if (opened.has(id)) opened.delete(id); else opened.add(id); void navigate({search: prev => ({...prev, open: [...opened].join(',')}), replace: true, resetScroll: false});};
   const ev = useEvidence('brief', {opened, onToggle: toggle});
   return <>
-    <section className="result-header"><Link to="/procedures" className="brief-link mb-6">Medicare payments by procedure</Link><h1 className="result-title">{detail.family.name}</h1><p className="plain-description">{detail.family.description}</p><p className="result-meta">DRGs {detail.family.drgs.join(', ')} · Original Medicare, {detail.family.data_year}</p><div className="mt-8"><ProcedurePayments detail={detail} /></div></section>
+    <section className="result-header"><Link to="/procedures" className="brief-link mb-6">Medicare payments by procedure</Link><h1 className="result-title">{detail.family.name}</h1><p className="plain-description">{detail.family.description}</p><p className="result-meta">DRGs {detail.family.drgs.join(', ')} · Original Medicare inpatient, {detail.family.data_year}</p><div className="mt-8"><ProcedurePayments detail={detail} /></div></section>
     <ProcedureSupplyRange detail={detail} />
     <ProcedureWorksheet key={familyId} detail={detail} />
     <ProcedureEvidence detail={detail} vendor={hl} isOpen={ev.isOpen} toggle={ev.toggle} />
