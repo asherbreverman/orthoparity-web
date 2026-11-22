@@ -133,3 +133,8 @@
 - [x] Share registry-note and optional-segment subtitles across vendor pages and exports.
 - [x] Omit empty search-result segments.
 - [x] Verify live search and printed subtitles.
+
+# Long device names
+- [x] Shorten product titles and expose full names by click and hover.
+- [x] Shorten alternatives and vendor device tables and retain full print-only FDA names.
+- [x] Verify title limits, live tables, expansion and one-page summary printing.

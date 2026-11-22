@@ -54,6 +54,11 @@ export function shortDeviceName(name: string, max = 70): string {
   return text.replace(/[ ,;\-&(/]+$/, '') + '…';
 }
 
+/** Long clearance titles retain the complete filed name separately in the view. */
+export function productDisplayTitle(name: string): string {
+  return displayName(name.length > 120 ? shortDeviceName(name, 90) : name);
+}
+
 export function productSentence(description: string, procedures?: string | string[] | null): string {
   const base = description.trim().replace(/\.+$/, '');
   const names = (Array.isArray(procedures) ? procedures : (procedures ?? '').split(/;|,|\s+and\s+/)).map(name => {

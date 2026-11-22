@@ -17,7 +17,7 @@ import { getBrief, getFamily, lookupChain, getProductPayments, getSignals, getDe
 import { ownerLine, withPaymentQuestions, money, dollars, type ProductPayments } from '@/lib/vendor-data';
 import { LocalBar, ExtraEvidence, ComparisonSheet } from './story-shared';
 import { ProductCompare } from './product-compare';
-import { companyName, displayName, shortDeviceName, productSentence } from '@/lib/format';
+import { companyName, displayName, shortDeviceName, productDisplayTitle, productSentence } from '@/lib/format';
 import { headerOwnerChanged } from '@/lib/product-comparison';
 import { ProductDownloadMenu } from './product-download-menu';
 import { toast } from 'sonner';
@@ -29,6 +29,7 @@ const PaymentYears = lazy(() => import('./payment-charts').then(m => ({ default:
 const Evidence = lazy(() => import('./predicate-evidence').then(m => ({ default: m.PredicateEvidence })));
 
 export function ProductResult({ k, compare, view, meta, onView, onCompare }: { k: string; compare?: string | undefined; view: View; meta: Meta; onView: (v: View) => void; onCompare: (k: string) => void }) {
+  const [showFullName, setShowFullName] = useState(false);
   const [compareOpen, setCompareOpen] = useState(!!compare);
   useEffect(() => { setCompareOpen(!!compare); }, [compare]);
   const closeCompare = () => { setCompareOpen(false); onCompare(''); };
@@ -54,7 +55,7 @@ export function ProductResult({ k, compare, view, meta, onView, onCompare }: { k
   useEffect(() => { let active = true; setOwner(null); if (!k) return; getDeviceOwner(k).then(o => { if (active) setOwner(o); }).catch(e => console.error('Current owner unavailable.', e)); return () => { active = false; }; }, [k]);
   useEffect(() => {
     let active = true;
-    setBrief(null); setSignals(null); setPayments(null); setError(''); setPaymentError(''); setExpanded(false); setWorkspace(false); setOther(false); setSameCode(false); setAllAlternatives(false); setChecklist(false); setCopied(''); setSelected(new Set()); ev.reset();
+    setShowFullName(false); setBrief(null); setSignals(null); setPayments(null); setError(''); setPaymentError(''); setExpanded(false); setWorkspace(false); setOther(false); setSameCode(false); setAllAlternatives(false); setChecklist(false); setCopied(''); setSelected(new Set()); ev.reset();
     setBusy(true);
     Promise.all([getBrief(k), getSignals(k)]).then(([b, s]) => { if (active) { setBrief(b); setSignals(s); } }).catch(e => { if (active) setError(e.message); }).finally(() => { if (active) setBusy(false); });
     getProductPayments(k).then(p => { if (active) setPayments(p); }).catch(e => { if (active) setPaymentError(e.message); });
@@ -62,7 +63,7 @@ export function ProductResult({ k, compare, view, meta, onView, onCompare }: { k
   }, [k, reload]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (brief?.found) top.current?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' }); }, [brief]);
 
-  useEffect(() => { const title = signals?.header?.device_name ?? brief?.device?.device_name; if (title) window.dispatchEvent(new CustomEvent('benchmark-name', { detail: shortDeviceName(displayName(title)) })); }, [brief, signals]);
+  useEffect(() => { const title = signals?.header?.device_name ?? brief?.device?.device_name; if (title) window.dispatchEvent(new CustomEvent('benchmark-name', { detail: productDisplayTitle(title) })); }, [brief, signals]);
 
   if (!brief) return <Status error={error} busy={busy} />;
   const device = brief.device;
@@ -84,7 +85,7 @@ export function ProductResult({ k, compare, view, meta, onView, onCompare }: { k
   const filer = owner?.filer ?? h?.company ?? device.applicant ?? 'NOT FOUND';
   const ownerNow = !!ownerLine(owner) || (!!owner?.found && headerOwnerChanged(filer, owner.owner_name ?? ''));
   const fullName = h?.device_name ?? device.device_name ?? device.knumber;
-  const name = shortDeviceName(displayName(fullName));
+  const name = productDisplayTitle(fullName);
   const plain = h?.plain_name ?? brief.product_code?.plain_name ?? h?.fda_name ?? brief.product_code?.fda_name ?? 'Category unavailable';
   const code = h?.product_code ?? device.product_code ?? 'NOT FOUND';
   async function copy(which: 'all' | 'selected' | 'asks') {
@@ -121,7 +122,7 @@ export function ProductResult({ k, compare, view, meta, onView, onCompare }: { k
         {brief.ifu?.found && brief.ifu.ifu_text ? <><blockquote className={`ifu-quote ${expanded ? '' : 'clamped'}`}>{brief.ifu.ifu_text}</blockquote><div className="section-note">From the 510(k) Indications for Use, page {brief.ifu.page ?? 'NOT FOUND'}<Button variant="link" size="sm" onClick={() => setExpanded(!expanded)}>{expanded ? 'Show less' : 'Show more'}<ChevronDown className={expanded ? 'rotate-180' : ''} /></Button></div></> : <p className="text-sm text-muted-foreground">Indications for Use not found in the summary. See the FDA PDF.</p>}
       </EvidenceSection>
       <EvidenceSection id="alternatives" title="Alternatives in this category" summary={s ? `${s.alternatives.companies.toLocaleString('en-US')} other companies · ${brief.peers.total.toLocaleString('en-US')} peers on the same predicates` : 'Loading…'} open={ev.isOpen('alternatives')} onToggle={() => ev.toggle('alternatives')}>
-        {s && <><p className="section-caption">{s.alternatives.window}</p><div className="brief-table-scroll"><table className="brief-table"><thead><tr><th>Company</th><th>Clearances · last five years</th><th>Latest device</th><th>Latest 510(k)</th><th>Latest date</th></tr></thead><tbody>{(allAlternatives ? altRows : altRows.slice(0, 10)).map(r => <tr key={r.vendor_id}><td>{displayName(r.company)}</td><td>{r.clearances.toLocaleString('en-US')}</td><td>{r.latest_device ? shortDeviceName(displayName(r.latest_device)) : 'NOT FOUND'}</td><td>{r.latest_knumber ? <BriefLink k={r.latest_knumber} /> : 'NOT FOUND'}</td><td>{longDate(r.latest_date)}</td></tr>)}</tbody></table></div>{altRows.length > 10 && <Button variant="link" className="px-0" onClick={() => setAllAlternatives(!allAlternatives)}>{allAlternatives ? 'Show fewer' : `Show all ${altRows.length}`}</Button>}{!altRows.length && <p className="section-note">No other companies cleared this category in the window.</p>}</>}
+        {s && <><p className="section-caption">{s.alternatives.window}</p><div className="brief-table-scroll"><table className="brief-table"><thead><tr><th>Company</th><th>Clearances · last five years</th><th>Latest device</th><th>Latest 510(k)</th><th>Latest date</th></tr></thead><tbody>{(allAlternatives ? altRows : altRows.slice(0, 10)).map(r => <tr key={r.vendor_id}><td>{displayName(r.company)}</td><td>{r.clearances.toLocaleString('en-US')}</td><td title={r.latest_device ?? undefined}>{r.latest_device ? displayName(shortDeviceName(r.latest_device, 60)) : 'NOT FOUND'}</td><td>{r.latest_knumber ? <BriefLink k={r.latest_knumber} /> : 'NOT FOUND'}</td><td>{longDate(r.latest_date)}</td></tr>)}</tbody></table></div>{altRows.length > 10 && <Button variant="link" className="px-0" onClick={() => setAllAlternatives(!allAlternatives)}>{allAlternatives ? 'Show fewer' : `Show all ${altRows.length}`}</Button>}{!altRows.length && <p className="section-note">No other companies cleared this category in the window.</p>}</>}
         <h3 className="mt-6">Peers cleared against the same predicates</h3><p className="section-caption">Cleared against the same predicate devices.</p>
         <p className="section-lead">{brief.peers.total} other orthopedic clearances from {brief.peers.other_companies} other companies were cleared against at least one of the same predicates.</p>
         <div className="peer-filters"><Button variant={other ? 'secondary' : 'outline'} size="sm" aria-pressed={other} onClick={() => setOther(!other)}>{other && <Check />}Other companies only</Button><Button variant={sameCode ? 'secondary' : 'outline'} size="sm" aria-pressed={sameCode} onClick={() => setSameCode(!sameCode)}>{sameCode && <Check />}Same product code only</Button><span className="section-note">{peers.length} records</span></div>
@@ -159,10 +160,11 @@ export function ProductResult({ k, compare, view, meta, onView, onCompare }: { k
   );
   return <>
     <Status error={error} />
-    <PrintBrief evidence={<ProductAddOnPrint k={k} />} meta={meta} title={name} knumber={device.knumber} tableEvidence="alternatives" subtitle={`${companyName(filer)}${ownerNow ? `, now part of ${companyName(owner?.owner_name ?? 'NOT FOUND')}` : ''}`} description={`Product code ${code} covers: ${productSentence(brief.product_code?.plain_description ?? `Cleared by FDA as ${plain}`, h?.procedures ?? brief.product_code?.procedures)}`} details={`${device.knumber} · ${plain} (${code}) · Cleared ${longDate(h?.cleared ?? device.decision_date)} · Class ${h?.device_class ?? device.device_class ?? 'NOT FOUND'}`} bottomLine={s?.bottom_line ?? ''} newClearanceNote={newClearanceNote} cards={cards} table={{ caption: `Alternatives in product code ${code} · ${s?.alternatives.window ?? ''}`, head: ['Company', 'Clearances', 'Latest device', 'Latest 510(k)', 'Latest date'], rows: altRows.map(r => [displayName(r.company), r.clearances, r.latest_device ? shortDeviceName(displayName(r.latest_device)) : 'NOT FOUND', r.latest_knumber ?? 'NOT FOUND', longDate(r.latest_date)]) }} questions={asks} notes={s?.notes ?? []} />
+    <PrintBrief evidence={<ProductAddOnPrint k={k} />} meta={meta} title={displayName(shortDeviceName(fullName, 120))} fullDeviceName={fullName} knumber={device.knumber} tableEvidence="alternatives" subtitle={`${companyName(filer)}${ownerNow ? `, now part of ${companyName(owner?.owner_name ?? 'NOT FOUND')}` : ''}`} description={`Product code ${code} covers: ${productSentence(brief.product_code?.plain_description ?? `Cleared by FDA as ${plain}`, h?.procedures ?? brief.product_code?.procedures)}`} details={`${device.knumber} · ${plain} (${code}) · Cleared ${longDate(h?.cleared ?? device.decision_date)} · Class ${h?.device_class ?? device.device_class ?? 'NOT FOUND'}`} bottomLine={s?.bottom_line ?? ''} newClearanceNote={newClearanceNote} cards={cards} table={{ caption: `Alternatives in product code ${code} · ${s?.alternatives.window ?? ''}`, head: ['Company', 'Clearances', 'Latest device', 'Latest 510(k)', 'Latest date'], rows: altRows.map(r => [displayName(r.company), r.clearances, r.latest_device ? displayName(shortDeviceName(r.latest_device, 60)) : 'NOT FOUND', r.latest_knumber ?? 'NOT FOUND', longDate(r.latest_date)]) }} questions={asks} notes={s?.notes ?? []} />
     <section ref={top} className="result-header" aria-label="Device">
       <div className="result-heading">
-        <div><h2 className="result-title line-clamp-2 max-[760px]:line-clamp-3" title={fullName}>{name}</h2>
+        <div><h2 className="result-title" title={fullName}>{name}</h2>
+          {fullName.length > 120 && <><Button variant="link" size="sm" className="px-0" aria-expanded={showFullName} aria-controls="full-device-name" onClick={() => setShowFullName(value => !value)}>Show full name</Button>{showFullName && <p id="full-device-name" className="section-caption break-words" title={fullName}>{displayName(fullName)}</p>}</>}
           <p className="result-meta">{owner?.found && owner.owner_vendor_id ? <Link className="brief-link" to="/" search={{ v: owner.owner_vendor_id }}>{companyName(filer)}{ownerNow ? `, now part of ${companyName(owner.owner_name ?? 'NOT FOUND')}` : ''}</Link> : companyName(filer)}</p>
           <p className="plain-description" title="FDA groups devices by product code. This description covers every device in the code. The device's own name and its FDA-cleared use are below.">Product code {code} covers: {productSentence(brief.product_code?.plain_description ?? `Cleared by FDA as ${plain}`, h?.procedures ?? brief.product_code?.procedures)}{brief.product_code?.reviewed === false && <> <span className="review-tag" title="Plain-English description drafted from FDA's definition, pending expert review." tabIndex={0}>Draft</span></>}</p>
         </div>

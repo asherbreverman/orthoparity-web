@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { companyName, displayName, productSentence, shortDeviceName } from '@/lib/format';
+import { companyName, displayName, productDisplayTitle, productSentence, shortDeviceName } from '@/lib/format';
 
 describe('display names', () => {
   it('title-cases FDA names without correcting filed spelling', () => {
@@ -59,5 +59,22 @@ describe('product description sentences', () => {
   it('preserves the additional uppercase tokens', () => {
     const tokens = 'PFN PFNA DBM PMMA CMF TMJ VBR IBF PSI ACDF OLIF UKA MP EBI HA CT MRI';
     expect(displayName(`SYSTEM ${tokens}`)).toBe(`System ${tokens}`);
+  });
+ });
+
+ describe('long product display titles', () => {
+  it('keeps a 120-character name complete', () => {
+    const name = 'A'.repeat(120);
+    expect(productDisplayTitle(name)).toBe(displayName(name));
+  });
+  it('shortens a name over 120 characters with the 90-character limit before casing', () => {
+    const name = 'SYSTEM '.repeat(20);
+    expect(productDisplayTitle(name)).toBe(displayName(shortDeviceName(name, 90)));
+    expect(productDisplayTitle(name).length).toBeLessThanOrEqual(91);
+    expect(productDisplayTitle(name)).not.toBe(displayName(name));
+  });
+  it('uses the 60-character table limit before casing', () => {
+    const name = 'PROXIMAL FEMORAL NAIL (PFN) SYSTEM '.repeat(10);
+    expect(displayName(shortDeviceName(name, 60))).toBe('Proximal Femoral Nail (PFN) System Proximal Femoral Nail…');
   });
  });
