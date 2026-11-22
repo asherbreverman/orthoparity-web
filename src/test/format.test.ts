@@ -1,5 +1,26 @@
 import { describe, expect, it } from 'vitest';
-import { productSentence, shortDeviceName } from '@/lib/format';
+import { displayName, productSentence, shortDeviceName } from '@/lib/format';
+
+describe('display names', () => {
+  it('title-cases FDA names without correcting filed spelling', () => {
+    expect(displayName('DEPUY ATTUNE KNEE SYSTEM - CEMENTLESS CR AND PS FEMORAL COMPONENETS')).toBe('Depuy Attune Knee System - Cementless CR and PS Femoral Componenets');
+  });
+  it('preserves the hyphenated company exception', () => expect(displayName('SI-BONE, INC.')).toBe('SI-BONE, Inc.'));
+  it('leaves mixed-case names unchanged', () => expect(displayName('Mako Total Knee Application')).toBe('Mako Total Knee Application'));
+  it('requires more than four letters', () => expect(displayName('BONE')).toBe('BONE'));
+  it('includes exactly 80 percent uppercase letters', () => expect(displayName('ABCDx')).toBe('Abcdx'));
+  it('leaves names below 80 percent unchanged', () => expect(displayName('ABCxy')).toBe('ABCxy'));
+  it('preserves every specified uppercase token', () => {
+    const tokens = 'CR PS PS2 HA PEEK MIS ALIF LLIF TLIF PLIF XLIF ACL PCL PK UHMWPE TKA THA UKA SI USA US II III IV 3D AR MR CT NTAP';
+    expect(displayName(`SYSTEM ${tokens}`)).toBe(`System ${tokens}`);
+  });
+  it('preserves digit-bearing words', () => expect(displayName('SYSTEM MODEL2 3D 510K')).toBe('System MODEL2 3D 510K'));
+  it('title-cases both sides of ordinary hyphens', () => expect(displayName('BONE-ANCHOR SYSTEM')).toBe('Bone-Anchor System'));
+  it('keeps small words lowercase except the first word', () => {
+    expect(displayName('THE SYSTEM AND OR OF FOR THE WITH TO IN BONE')).toBe('The System and or of for the with to in Bone');
+  });
+  it('preserves punctuation and whitespace', () => expect(displayName('  BONE,  ANCHOR (SYSTEM).')).toBe('  Bone,  Anchor (System).'));
+});
 
 describe('short device names', () => {
   it('uses the first complete anchor name', () => expect(shortDeviceName('Smith and Nephew Suture Anchors - 5.0mm Absorbable Polymer Anchor, Smith and Nephew Suture Anchors - TAG Bioraptor…')).toBe('Smith and Nephew Suture Anchors - 5.0mm Absorbable Polymer Anchor'));

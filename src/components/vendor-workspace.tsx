@@ -5,6 +5,7 @@ import {Button} from '@/components/ui/button';
 import {getVendorBrief,getVendorComparison,getVendorSignals,getCachedPortfolio,resolveVendor,getVendorMaude} from '@/lib/predicate-data';
 import {maudeNumber} from '@/lib/maude';
 import {printBrief} from '@/lib/brief-print';
+import {displayName} from '@/lib/format';
 import {VendorMaudeEvidence} from './maude-evidence';
 import {getVendorAddOn,type VendorAddOn} from '@/lib/add-on';
 import {VendorAddOnEvidence,VendorAddOnContent} from './add-on-evidence';
@@ -32,7 +33,7 @@ export function VendorWorkspace({v,from,compare,meta,view,onView,onRedirect,onDi
  const [brief,setBrief]=useState<VendorBrief|null>(null);const [signals,setSignals]=useState<VendorSignals|null>(null);const [busy,setBusy]=useState(false);const [error,setError]=useState('');const [compareOpen,setCompareOpen]=useState(!!compare);const [allRows,setAllRows]=useState(false);const [allStudies,setAllStudies]=useState(false);const ref=useRef<HTMLDivElement>(null);const navigate=useNavigate();const ev=useEvidence(view);const reload=useRefetch();
  useEffect(()=>{let active=true;setBrief(null);setSignals(null);setError('');setAllRows(false);setAllStudies(false);if(!v)return;setBusy(true);resolveVendor(v).then(r=>{if(!active)return null;if(!r.found)return {found:false} as VendorBrief;if(r.redirected&&r.vendor_id&&r.vendor_id!==v){onRedirect(r.vendor_id,v);active=false;return null;}return Promise.all([getVendorBrief(v,mode),getVendorSignals(v,mode).catch(()=>null)]).then(([b,s])=>{if(active){setBrief(b);setSignals(s);}return null;});}).then(b=>{if(b&&active)setBrief(b);}).catch(e=>{if(active)setError(e.message);}).finally(()=>{if(active)setBusy(false);});return()=>{active=false;};// eslint-disable-next-line react-hooks/exhaustive-deps
  },[v,reload]);
- useEffect(()=>{if(brief?.found)window.dispatchEvent(new CustomEvent('benchmark-name',{detail:brief.vendor.display_name}));},[brief]);
+ useEffect(()=>{if(brief?.found)window.dispatchEvent(new CustomEvent('benchmark-name',{detail:displayName(brief.vendor.display_name)}));},[brief]);
  const scrolled=useRef('');
  const [addOn,setAddOn]=useState<{v:string;data:VendorAddOn}|null>(null);
  useEffect(()=>{let active=true;if(!v||!brief?.found)return;getVendorAddOn(v,mode).then(data=>{if(active)setAddOn({v,data});}).catch(()=>{});return()=>{active=false;};},[v,brief,reload]);
@@ -69,14 +70,14 @@ export function VendorWorkspace({v,from,compare,meta,view,onView,onRedirect,onDi
  );
  return <>
  <Status error={error}/>
- <PrintBrief evidence={addOn?.v===v?<><h2>Medicare add-on payments</h2><VendorAddOnContent data={addOn.data}/></>:null} meta={meta} title={brief.vendor.display_name} tableEvidence="competition" subtitle={`${brief.vendor.current_parent??'Parent unavailable'} · ${brief.vendor.segment??'Segment unavailable'}`} details={`${brief.portfolio.clearances.toLocaleString('en-US')} orthopedic 510(k)s · ${brief.portfolio.product_codes.toLocaleString('en-US')} product codes · ${paidLine}`} scope="Parent company, including every company it owns" bottomLine={s?.bottom_line??''} cards={cards} table={{caption:'Where they compete',head:['Category','Code','Clearances','Last five years','Share','Rank','Position'],rows:comp.map(c=>[catName(c),c.product_code,c.clearances,c.last5,`${c.share_last5_pct}%`,c.rank_last5??'NOT FOUND',c.position])}} questions={asks} notes={s?.notes??[]}/>
+ <PrintBrief evidence={addOn?.v===v?<><h2>Medicare add-on payments</h2><VendorAddOnContent data={addOn.data}/></>:null} meta={meta} title={displayName(brief.vendor.display_name)} tableEvidence="competition" subtitle={`${displayName(brief.vendor.current_parent??'Parent unavailable')} · ${brief.vendor.segment??'Segment unavailable'}`} details={`${brief.portfolio.clearances.toLocaleString('en-US')} orthopedic 510(k)s · ${brief.portfolio.product_codes.toLocaleString('en-US')} product codes · ${paidLine}`} scope="Parent company, including every company it owns" bottomLine={s?.bottom_line??''} cards={cards} table={{caption:'Where they compete',head:['Category','Code','Clearances','Last five years','Share','Rank','Position'],rows:comp.map(c=>[catName(c),c.product_code,c.clearances,c.last5,`${c.share_last5_pct}%`,c.rank_last5??'NOT FOUND',c.position])}} questions={asks} notes={s?.notes??[]}/>
  <section ref={ref} className="result-header" aria-label="Vendor">
-  <div className="result-heading"><div><h2 className="result-title vendor-name">{brief.vendor.display_name}</h2><p className="vendor-description">{brief.vendor.current_parent??'Parent unavailable'} · {brief.vendor.segment??'Segment unavailable'}</p><p className="result-meta">{brief.portfolio.clearances.toLocaleString('en-US')} orthopedic 510(k)s · {brief.portfolio.product_codes.toLocaleString('en-US')} product codes · {paidLine}</p></div>
+  <div className="result-heading"><div><h2 className="result-title vendor-name">{displayName(brief.vendor.display_name)}</h2><p className="vendor-description">{displayName(brief.vendor.current_parent??'Parent unavailable')} · {brief.vendor.segment??'Segment unavailable'}</p><p className="result-meta">{brief.portfolio.clearances.toLocaleString('en-US')} orthopedic 510(k)s · {brief.portfolio.product_codes.toLocaleString('en-US')} product codes · {paidLine}</p></div>
   <div className="result-actions"><div className="result-buttons no-print"><Button onClick={()=>void printBrief()}>Download brief</Button><Button variant="link" onClick={()=>setCompareOpen(true)} aria-expanded={compareOpen}>Compare with another vendor ›</Button></div></div></div>
   {showsRedirectNote(note,v)&&note&&<div className="notice"><p>{note.explanation} {sourceLinks(note.steps).map(l=><a key={l.url} className="brief-link" href={l.url} target="_blank" rel="noopener noreferrer">{l.label}<ExternalLink size={12}/></a>)} <Button variant="link" size="sm" onClick={onDismiss}>Dismiss</Button></p></div>}
   {s&&<BottomLine text={s.bottom_line}/>} {s&&<GlanceTiles cards={cards}/>}
  </section>
- <LocalBar name={brief.vendor.display_name} cards={cards} vendor view={view} onView={onView}/>
+ <LocalBar name={displayName(brief.vendor.display_name)} cards={cards} vendor view={view} onView={onView}/>
  <ComparisonSheet open={compareOpen} onClose={()=>setCompareOpen(false)}>{compareOpen&&<VendorCompare v={v} mode={mode} compare={compare} onCompare={onCompare}/>}</ComparisonSheet>
  {!s&&<Status busy={busy} error={signals&&!signals.found?'Decision signals are unavailable for this vendor.':undefined}/>}
  {s&&<DecisionCards cards={cards} onEvidence={ev.reveal} evidence={evidenceSections}/>}

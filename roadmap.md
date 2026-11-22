@@ -108,3 +108,8 @@
 - [x] Render live home counts and subject-specific metadata with a two-second limit and hourly caching.
 - [ ] Add Google verification once the real code is supplied (waiting on user).
 - [x] Verify source HTML, sitemap, live pages, mobile layout and all tests.
+
+# Display-only FDA names
+- [x] Add and test FDA name casing without spelling changes.
+- [x] Apply casing to the requested screen and printed fields.
+- [x] Verify product/vendor flows and commit changes.
