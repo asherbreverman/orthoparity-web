@@ -1387,6 +1387,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      pc_acr: { Args: { t: string }; Returns: string }
       pc_add_on_notes: { Args: never; Returns: Json }
       pc_applicant_vendor: { Args: { name: string }; Returns: string }
       pc_asks: { Args: { q: string[] }; Returns: Json }
@@ -1444,11 +1445,16 @@ export type Database = {
           same_company: boolean
         }[]
       }
+      pc_family_conflict: {
+        Args: { dtext: string; fams: string[] }
+        Returns: string
+      }
       pc_family_score: { Args: { dtext: string; fam: string }; Returns: number }
       pc_fig: { Args: { label: string; v: string }; Returns: Json }
       pc_figs: { Args: { f: Json[] }; Returns: Json }
       pc_fix_card: { Args: { c: Json }; Returns: Json }
       pc_fix_text: { Args: { t: string }; Returns: string }
+      pc_initcap: { Args: { t: string }; Returns: string }
       pc_lookup: { Args: { max_gen?: number; roots: string[] }; Returns: Json }
       pc_maude_notes: { Args: never; Returns: Json }
       pc_mode: { Args: { m: string }; Returns: string }
