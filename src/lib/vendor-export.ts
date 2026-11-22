@@ -1,6 +1,6 @@
 import {csvCell} from './reviewer-export';
 import {logoDataUrl} from './benchmark-brand';
-import {emptyProfile,dollars,natureColor,natureLabel,percent,ratio,type PortfolioRow,type VendorBrief,type ProductPayments} from './vendor-data';
+import {vendorSubtitle,emptyProfile,dollars,natureColor,natureLabel,percent,ratio,type PortfolioRow,type VendorBrief,type ProductPayments} from './vendor-data';
 import type {Meta} from './predicate-chain';
 export interface SelectedBenchmark {row:PortfolioRow;pattern:string;plain_name:string;payments:ProductPayments}
 const portfolioFields=['knumber','device_name','applicant','plain_name','fda_name','product_code','anatomy','kind','device_class','decision_date','gudid_brand','gudid_devices','gudid_in_distribution'] as const;
@@ -12,7 +12,7 @@ export async function exportVendorPdf(brief:VendorBrief,meta:Meta) {
  const image=new Image();image.src=logoDataUrl;await image.decode();const canvas=document.createElement('canvas');canvas.width=128;canvas.height=128;const ctx=canvas.getContext('2d');if(!ctx)throw new Error('PDF logo unavailable.');ctx.drawImage(image,0,0,128,128);doc.addImage(canvas.toDataURL('image/png'),'PNG',48,30,28,28);doc.setFontSize(17);doc.text('OrthoParity',85,50);
  function lines(text:string,size=9) {doc.setFont('helvetica','normal');doc.setFontSize(size);for(const line of doc.splitTextToSize(text,516) as string[]){if(y>705){doc.addPage();y=48;}doc.text(line,48,y);y+=size*1.4;}y+=7;}
  function heading(text:string){if(y>680){doc.addPage();y=48;}doc.setFont('helvetica','bold');doc.setFontSize(11);doc.text(text,48,y);y+=18;}
- heading(brief.vendor.display_name);lines(`${brief.vendor.current_parent ?? ''} | ${brief.vendor.segment ?? ''}\nParent company, including every company it owns`);
+ heading(brief.vendor.display_name);lines(`${vendorSubtitle(brief.vendor)}\nParent company, including every company it owns`);
  heading('AT A GLANCE & PORTFOLIO');lines(`${brief.portfolio.clearances} orthopedic 510(k)s | ${brief.portfolio.product_codes} product codes | ${brief.portfolio.gudid.brands} GUDID brands\n${brief.portfolio.gudid.devices} GUDID devices (${brief.portfolio.gudid.in_distribution} in distribution) | ${brief.portfolio.first_year}–${brief.portfolio.last_year}`);
  lines(brief.categories.slice(0,15).map(c=>`${c.product_code}: ${c.plain_name ?? c.fda_name}: ${c.clearances} clearances`).join('\n'));
  heading(`INDUSTRY PAYMENTS · ${brief.payments.latest_year ?? 'No matched records'}`);const p=brief.payments.profile_latest ?? emptyProfile;lines(`${dollars(p.total)} to ${p.recipients} recipients; ${p.royalty_r} royalty recipients`);

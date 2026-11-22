@@ -1,3 +1,4 @@
+import { companyName } from './format';
 export type OwnershipMode = 'pit' | 'current';
 export interface Vendor { vendor_id: string; display_name: string; current_parent?: string | null; segment?: string | null; clearances: number; matched_name?: string | null; payments_2025?: number | null; via_vendor_id?: string | null; via_name?: string | null }
 export interface DeviceOwner { found: boolean; knumber: string; filer: string | null; filer_vendor_id: string | null; owner_vendor_id: string | null; owner_name: string | null; now_part_of: boolean; divested: boolean; explanation: string | null; source_url: string | null }
@@ -44,8 +45,14 @@ export const paymentLimitations = [
 ];
 
 export const emptyProfile: Profile = {total:0,transactions:0,recipients:0,physicians:0,food_r:0,travel_r:0,consulting_r:0,royalty_r:0,top1pct_share:0,top10_share:0,median_per_recipient:0,to_entities:0,equity_forms:0,acquisitions:null,debt_forgiveness:null,bucket_json:[]};
+/** Shared presentation of registry coverage in screen and downloaded briefs. */
+export function vendorSubtitle(vendor: { current_parent?: string | null; segment?: string | null }) {
+  const parent = vendor.current_parent?.trim();
+  const segment = vendor.segment?.trim();
+  return `${parent ? companyName(parent) : "Not yet reviewed in OrthoParity's company registry"}${segment ? ` · ${segment}` : ''}`;
+}
 /** Search option text: owned companies show their parent with a "via" line. */
-export function vendorOption(row: { vendor_id: string; display_name: string; segment?: string | null; clearances: number; via_name?: string | null; matched_name?: string | null }) { return { id: row.vendor_id, name: row.display_name, detail: `${row.segment ?? 'Segment unavailable'} · 510(k)s: ${row.clearances.toLocaleString('en-US')}`, extra: row.via_name ? `via ${row.via_name}` : row.matched_name && row.matched_name !== row.display_name ? `matched: ${row.matched_name}` : undefined, label: row.via_name ? `${row.display_name}, via ${row.via_name}` : row.display_name }; }
+export function vendorOption(row: { vendor_id: string; display_name: string; segment?: string | null; clearances: number; via_name?: string | null; matched_name?: string | null }) { return { id: row.vendor_id, name: row.display_name, detail: `${row.segment?.trim() ? `${row.segment.trim()} · ` : ''}510(k)s: ${row.clearances.toLocaleString('en-US')}`, extra: row.via_name ? `via ${row.via_name}` : row.matched_name && row.matched_name !== row.display_name ? `matched: ${row.matched_name}` : undefined, label: row.via_name ? `${row.display_name}, via ${row.via_name}` : row.display_name }; }
 /** Redirect to the parent: replace the history entry and keep the original id in from. */
 export function redirectNavigation(to: string, original: string, view: string) { return { to: '/' as const, search: { v: to, from: original, view: view === 'analyst' ? 'analyst' as const : undefined }, replace: true }; }
 /** Product "Now part of" line, or null when the filer is its own parent. */
