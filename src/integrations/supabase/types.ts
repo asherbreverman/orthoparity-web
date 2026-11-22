@@ -101,6 +101,147 @@ export type Database = {
         }
         Relationships: []
       }
+      pc_approval_rows: {
+        Row: {
+          row: Json
+          target: string
+        }
+        Insert: {
+          row: Json
+          target: string
+        }
+        Update: {
+          row?: Json
+          target?: string
+        }
+        Relationships: []
+      }
+      pc_approval_supplements: {
+        Row: {
+          category: string | null
+          change: string | null
+          decision_code: string | null
+          decision_date: string | null
+          number: string
+          shown: boolean | null
+          supplement_number: string
+          supplement_reason: string | null
+          supplement_type: string | null
+          trade_name: string | null
+        }
+        Insert: {
+          category?: string | null
+          change?: string | null
+          decision_code?: string | null
+          decision_date?: string | null
+          number: string
+          shown?: boolean | null
+          supplement_number: string
+          supplement_reason?: string | null
+          supplement_type?: string | null
+          trade_name?: string | null
+        }
+        Update: {
+          category?: string | null
+          change?: string | null
+          decision_code?: string | null
+          decision_date?: string | null
+          number?: string
+          shown?: boolean | null
+          supplement_number?: string
+          supplement_reason?: string | null
+          supplement_type?: string | null
+          trade_name?: string | null
+        }
+        Relationships: []
+      }
+      pc_approvals: {
+        Row: {
+          applicant: string | null
+          date_received: string | null
+          decision_date: string | null
+          design_changes: number | null
+          expedited: boolean | null
+          generic_name: string | null
+          indications: string | null
+          labeling_changes: number | null
+          last_change_date: string | null
+          last_change_type: string | null
+          manufacturing_changes: number | null
+          new_indications: number | null
+          note: string | null
+          number: string
+          original_on_file: boolean | null
+          other_changes: number | null
+          pathway: string | null
+          product_code: string | null
+          site_changes: number | null
+          study_changes: number | null
+          supplements: number | null
+          supplements_shown: number | null
+          trade_name: string | null
+          url: string | null
+          vendor_basis: string | null
+          vendor_id: string | null
+        }
+        Insert: {
+          applicant?: string | null
+          date_received?: string | null
+          decision_date?: string | null
+          design_changes?: number | null
+          expedited?: boolean | null
+          generic_name?: string | null
+          indications?: string | null
+          labeling_changes?: number | null
+          last_change_date?: string | null
+          last_change_type?: string | null
+          manufacturing_changes?: number | null
+          new_indications?: number | null
+          note?: string | null
+          number: string
+          original_on_file?: boolean | null
+          other_changes?: number | null
+          pathway?: string | null
+          product_code?: string | null
+          site_changes?: number | null
+          study_changes?: number | null
+          supplements?: number | null
+          supplements_shown?: number | null
+          trade_name?: string | null
+          url?: string | null
+          vendor_basis?: string | null
+          vendor_id?: string | null
+        }
+        Update: {
+          applicant?: string | null
+          date_received?: string | null
+          decision_date?: string | null
+          design_changes?: number | null
+          expedited?: boolean | null
+          generic_name?: string | null
+          indications?: string | null
+          labeling_changes?: number | null
+          last_change_date?: string | null
+          last_change_type?: string | null
+          manufacturing_changes?: number | null
+          new_indications?: number | null
+          note?: string | null
+          number?: string
+          original_on_file?: boolean | null
+          other_changes?: number | null
+          pathway?: string | null
+          product_code?: string | null
+          site_changes?: number | null
+          study_changes?: number | null
+          supplements?: number | null
+          supplements_shown?: number | null
+          trade_name?: string | null
+          url?: string | null
+          vendor_basis?: string | null
+          vendor_id?: string | null
+        }
+        Relationships: []
+      }
       pc_cache: {
         Row: {
           arg: string
@@ -1411,6 +1552,10 @@ export type Database = {
       pc_acr: { Args: { t: string }; Returns: string }
       pc_add_on_notes: { Args: never; Returns: Json }
       pc_applicant_vendor: { Args: { name: string }; Returns: string }
+      pc_apply_approvals: { Args: never; Returns: string }
+      pc_appr_words: { Args: { lbl: string; t: string }; Returns: string }
+      pc_appr_words2: { Args: { t: string }; Returns: string }
+      pc_approval_detail: { Args: { k: string }; Returns: Json }
       pc_asks: { Args: { q: string[] }; Returns: Json }
       pc_batch: { Args: { ks: string[] }; Returns: Json }
       pc_brand_family: { Args: { k: string }; Returns: Json }
@@ -1483,6 +1628,7 @@ export type Database = {
       pc_money: { Args: { x: number }; Returns: string }
       pc_num: { Args: { n: number }; Returns: string }
       pc_owner_at: { Args: { d: string; v: string }; Returns: string }
+      pc_pathway: { Args: { k: string }; Returns: string }
       pc_pay_range: {
         Args: { compact?: boolean; hi: number; lo: number }
         Returns: string
