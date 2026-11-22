@@ -1298,6 +1298,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 0; }
 .bottom-line { margin:28px 0 40px; padding:28px 0 0; border:0; border-top:1px solid var(--border); border-radius:0; background:transparent; max-width:none; }
 .bottom-line-label { display:none; }
 .bottom-line p { font-size:22px; line-height:1.4; color:var(--foreground); max-width:950px; }
+.new-clearance-note { border-left:3px solid var(--attention-fg); padding-left:12px; margin-top:16px; max-width:950px; }
 .glance-caption { font-size:15px; color:var(--ink-3); margin-bottom:16px; }
 .glance-tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); grid-auto-rows:auto; gap:12px; }
 .glance-tile { display:grid !important; grid-row:span 2; grid-template-rows:subgrid; align-content:start; align-items:start; row-gap:12px; justify-content:start; justify-items:stretch; grid-template-columns:minmax(0,1fr); text-align:left; background:color-mix(in srgb,var(--hue) 9%,var(--background)); padding:22px 18px; border-radius:28px; min-height:148px; height:auto; white-space:normal; }
@@ -1465,7 +1466,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 0; }
 :root {
  --print-paper: oklch(1 0 0); --print-ink: oklch(from #0b0b0d l c h);
  --print-muted: oklch(from #55555c l c h); --print-surface: oklch(from #f5f5f7 l c h);
- --print-rule: oklch(0 0 0 / .18); --print-footer-ink: oklch(from #666 l c h);
+ --print-rule: oklch(0 0 0 / .18); --print-footer-ink: oklch(from #666 l c h); --print-attention: oklch(from #7a5200 l c h);
  --print-question-1: oklch(from #0068d6 l c h); --print-question-2: oklch(from #7a3ff2 l c h);
  --print-question-3: oklch(from #d2237a l c h); --print-question-4: oklch(from #0a7f88 l c h);
  --print-question-5: oklch(from #177f40 l c h); --print-question-6: oklch(from #946500 l c h); --print-question-7: oklch(from #5a6b7d l c h);
@@ -1477,7 +1478,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 0; }
  .print-brief {
   --background: var(--print-paper); --foreground: var(--print-ink); --card: var(--print-surface); --card-foreground: var(--print-ink);
   --muted: var(--print-surface); --muted-foreground: var(--print-muted); --secondary: var(--print-surface); --secondary-foreground: var(--print-ink);
-  --panel: var(--print-surface); --accent: var(--print-surface); --border: var(--print-rule); --primary: var(--print-question-1);
+  --panel: var(--print-surface); --accent: var(--print-surface); --border: var(--print-rule); --primary: var(--print-question-1); --attention-fg: var(--print-attention);
   --wordmark-main: var(--print-ink); --wordmark-muted: var(--print-muted);
   --question-1: var(--print-question-1); --question-2: var(--print-question-2); --question-3: var(--print-question-3); --question-4: var(--print-question-4);
   --question-5: var(--print-question-5); --question-6: var(--print-question-6); --question-7: var(--print-question-7);
@@ -1501,6 +1502,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 0; }
  .decision-print .print-bottom { background: var(--card); border: none; border-radius: 14pt; padding: 12pt; margin: 12pt 0; }
  .print-bottom>strong { font-size: 8pt; color: var(--muted-foreground); }
  .decision-print .print-bottom p { font: 13pt/1.35 var(--display-font); margin-top: 4pt; }
+ .decision-print .new-clearance-note { border-left: 2pt solid var(--attention-fg); padding-left: 8pt; margin: 8pt 0 0; }
  .print-glance { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 7pt; break-inside: avoid; }
  .print-glance-tile { display: grid; grid-template-rows: subgrid; grid-row: span 2; row-gap: 5pt; padding: 9pt; border-radius: 12pt; background: color-mix(in srgb,var(--hue) 9%,var(--background)); }
  .print-glance-tile>span { font-size: 8.5pt; font-weight: 600; line-height: 1.25; color: color-mix(in srgb,var(--hue) 75%,var(--foreground)); }

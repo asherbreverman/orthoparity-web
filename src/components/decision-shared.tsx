@@ -82,9 +82,9 @@ export function Notes({ notes }: { notes: string[] }) {
 }
 
 /** Print-only brief; screen CSS hides it and print CSS hides everything else. */
-export function PrintBrief({ title, subtitle, description, details, scope, knumber, tableEvidence, bottomLine, cards, table, questions, notes, meta, evidence }: {
+export function PrintBrief({ title, subtitle, description, details, scope, knumber, tableEvidence, bottomLine, newClearanceNote, cards, table, questions, notes, meta, evidence }: {
   evidence?: ReactNode; title: string; subtitle: string; description?: string; details?: string; scope?: string; knumber?: string;
-  tableEvidence: 'alternatives' | 'competition'; bottomLine: string; cards: DecisionCard[];
+  tableEvidence: 'alternatives' | 'competition'; bottomLine: string; newClearanceNote?: string; cards: DecisionCard[];
   table: { caption: string; head: string[]; rows: (string | number)[][] }; questions: string[]; notes: string[]; meta: Meta;
 }) {
   const [url, setUrl] = useState('');
@@ -109,6 +109,7 @@ export function PrintBrief({ title, subtitle, description, details, scope, knumb
       {details && <p className="print-details">{details}</p>}
       {scope && <p className="print-details">{scope}</p>}
       <div className="print-bottom"><strong>Bottom line</strong><p>{bottomLine}</p></div>
+      {newClearanceNote && <p className="section-caption new-clearance-note">{newClearanceNote}</p>}
       <div className="print-glance">{cards.map((c, index) => <div className={`print-glance-tile ${questionHue(index)}`} key={c.key}><span>{c.question}</span><strong>{c.badge}</strong></div>)}</div>
     </section>
     <section className="print-chapters">{cards.map((c, index) => <Fragment key={c.key}>

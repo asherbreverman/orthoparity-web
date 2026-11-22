@@ -69,6 +69,7 @@ export function ProductResult({ k, compare, view, meta, onView, onCompare }: { k
   if (!brief.found || !device) return <div className="notice">{k}: Not in this database (orthopedic clearances only)</div>;
   const s = signals?.found ? signals : null;
   const h = s?.header;
+  const newClearanceNote = h?.new_clearance ? `New clearance: FDA cleared this device ${h.days_since_clearance ?? 'NOT FOUND'} days before this data release. GUDID listings, establishment registrations and the 510(k) summary often post weeks later, so some boxes may say not on file yet.` : '';
   const cards = s?.cards ?? [];
   const asks = askLines(cards);
   const enriched = withPaymentQuestions(brief, payments);
@@ -157,7 +158,7 @@ export function ProductResult({ k, compare, view, meta, onView, onCompare }: { k
   );
   return <>
     <Status error={error} />
-    <PrintBrief evidence={<ProductAddOnPrint k={k} />} meta={meta} title={name} knumber={device.knumber} tableEvidence="alternatives" subtitle={`${filer}${ownerNow ? `, now part of ${owner?.owner_name}` : ''}`} description={`Product code ${code} covers: ${productSentence(brief.product_code?.plain_description ?? `Cleared by FDA as ${plain}`, h?.procedures ?? brief.product_code?.procedures)}`} details={`${device.knumber} · ${plain} (${code}) · Cleared ${longDate(h?.cleared ?? device.decision_date)} · Class ${h?.device_class ?? device.device_class ?? 'NOT FOUND'}`} bottomLine={s?.bottom_line ?? ''} cards={cards} table={{ caption: `Alternatives in this category · ${s?.alternatives.window ?? ''}`, head: ['Company', 'Clearances', 'Latest device', 'Latest 510(k)', 'Latest date'], rows: altRows.map(r => [r.company, r.clearances, r.latest_device ? shortDeviceName(r.latest_device) : 'NOT FOUND', r.latest_knumber ?? 'NOT FOUND', longDate(r.latest_date)]) }} questions={asks} notes={s?.notes ?? []} />
+    <PrintBrief evidence={<ProductAddOnPrint k={k} />} meta={meta} title={name} knumber={device.knumber} tableEvidence="alternatives" subtitle={`${filer}${ownerNow ? `, now part of ${owner?.owner_name}` : ''}`} description={`Product code ${code} covers: ${productSentence(brief.product_code?.plain_description ?? `Cleared by FDA as ${plain}`, h?.procedures ?? brief.product_code?.procedures)}`} details={`${device.knumber} · ${plain} (${code}) · Cleared ${longDate(h?.cleared ?? device.decision_date)} · Class ${h?.device_class ?? device.device_class ?? 'NOT FOUND'}`} bottomLine={s?.bottom_line ?? ''} newClearanceNote={newClearanceNote} cards={cards} table={{ caption: `Alternatives in this category · ${s?.alternatives.window ?? ''}`, head: ['Company', 'Clearances', 'Latest device', 'Latest 510(k)', 'Latest date'], rows: altRows.map(r => [r.company, r.clearances, r.latest_device ? shortDeviceName(r.latest_device) : 'NOT FOUND', r.latest_knumber ?? 'NOT FOUND', longDate(r.latest_date)]) }} questions={asks} notes={s?.notes ?? []} />
     <section ref={top} className="result-header" aria-label="Device">
       <div className="result-heading">
         <div><h2 className="result-title line-clamp-2 max-[760px]:line-clamp-3" title={fullName}>{name}</h2>
@@ -167,6 +168,7 @@ export function ProductResult({ k, compare, view, meta, onView, onCompare }: { k
         <div className="result-actions"><div className="no-print result-buttons"><Button onClick={() => void printBrief()}>Download brief</Button><Button variant="link" onClick={() => setCompareOpen(true)} aria-expanded={compareOpen}>Compare with another product ›</Button></div></div>
       </div>
       {s && <BottomLine text={s.bottom_line} />}
+      {newClearanceNote && <p className="section-caption new-clearance-note">{newClearanceNote}</p>}
       {s && <GlanceTiles cards={cards} />}
     </section>
     <LocalBar name={name} cards={cards} view={view} onView={onView} />
