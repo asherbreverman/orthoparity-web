@@ -9,7 +9,7 @@ import { ProcedureError, ProcedureNotFound } from '@/components/procedure-shared
 import { benchmarkOrigin } from '@/lib/benchmark-brand';
 import shareImage from '@/assets/orthoparity-share.png.asset.json';
 import { Button } from '@/components/ui/button';
-import { DeviceSearch, Status, useRelease } from '@/components/reviewer-shared';
+import { DeviceSearch, PublicRecordLoading, useRelease } from '@/components/reviewer-shared';
 import { getVendorCoverage } from '@/lib/predicate-data';
 import { VendorSearch } from '@/components/vendor-search';
 import { ProductResult } from '@/components/product-result';
@@ -32,6 +32,8 @@ export const Route = createFileRoute('/')({
   validateSearch: zodValidator(z.object({k: fallback(z.string(), '').optional(), v: fallback(z.string(), '').optional(), compare: fallback(z.string(), '').optional(), from: fallback(z.string(), '').optional(), mode: fallback(z.string(), '').optional(), view: fallback(z.string(), '').optional()})),
   loaderDeps: ({ search }) => pageSubject(search),
   loader: ({ context, deps }) => context.queryClient.ensureQueryData(publicPageOptions(deps)),
+  pendingComponent: PublicRecordLoading,
+  pendingMs: 0,
   errorComponent: ProcedureError,
   notFoundComponent: ProcedureNotFound,
   head: ({ loaderData, match }) => {
@@ -78,6 +80,6 @@ function DeviceBrief() {
       <div className="home-about-tiles auto-rows-fr"><div><strong>{meta.starting_set_clearances ? Number(meta.starting_set_clearances).toLocaleString('en-US') : '…'}</strong><p>orthopedic 510(k) clearances, from {coverage?.first ?? '…'} to {coverage?.last ?? '…'}</p></div><div><strong>{coverage?.count.toLocaleString('en-US') ?? '…'}</strong><p>orthopedic companies with 510(k) clearances, counted by parent company</p></div><div><strong>9</strong><p className="text-sm!">public sources: FDA 510(k)s, GUDID, recalls, adverse event reports (MAUDE), establishment registrations, and inspections and warning letters; CMS Open Payments, Medicare hospital payments and Medicare add-on payments</p></div></div>
       <p className="section-caption home-about-note">Every answer traces to a public record.</p>
     </section>}
-    {selected ? vendorMode ? <ClientOnly><Suspense fallback={<Status busy />}><VendorWorkspace v={v} compare={compare} view={view} onView={setView} from={from || undefined} meta={meta} onRedirect={(to, original) => void navigate(redirectNavigation(to, original, view))} onDismiss={() => void navigate({to:'/', search: prev => ({...prev, from: undefined}), replace:true, resetScroll:false})} onCompare={value => void navigate({to:'/',search:prev => ({...prev,compare:value || undefined}), resetScroll: false})} /></Suspense></ClientOnly> : <ProductResult key={k} k={k ?? ''} compare={compare} view={view} meta={meta} onView={setView} onCompare={value => void navigate({to:'/', search:prev => ({...prev, compare:value || undefined}), resetScroll:false})} /> : null}
+    {selected ? vendorMode ? <ClientOnly fallback={<PublicRecordLoading />}><Suspense fallback={<PublicRecordLoading />}><VendorWorkspace v={v} compare={compare} view={view} onView={setView} from={from || undefined} meta={meta} onRedirect={(to, original) => void navigate(redirectNavigation(to, original, view))} onDismiss={() => void navigate({to:'/', search: prev => ({...prev, from: undefined}), replace:true, resetScroll:false})} onCompare={value => void navigate({to:'/',search:prev => ({...prev,compare:value || undefined}), resetScroll: false})} /></Suspense></ClientOnly> : <ProductResult key={k} k={k ?? ''} compare={compare} view={view} meta={meta} onView={setView} onCompare={value => void navigate({to:'/', search:prev => ({...prev, compare:value || undefined}), resetScroll:false})} /> : null}
   </>;
 }

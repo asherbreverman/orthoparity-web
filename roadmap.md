@@ -142,3 +142,7 @@
 # Product code context labels
 - [x] Name alternatives by product code and show non-implant kind in the header and full brief.
 - [x] Verify non-implant and implant pages and printing.
+
+# Mobile record pages
+- [x] Show loading feedback through record loading and lazy vendor rendering.
+- [x] Clear the measured sticky header on mobile title and section jumps; verify both requested records at 375px.

@@ -2,7 +2,7 @@ import { LOAD_FAILED } from '@/lib/predicate-data';
 import { shortDeviceName } from '@/lib/format';
 import { pageTitle } from '@/lib/benchmark-brand';
 import { Link, useNavigate, useSearch } from '@tanstack/react-router';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { LoaderCircle, Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BrandMark } from './brand-mark';
@@ -31,12 +31,22 @@ export function ReviewerShell({ children }: { children: ReactNode }) {
   const selected = !!search.k || !!search.v;
   const [scrolled, setScrolled] = useState(false);
   const [ready, setReady] = useState(false);
+  const header = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const element = header.current;
+    if (!element) return;
+    const measure = () => document.documentElement.style.setProperty('--record-header-height', `${element.getBoundingClientRect().height}px`);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    return () => { observer.disconnect(); document.documentElement.style.removeProperty('--record-header-height'); };
+  }, []);
   useEffect(() => { const preference = window.matchMedia('(prefers-color-scheme: dark)'); let saved: string | null = null; try { saved = localStorage.getItem('orthoparity-theme'); } catch {} setDark(saved ? saved === 'dark' : preference.matches); setReady(true); const update = () => { try { if (!localStorage.getItem('orthoparity-theme')) setDark(preference.matches); } catch { setDark(preference.matches); } }; preference.addEventListener('change', update); return () => preference.removeEventListener('change', update); }, []);
   useEffect(() => { if (ready) document.documentElement.classList.toggle('dark', dark); }, [dark, ready]);
   useEffect(() => { const update = () => setScrolled(window.scrollY > 8); update(); window.addEventListener('scroll', update, { passive: true }); return () => window.removeEventListener('scroll', update); }, []);
   function theme() { setDark(!dark); try { localStorage.setItem('orthoparity-theme', dark ? 'light' : 'dark'); } catch {} }
   return <div className="app-shell reviewer-shell">
-    <header className={`topbar no-print ${selected || scrolled ? 'is-docked' : ''}`}><div className="topbar-inner">
+    <header ref={header} className={`topbar no-print ${selected || scrolled ? 'is-docked' : ''}`}><div className="topbar-inner">
       <Button asChild variant="ghost" className="benchmark-home"><Link to="/" search={{}} onClick={() => { window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' }); }} aria-label="OrthoParity home"><BrandMark /><span className="benchmark-wordmark"><strong>Ortho</strong><span>Parity</span></span>{!selected && <span className="brand-tagline">Orthopedic device and vendor benchmarks</span>}</Link></Button>
       <div id="docked-search" className="docked-search" />
       <div className="header-tools">{selected && <ModeTabs compact vendor={!!search.v || search.mode === 'vendor'} onChange={vendor => void navigate({ to: '/', search: vendor ? {mode: 'vendor'} : {} })} />}<Button size="icon" variant="ghost" className="theme-toggle" aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'} title={dark ? 'Switch to light mode' : 'Switch to dark mode'} onClick={theme}>{dark ? <Sun /> : <Moon />}</Button></div></div>
@@ -61,6 +71,9 @@ export function Status({ error, busy }: { error?: string | undefined; busy?: boo
   useEffect(() => { if (!busy) { setRetrying(false); return; } const on = () => setRetrying(true); window.addEventListener('pc-retrying', on); return () => window.removeEventListener('pc-retrying', on); }, [busy]);
   if (error === LOAD_FAILED) return <div className="notice" role="alert">{error}<Button size="sm" variant="secondary" onClick={() => window.dispatchEvent(new Event('pc-refetch'))}>Try again</Button></div>;
   return error ? <div className="notice" role="alert">{error}</div> : busy ? <div className="notice" role="status"><LoaderCircle size={16} className="animate-spin" />{retrying ? 'Still loading this brief…' : 'Loading research…'}</div> : null;
+}
+export function PublicRecordLoading({ error }: { error?: string | undefined }) {
+  return error ? <Status error={error} /> : <div className="public-record-loading section-caption no-print" role="status"><LoaderCircle size={18} className="animate-spin shrink-0" aria-hidden="true" />Loading the public record…</div>;
 }
 export function useRefetch() { const [n, setN] = useState(0); useEffect(() => { const on = () => setN(x => x + 1); window.addEventListener('pc-refetch', on); return () => window.removeEventListener('pc-refetch', on); }, []); return n; }
 export function PageTitle({ name }: { name: string }) { return <div className="page-title"><div className="eyebrow">FDA 510(k) · Orthopedic devices</div><h1>{name}</h1></div>; }

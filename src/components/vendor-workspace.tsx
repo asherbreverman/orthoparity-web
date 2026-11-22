@@ -15,7 +15,7 @@ import {askLines,positionClass,longDate,brandsOutOfDistribution,type View,type V
 import {BottomLine,GlanceTiles,DecisionCards,EvidenceSection,Notes,PrintBrief,useEvidence} from './decision-shared';
 import {vendorSubtitle,emptyProfile,money,dollars,percent,ratio,sourceLinks,showsRedirectNote,type OwnershipMode,type VendorBrief,type VendorComparison,type VendorResolve} from '@/lib/vendor-data';
 import type {Meta} from '@/lib/predicate-chain';
-import {Status, useRefetch} from './reviewer-shared';
+import {PublicRecordLoading, Status, useRefetch} from './reviewer-shared';
 import {PaymentMix,Metrics,Studies,Questions,ProfileSummary} from './payment-shared';
 import {VendorSearch} from './vendor-search';
 import {VendorPortfolio} from './vendor-portfolio';
@@ -45,7 +45,7 @@ export function VendorWorkspace({v,from,compare,meta,view,onView,onRedirect,onDi
  useEffect(()=>{if(brief?.found&&v&&scrolled.current!==v){scrolled.current=v;ref.current?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});}},[brief,v]);
  useEffect(()=>{if(compare)setCompareOpen(true);},[compare]);
  if(!v)return <div className="brief-empty"><Building2 size={42} className="text-primary"/><h2>No vendor selected</h2></div>;
- if(!brief)return <Status busy={busy} error={error}/>;
+ if(!brief)return <PublicRecordLoading error={error}/>;
  if(!brief.found)return <div className="notice">Vendor not found.</div>;
  const s=signals?.found?signals:null;const cards=s?.cards??[];const asks=askLines(cards);const comp=s?.competition??[];
  const p=brief.payments.profile_latest ?? emptyProfile;const latest=brief.payments.latest_year ?? 2025;const funnel=[['Food and beverage',p.food_r],['Travel and lodging',p.travel_r],['Consulting',p.consulting_r],['Royalties',p.royalty_r]] as const;

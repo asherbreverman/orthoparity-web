@@ -1219,6 +1219,16 @@ html { scroll-behavior: smooth; scroll-padding-top: 0; }
 .ui-button:is(.evidence-toggle,.benchmark-home,[role=tab]):active { transform:none; }
 .reviewer-shell .topbar { position: sticky; top:0; z-index:50; height:auto; min-height:64px; max-width:none; padding:0; background:var(--background); border:0; }
 .topbar.is-docked { background:var(--glass); backdrop-filter:blur(20px); }
+.public-record-loading { display:flex; align-items:center; gap:10px; max-width:1176px; margin:0 auto; padding:40px 28px; min-height:180px; }
+@media (max-width:767px) {
+ .reviewer-shell .result-header { scroll-margin-top:var(--record-header-height, 112px); }
+ .has-result .reviewer-shell .local-bar { top:var(--record-header-height, 112px); }
+ .reviewer-shell .decision-card.story-chapter,
+ .reviewer-shell .evidence-section,
+ .reviewer-shell .brief-section,
+ .reviewer-shell .extra-evidence,
+ .reviewer-shell .ancestry-section { scroll-margin-top:calc(var(--record-header-height, 112px) + var(--record-rail-height, 60px)); }
+}
 .topbar-inner { width:100%; max-width:1176px; padding:8px 28px; margin:auto; min-height:64px; display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:32px; }
 .benchmark-home { height:auto; min-height:40px; padding:0; gap:10px; background:transparent; }
 .benchmark-wordmark { font-size:21px; }

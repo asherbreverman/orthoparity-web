@@ -4,7 +4,7 @@ import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Copy, Check, Download, FileSpreadsheet, ChevronDown, Info, ExternalLink } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { BriefLink, Status, useRefetch } from './reviewer-shared';
+import { BriefLink, PublicRecordLoading, Status, useRefetch } from './reviewer-shared';
 import { Metrics, Studies } from './payment-shared';
 import { ProductRecallEvidence } from './recall-evidence';
 import { ProductMaudeSection } from './maude-evidence';
@@ -65,7 +65,7 @@ export function ProductResult({ k, compare, view, meta, onView, onCompare }: { k
 
   useEffect(() => { const title = signals?.header?.device_name ?? brief?.device?.device_name; if (title) window.dispatchEvent(new CustomEvent('benchmark-name', { detail: productDisplayTitle(title) })); }, [brief, signals]);
 
-  if (!brief) return <Status error={error} busy={busy} />;
+  if (!brief) return <PublicRecordLoading error={error} />;
   const device = brief.device;
   if (!brief.found || !device) return <div className="notice">{k}: Not in this database (orthopedic clearances only)</div>;
   const s = signals?.found ? signals : null;
