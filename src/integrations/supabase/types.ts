@@ -1408,6 +1408,7 @@ export type Database = {
       }
       pc_category: { Args: { code: string }; Returns: Json }
       pc_clean_blanks: { Args: never; Returns: string }
+      pc_clean_ifu: { Args: { t: string }; Returns: string }
       pc_co: { Args: { n: string }; Returns: string }
       pc_code_procedures: { Args: { code: string }; Returns: Json }
       pc_code_vendors: { Args: { code: string; lim?: number }; Returns: Json }
@@ -1443,8 +1444,11 @@ export type Database = {
           same_company: boolean
         }[]
       }
+      pc_family_score: { Args: { dtext: string; fam: string }; Returns: number }
       pc_fig: { Args: { label: string; v: string }; Returns: Json }
       pc_figs: { Args: { f: Json[] }; Returns: Json }
+      pc_fix_card: { Args: { c: Json }; Returns: Json }
+      pc_fix_text: { Args: { t: string }; Returns: string }
       pc_lookup: { Args: { max_gen?: number; roots: string[] }; Returns: Json }
       pc_maude_notes: { Args: never; Returns: Json }
       pc_mode: { Args: { m: string }; Returns: string }
@@ -1488,6 +1492,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      pc_same_name: { Args: { a: string; b: string }; Returns: boolean }
       pc_search: {
         Args: { lim?: number; q: string }
         Returns: {
@@ -1503,6 +1508,7 @@ export type Database = {
       pc_short_name: { Args: { n: string }; Returns: string }
       pc_signals: { Args: { k: string }; Returns: Json }
       pc_supplier_notes: { Args: never; Returns: Json }
+      pc_tc: { Args: { s: string }; Returns: string }
       pc_usd: { Args: { x: number }; Returns: string }
       pc_vendor_add_on: { Args: { m?: string; v: string }; Returns: Json }
       pc_vendor_brief: { Args: { m?: string; v: string }; Returns: Json }
