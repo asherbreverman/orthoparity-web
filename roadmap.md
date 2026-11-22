@@ -113,3 +113,8 @@
 - [x] Add and test FDA name casing without spelling changes.
 - [x] Apply casing to the requested screen and printed fields.
 - [x] Verify product/vendor flows and commit changes.
+
+# One-page product summary
+- [x] Add product download menu and separate summary print markup.
+- [x] Fit Letter summaries without body text below 10pt, dropping questions 4 and 5 first.
+- [x] Verify real PDFs, full-brief preservation and tests.

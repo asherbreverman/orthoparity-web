@@ -1,10 +1,16 @@
 import { describe, expect, it, vi } from 'vitest';
-import { briefFileName, printBrief, printQuestionGroups } from '@/lib/brief-print';
+import { briefFileName, printBrief, printQuestionGroups, summaryQuestionCount } from '@/lib/brief-print';
 import type { DecisionCard } from '@/lib/signals';
 
 const card = (key: string, short: string, asks: string[]): DecisionCard => ({ key, short, asks, question: key, badge: 'None', finding: '', why: '', ask: asks[0] ?? '', evidence: key, tone: 'attention' });
 
 describe('native brief printing', () => {
+  it('keeps the first five questions when they fit', () => {
+    expect(summaryQuestionCount([20, 20, 20, 20, 20, 20], 100)).toBe(5);
+  });
+  it('drops questions four and five first when space runs out', () => {
+    expect(summaryQuestionCount([20, 20, 20, 20, 20], 99)).toBe(3);
+  });
   it('names product and company PDFs without changing source names', () => {
     expect(briefFileName('Smith and Nephew Suture Anchors', 'K151105')).toBe('OrthoParity brief - K151105 - Smith and Nephew Suture Anchors');
     expect(briefFileName('Smith+Nephew')).toBe('OrthoParity brief - Smith+Nephew');

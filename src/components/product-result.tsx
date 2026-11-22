@@ -19,7 +19,7 @@ import { LocalBar, ExtraEvidence, ComparisonSheet } from './story-shared';
 import { ProductCompare } from './product-compare';
 import { displayName, shortDeviceName, productSentence } from '@/lib/format';
 import { headerOwnerChanged } from '@/lib/product-comparison';
-import { printBrief } from '@/lib/brief-print';
+import { ProductDownloadMenu } from './product-download-menu';
 import { toast } from 'sonner';
 import { dateLabel, type Meta } from '@/lib/predicate-chain';
 import { filterPeers, lineageSentence, patternExplanation, unreviewedLow, questionGroups, questionsText, type Brief, type QuestionGroup } from '@/lib/reviewer-data';
@@ -166,7 +166,7 @@ export function ProductResult({ k, compare, view, meta, onView, onCompare }: { k
           <p className="result-meta">{owner?.found && owner.owner_vendor_id ? <Link className="brief-link" to="/" search={{ v: owner.owner_vendor_id }}>{displayName(filer)}{ownerNow ? `, now part of ${displayName(owner.owner_name ?? 'NOT FOUND')}` : ''}</Link> : displayName(filer)}</p>
           <p className="plain-description" title="FDA groups devices by product code. This description covers every device in the code. The device's own name and its FDA-cleared use are below.">Product code {code} covers: {productSentence(brief.product_code?.plain_description ?? `Cleared by FDA as ${plain}`, h?.procedures ?? brief.product_code?.procedures)}{brief.product_code?.reviewed === false && <> <span className="review-tag" title="Plain-English description drafted from FDA's definition, pending expert review." tabIndex={0}>Draft</span></>}</p>
         </div>
-        <div className="result-actions"><div className="no-print result-buttons"><Button onClick={() => void printBrief()}>Download brief</Button><Button variant="link" onClick={() => setCompareOpen(true)} aria-expanded={compareOpen}>Compare with another product ›</Button></div></div>
+        <div className="result-actions"><div className="no-print result-buttons"><ProductDownloadMenu /><Button variant="link" onClick={() => setCompareOpen(true)} aria-expanded={compareOpen}>Compare with another product ›</Button></div></div>
       </div>
       {s && <BottomLine text={s.bottom_line} />}
       {newClearanceNote && <p className="section-caption new-clearance-note">{newClearanceNote}</p>}
@@ -176,7 +176,7 @@ export function ProductResult({ k, compare, view, meta, onView, onCompare }: { k
     <ComparisonSheet title="Compare products" open={compareOpen} onClose={closeCompare}>{compareOpen && <ProductCompare k={k} compare={compare} onCompare={onCompare} onClose={closeCompare} />}</ComparisonSheet>
     {!s && <Status busy={!signals && !error} error={signals && !signals.found ? 'Decision signals are unavailable for this clearance.' : undefined} />}
     {s && <DecisionCards cards={cards} onEvidence={ev.reveal} evidence={evidenceSections} />}
-    <section id="all-questions" className="brief-section question-section"><div className="section-heading"><h2>Questions for the vendor</h2><div className="question-actions no-print"><Button size="sm" onClick={() => void copy('all')}>{copied === 'all' ? <Check /> : <Copy />}Copy all</Button>{selected.size > 0 && <Button variant="outline" size="sm" onClick={() => void copy('selected')}>{copied === 'selected' ? <Check /> : <Copy />}Copy selected</Button>}<Button onClick={() => void printBrief()}>Download brief</Button></div></div>
+    <section id="all-questions" className="brief-section question-section"><div className="section-heading"><h2>Questions for the vendor</h2><div className="question-actions no-print"><Button size="sm" onClick={() => void copy('all')}>{copied === 'all' ? <Check /> : <Copy />}Copy all</Button>{selected.size > 0 && <Button variant="outline" size="sm" onClick={() => void copy('selected')}>{copied === 'selected' ? <Check /> : <Copy />}Copy selected</Button>}<ProductDownloadMenu /></div></div>
       {groups[0] && qList(groups[0].items)}
       <EvidenceSection id="checklist" title="Full value analysis checklist" summary={`${checklistCount} questions`} open={checklist} onToggle={() => setChecklist(!checklist)}>{groups.slice(1).map((g, i) => <div className="question-group" key={i}><h3>{g.topic}</h3>{qList(g.items)}</div>)}</EvidenceSection>
       <p className="section-caption">Questions come from fixed rules on the public data. The checklist is a starting point for value analysis; adapt it to your committee.</p>

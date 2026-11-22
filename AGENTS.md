@@ -62,5 +62,5 @@ use the editor.
 - Match signal boxes to their evidence ids and share positional hues and question flattening across views; cached indications and supplier reads keep new product evidence read-only.
 - Keep displayName casing at presentation boundaries for specified product/company names, including print props; pure formatting helpers preserve source payloads, filed spelling and original-name tooltips.
 - Compare products through the shared sheet and URL compare parameter using cached signal reads and key-matched rows; this avoids new data access and preserves source badges.
-- Keep Letter briefs in shared print-only markup and light-theme print tokens; native printing waits for fonts and restores the document title, preserving screen layouts and source content.
+- Keep full and summary Letter markup separate with shared print tokens; native print measures summary questions after fonts settle and restores title/mode, preserving full briefs.
 - Read public search previews through the adapter with an anonymous server client, a two-second deadline and hourly edge/query caches; this keeps source HTML useful without blocking slow reads.
