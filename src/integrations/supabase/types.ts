@@ -101,6 +101,27 @@ export type Database = {
         }
         Relationships: []
       }
+      pc_cache: {
+        Row: {
+          arg: string
+          fn: string
+          made: string
+          payload: Json
+        }
+        Insert: {
+          arg: string
+          fn: string
+          made?: string
+          payload: Json
+        }
+        Update: {
+          arg?: string
+          fn?: string
+          made?: string
+          payload?: Json
+        }
+        Relationships: []
+      }
       pc_compliance_action: {
         Row: {
           action_date: string | null
@@ -1394,6 +1415,7 @@ export type Database = {
       pc_batch: { Args: { ks: string[] }; Returns: Json }
       pc_brand_family: { Args: { k: string }; Returns: Json }
       pc_brief: { Args: { k: string }; Returns: Json }
+      pc_brief_live: { Args: { k: string }; Returns: Json }
       pc_card: {
         Args: {
           ask: string
@@ -1513,11 +1535,13 @@ export type Database = {
       }
       pc_short_name: { Args: { n: string }; Returns: string }
       pc_signals: { Args: { k: string }; Returns: Json }
+      pc_signals_live: { Args: { k: string }; Returns: Json }
       pc_supplier_notes: { Args: never; Returns: Json }
       pc_tc: { Args: { s: string }; Returns: string }
       pc_usd: { Args: { x: number }; Returns: string }
       pc_vendor_add_on: { Args: { m?: string; v: string }; Returns: Json }
       pc_vendor_brief: { Args: { m?: string; v: string }; Returns: Json }
+      pc_vendor_brief_live: { Args: { m?: string; v: string }; Returns: Json }
       pc_vendor_compare: {
         Args: { a: string; b: string; m?: string }
         Returns: Json
@@ -1557,8 +1581,13 @@ export type Database = {
       pc_vendor_resolve: { Args: { v: string }; Returns: Json }
       pc_vendor_search: { Args: { lim?: number; q: string }; Returns: Json }
       pc_vendor_signals: { Args: { m?: string; v: string }; Returns: Json }
+      pc_vendor_signals_live: { Args: { m?: string; v: string }; Returns: Json }
       pc_vendor_step: { Args: { v: string }; Returns: Json }
       pc_vendor_supplier: { Args: { m?: string; v: string }; Returns: Json }
+      pc_vendor_supplier_live: {
+        Args: { m?: string; v: string }
+        Returns: Json
+      }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
     }
