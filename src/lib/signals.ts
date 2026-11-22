@@ -1,9 +1,11 @@
+import type { DevicePathway } from './fda-device';
+
 export type Tone = 'info' | 'attention';
 export interface DecisionCard { key: string; question: string; short?: string; asks?: string[]; headline?: string; figs?: { value: string | number; label: string }[]; badge: string; tone: Tone | string; finding: string; why: string; ask: string; evidence: string }
 export interface DeviceIndications { knumber: string; found: boolean; ifu_text: string | null; page: string | null; predicate: { knumber: string; device_name: string | null; ifu_text: string | null } | null; similarity: number | null }
 export interface AlternativeRow { vendor_id: string; company: string; clearances: number; latest_knumber: string | null; latest_device: string | null; latest_date: string | null }
 export interface SignalHeader { device_name: string | null; company: string | null; owner: string | null; plain_name: string | null; fda_name: string | null; product_code: string | null; cleared: string | null; device_class: string | null; procedures: string | null; anatomy: string | null; kind: string | null; summary_url: string | null; pattern: string | null; new_clearance?: boolean; days_since_clearance?: number | null }
-export interface Signals { found: boolean; knumber: string; header: SignalHeader; bottom_line: string; cards: DecisionCard[]; alternatives: { window: string; companies: number; rows: AlternativeRow[] }; notes: string[] }
+export interface Signals { found: boolean; knumber: string; pathway?: DevicePathway; header: SignalHeader; bottom_line: string; cards: DecisionCard[]; alternatives: { window: string; companies: number; rows: AlternativeRow[] }; notes: string[] }
 export interface CompetitionRow { product_code: string; plain_name: string | null; fda_name: string | null; anatomy: string | null; kind: string | null; clearances: number; last5: number; code_last5: number; share_last5_pct: number; rank_last5: number | null; competitors_last5: number; position: string }
 export interface Acquisition { vendor_id: string; name: string; date: string | null; relation: string; source_url: string | null }
 export interface VendorSignals { found: boolean; mode: string; vendor: Record<string, unknown>; bottom_line: string; cards: DecisionCard[]; competition: CompetitionRow[]; acquisitions: Acquisition[]; notes: string[] }

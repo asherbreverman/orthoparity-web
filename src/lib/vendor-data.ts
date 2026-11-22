@@ -1,4 +1,5 @@
 import { companyName } from './format';
+import { normalizeDeviceNumber } from './fda-device';
 export type OwnershipMode = 'pit' | 'current';
 export interface Vendor { vendor_id: string; display_name: string; current_parent?: string | null; segment?: string | null; clearances: number; matched_name?: string | null; payments_2025?: number | null; via_vendor_id?: string | null; via_name?: string | null }
 export interface DeviceOwner { found: boolean; knumber: string; filer: string | null; filer_vendor_id: string | null; owner_vendor_id: string | null; owner_name: string | null; now_part_of: boolean; divested: boolean; explanation: string | null; source_url: string | null }
@@ -30,7 +31,7 @@ export function paymentSeries(rows: PaymentRow[], start = 2019, latest = 2025, b
   return Array.from({length: Math.max(0, latest-start+1)}, (_, i) => { const year = start+i; const out: Record<string, number> = {year}; for (const [id] of natureGroups) { out[id] = rows.filter(r => r.year === year && natureKey(r.nature_group) === id).reduce((sum,r) => sum + Number(r.amount),0); out[`${id}_brand`] = brandRows.filter(r => r.year === year && natureKey(r.nature_group) === id).reduce((sum,r) => sum + Number(r.amount),0); } return out; });
 }
 export function filterPortfolio(rows: PortfolioRow[], anatomy: string, kind: string, code: string, query: string) { const q = query.toLowerCase().trim(); return rows.filter(r => (!anatomy || r.anatomy === anatomy) && (!kind || r.kind === kind) && (!code || r.product_code === code) && (!q || [r.knumber,r.device_name,r.applicant,r.plain_name,r.gudid_brand].some(v => v?.toLowerCase().includes(q)))); }
-export function studyNumbers(study: Study) { return (study.knumbers ?? '').split('|').filter(k => /^(K|DEN)\d{6}$/.test(k)); }
+export function studyNumbers(study: Study) { return (study.knumbers ?? '').split('|').map(normalizeDeviceNumber).filter((k): k is string => k !== null); }
 export function withPaymentQuestions<T extends {questions: string[]}>(brief: T, payments: ProductPayments | null) { return {...brief, questions: [...brief.questions, ...(payments?.questions ?? [])]}; }
 export const paymentLimitations = [
   'Open Payments shows what manufacturers reported to CMS. It shows nothing about sales, prices, contract terms or clinical results.',

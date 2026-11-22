@@ -6,12 +6,13 @@ import { getDeviceIndications } from '@/lib/predicate-data';
 import { longDate } from '@/lib/signals';
 import type { DeviceIndications } from '@/lib/signals';
 import type { DeviceOwner } from '@/lib/vendor-data';
+import { decisionDateLabel, hasPredicateChain, type DevicePathway } from '@/lib/fda-device';
 
 function IndicationsQuote({ text }: { text: string }) {
   const [expanded, setExpanded] = useState(false);
   return <><blockquote className={`ifu-quote ${expanded ? '' : 'clamped'}`}>{text}</blockquote><Button variant="link" size="sm" aria-expanded={expanded} onClick={() => setExpanded(!expanded)}>{expanded ? 'Show less' : 'Show more'}<ChevronDown className={expanded ? 'rotate-180' : ''} /></Button></>;
 }
-export function ProductIndicationsEvidence({ k, fullName, plain, code, cleared, deviceClass, summaryUrl }: { k: string; fullName: string; plain: string; code: string; cleared: string | null | undefined; deviceClass: string | number | null | undefined; summaryUrl: string | null | undefined }) {
+export function ProductIndicationsEvidence({ k, pathway = '510(k)', approvalUrl, fullName, plain, code, cleared, deviceClass, summaryUrl }: { k: string; pathway?: DevicePathway; approvalUrl?: string | null | undefined; fullName: string; plain: string; code: string; cleared: string | null | undefined; deviceClass: string | number | null | undefined; summaryUrl: string | null | undefined }) {
   const [result, setResult] = useState<DeviceIndications | null>(null);
   const [error, setError] = useState('');
   const reload = useRefetch();
@@ -21,20 +22,22 @@ export function ProductIndicationsEvidence({ k, fullName, plain, code, cleared, 
     return () => { active = false; };
   }, [k, reload]);
   const data = result?.knumber === k ? result : null;
+  const predicatesVisible = hasPredicateChain(pathway);
+  const sourceLink = predicatesVisible ? <PdfLink url={summaryUrl ?? null} /> : approvalUrl && /^https:\/\//.test(approvalUrl) ? <a className="brief-link" href={approvalUrl} target="_blank" rel="noopener noreferrer">FDA record</a> : null;
   return <>
-    <p className="section-caption"><strong>Clearance:</strong> {k} · {plain} ({code}) · Cleared {longDate(cleared)} · Class {deviceClass ?? 'NOT FOUND'} · <PdfLink url={summaryUrl ?? null} /></p>
+    <p className="section-caption"><strong>{predicatesVisible ? 'Clearance' : 'Approval'}:</strong> {k} · {plain} ({code}) · {decisionDateLabel(pathway)} {longDate(cleared)} · Class {deviceClass ?? 'NOT FOUND'} · {sourceLink}</p>
     <p className="section-caption">Device name as filed: {fullName}</p>
     {!data ? <Status busy={!error} error={error} /> : <>
-    <h3>This 510(k)</h3>
-    {data.found && data.ifu_text ? <><IndicationsQuote text={data.ifu_text} /><p className="section-caption">From the 510(k) summary, page {data.page ?? 'NOT FOUND'}. <PdfLink url={summaryUrl ?? null} /></p></> : <p className="section-caption">NOT FOUND: we couldn't extract the Indications for Use from this 510(k) summary.</p>}
-    {data.predicate && <h3>Primary predicate: <BriefLink k={data.predicate.knumber} /> {data.predicate.device_name ?? 'NOT FOUND'}</h3>}
+    <h3>This {pathway}</h3>
+    {data.found && data.ifu_text ? <><IndicationsQuote text={data.ifu_text} /><p className="section-caption">{predicatesVisible ? `From the ${pathway} summary, page ${data.page ?? 'NOT FOUND'}.` : `From FDA's ${pathway} record.`} {sourceLink}</p></> : <p className="section-caption">{predicatesVisible ? `NOT FOUND: we couldn't extract the Indications for Use from this ${pathway} summary.` : `NOT FOUND: the Indications for Use aren't on file in FDA's ${pathway} record.`}</p>}
+    {predicatesVisible && <>{data.predicate && <h3>Primary predicate: <BriefLink k={data.predicate.knumber} /> {data.predicate.device_name ?? 'NOT FOUND'}</h3>}
     {data.predicate?.ifu_text ? <IndicationsQuote text={data.predicate.ifu_text} /> : <p className="section-caption">NOT FOUND: the primary predicate's Indications for Use isn't on file.</p>}
-    {data.similarity != null && <p className="section-caption">The wording is {Math.round(data.similarity * 100)}% similar to the primary predicate's. This compares wording only. It doesn't judge whether the cleared use is broader or narrower.</p>}
+    {data.similarity != null && <p className="section-caption">The wording is {Math.round(data.similarity * 100)}% similar to the primary predicate's. This compares wording only. It doesn't judge whether the cleared use is broader or narrower.</p>}</>}
     </>}
   </>;
 }
-export function ProductOwnerEvidence({ owner }: { owner: DeviceOwner | null }) {
+export function ProductOwnerEvidence({ owner, pathway = '510(k)' }: { owner: DeviceOwner | null; pathway?: DevicePathway }) {
   if (!owner) return <Status busy />;
   if (!owner.found) return <p className="section-caption">NOT FOUND</p>;
-  return <><p className="section-caption">FDA cleared it for {owner.filer ?? 'NOT FOUND'}.</p><p className="section-caption">{owner.owner_name ? `${owner.owner_name} sells this product line today.` : 'The same company sells it today.'}</p>{owner.explanation && <p className="section-caption">{owner.explanation}</p>}{owner.source_url && /^https?:\/\//.test(owner.source_url) && <a className="brief-link" href={owner.source_url} target="_blank" rel="noopener noreferrer">Source<ExternalLink size={12} /></a>}</>;
+  return <><p className="section-caption">FDA {decisionDateLabel(pathway).toLowerCase()} it for {owner.filer ?? 'NOT FOUND'}.</p><p className="section-caption">{owner.owner_name ? `${owner.owner_name} sells this product line today.` : 'The same company sells it today.'}</p>{owner.explanation && <p className="section-caption">{owner.explanation}</p>}{owner.source_url && /^https?:\/\//.test(owner.source_url) && <a className="brief-link" href={owner.source_url} target="_blank" rel="noopener noreferrer">Source<ExternalLink size={12} /></a>}</>;
 }

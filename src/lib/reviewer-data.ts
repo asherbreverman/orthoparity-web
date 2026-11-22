@@ -1,3 +1,5 @@
+import { normalizeDeviceNumber, type DeviceApproval, type DevicePathway } from './fda-device';
+
 export interface Device {
   knumber: string; device_name: string | null; applicant: string | null;
   decision_date: string | null; decision_year: string | number | null;
@@ -23,6 +25,8 @@ export interface Peer extends Omit<DirectPredicate, 'predicate' | 'role' | 'conf
   knumber: string; product_code: string | null; shared: string[]; n_shared: number;
 }
 export interface Brief {
+  pathway?: DevicePathway;
+  approval?: DeviceApproval | null;
   found: boolean; device: Device | null; product_code: ProductCode | null;
   ifu: { found?: boolean; ifu_text?: string | null; page?: string | number | null; source?: string } | null;
   pattern: string; direct_predicates: DirectPredicate[];
@@ -44,7 +48,8 @@ export interface BatchRow extends Omit<Device, 'decision_date' | 'device_class' 
   found: boolean; plain_name: string | null; pattern: string; direct_predicates: number; primary_predicate: string | null;
 }
 export function parseBatch(text: string) {
-  return [...new Set(text.toUpperCase().match(/\b(?:K\d{6}|DEN\d{6})\b/g) ?? [])];
+  const matches = text.match(/\b(?:DEN(?:[\s-]*\d){6}|[KPH](?:[\s-]*\d){6}|N(?:[\s-]*\d){4,5})\b(?![\s-]*\d)/gi) ?? [];
+  return [...new Set(matches.map(normalizeDeviceNumber).filter((number): number is string => number !== null))];
 }
 export function batchAllowed(numbers: string[]) { return numbers.length > 0 && numbers.length <= 50; }
 export function unreviewedLow(row: Pick<DirectPredicate, 'confidence' | 'review_source'>) {

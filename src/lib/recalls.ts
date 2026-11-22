@@ -1,3 +1,5 @@
+import { parseBatch } from './reviewer-data';
+
 export interface RecallEvent {
   event_id: string | number; recall_number: string; initiated: string | null; terminated: string | null;
   status: string; recall_class: string; products: number; product: string | null; reason: string | null;
@@ -11,7 +13,7 @@ export interface DeviceRecalls {
 export interface VendorRecalls { events_all: number; events_last5: number; by_year: {year: number; events: number}[]; events: RecallEvent[]; source: string }
 export const recallLimitation = "Recalls come from FDA's recall database through openFDA (2002 to present). Each recall is linked to a vendor by a 510(k) number it lists or, failing that, by the recalling firm's name. Recall counts reflect both product issues and how readily a company reports and corrects them; larger portfolios usually have more recalls. 'Open' is FDA's status, which can stay open for years after a company finishes its correction. Older recalls have no class in openFDA.";
 export const recallCaption = "A recall event can cover many catalog numbers. FDA's recall class: Class I is the most serious, Class III the least.";
-export function recallKnumbers(value: RecallEvent['knumbers']) { return [...new Set((Array.isArray(value) ? value : (value ?? '').split(/[,;\s]+/)).filter(k => /^K\d{6}$/.test(k)))]; }
+export function recallKnumbers(value: RecallEvent['knumbers']) { return parseBatch(Array.isArray(value) ? value.join(';') : value ?? ''); }
 export function recallDate(value: string | null) {
   const match = /^(\d{4})-(\d{2})/.exec(value ?? '');
   const month = match ? ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][Number(match[2])-1] : undefined;

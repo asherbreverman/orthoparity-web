@@ -15,6 +15,7 @@ import { recallLimitation } from '@/lib/recalls';
 import { ResearchSearch } from './research-search';
 import { ModeTabs } from './benchmark-navigation';
 import { Toaster } from './ui/sonner';
+import { devicePathway, normalizeDeviceNumber } from '@/lib/fda-device';
 
 export function useRelease(initial?: Meta) {
   const [meta, setMeta] = useState<Meta>(initial ?? {});
@@ -58,13 +59,14 @@ export function ReviewerShell({ children }: { children: ReactNode }) {
   </div>;
 }
 const devices = new Map<string, SearchResult>();
-const loadDevices = async (q: string, signal: AbortSignal) => (await searchDevices(q, signal)).map(row => { devices.set(row.knumber, row); return { id: row.knumber, name: shortDeviceName(row.device_name ?? row.knumber), detail: `${row.knumber} · ${row.applicant ?? 'NOT FOUND'}`, date: dateLabel(row.decision_date), extra: row.match === 'close spelling' ? 'close spelling' : undefined }; });
+const loadDevices = async (q: string, signal: AbortSignal) => (await searchDevices(normalizeDeviceNumber(q) ?? q, signal)).map(row => { devices.set(row.knumber, row); return { id: row.knumber, name: shortDeviceName(row.device_name ?? row.knumber), detail: `${row.knumber} · ${row.applicant ?? 'NOT FOUND'}`, date: dateLabel(row.decision_date), extra: row.match === 'close spelling' ? 'close spelling' : undefined }; });
 export function DeviceSearch({ label = 'Identify an orthopedic device to benchmark', resetKey = '', initialValue, onSelect }: { label?: string; resetKey?: string; initialValue?: string; onSelect: (row: SearchResult) => void }) {
   const [name, setName] = useState(initialValue ?? resetKey);
   useEffect(() => { setName(initialValue ?? resetKey); const update = (event: Event) => { if (event instanceof CustomEvent && typeof event.detail === 'string') setName(event.detail); }; window.addEventListener('benchmark-name', update); return () => window.removeEventListener('benchmark-name', update); }, [initialValue, resetKey]);
-  return <ResearchSearch label={label} placeholder="e.g. a 510(k) number, product name, or company" initialValue={name} load={loadDevices} onSelect={id => { const row = devices.get(id); if (row) onSelect(row); }} />;
+  return <ResearchSearch label={label} placeholder="e.g. an FDA number, product name, or company" initialValue={name} load={loadDevices} onSelect={id => { const row = devices.get(id); if (row) onSelect(row); }} />;
 }
-export function BriefLink({ k }: { k: string }) { return <Link to="/" search={{ k }} className="brief-link font-mono">{k}</Link>; }
+export function BriefLink({ k }: { k: string }) { return <Link to="/" search={{ k: normalizeDeviceNumber(k) ?? k }} className="brief-link font-mono">{k}</Link>; }
+export function PathwayTag({ number }: { number: string }) { return <span className="data-tag">{devicePathway(number)}</span>; }
 export function PdfLink({ url }: { url?: string | null }) { return url && /^https:\/\//.test(url) ? <a href={url} target="_blank" rel="noopener noreferrer" className="brief-link">FDA summary ›</a> : <span className="text-muted-foreground">PDF unavailable</span>; }
 export function Status({ error, busy }: { error?: string | undefined; busy?: boolean | undefined }) {
   const [retrying, setRetrying] = useState(false);

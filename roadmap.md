@@ -146,3 +146,9 @@
 # Mobile record pages
 - [x] Show loading feedback through record loading and lazy vendor rendering.
 - [x] Clear the measured sticky header on mobile title and section jumps; verify both requested records at 375px.
+
+# FDA approvals
+- [ ] Accept all supplied FDA number formats in search, links, comparison and batch parsing.
+- [ ] Show pathway-aware headers, dates and FDA links; replace PMA/HDE ancestry with approval and supplement evidence.
+- [ ] Add pathway tags to company portfolios and preserve every returned count.
+- [ ] Test the five requested device pages, mobile tables, normal 510(k) behavior and formatting rules without query changes.

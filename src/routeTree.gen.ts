@@ -14,6 +14,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProceduresRouteImport } from './routes/procedures'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as DeviceIdRouteImport } from './routes/device.$id'
 import { Route as ProceduresFamilyIdRouteImport } from './routes/procedures_.$familyId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -41,6 +42,11 @@ const TermsRoute = TermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DeviceIdRoute = DeviceIdRouteImport.update({
+  id: '/device/$id',
+  path: '/device/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProceduresFamilyIdRoute = ProceduresFamilyIdRouteImport.update({
   id: '/procedures_/$familyId',
   path: '/procedures/$familyId',
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/procedures': typeof ProceduresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/device/$id': typeof DeviceIdRoute
   '/procedures/$familyId': typeof ProceduresFamilyIdRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/procedures': typeof ProceduresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/device/$id': typeof DeviceIdRoute
   '/procedures/$familyId': typeof ProceduresFamilyIdRoute
 }
 export interface FileRoutesById {
@@ -70,6 +78,7 @@ export interface FileRoutesById {
   '/procedures': typeof ProceduresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/device/$id': typeof DeviceIdRoute
   '/procedures_/$familyId': typeof ProceduresFamilyIdRoute
 }
 export interface FileRouteTypes {
@@ -80,6 +89,7 @@ export interface FileRouteTypes {
     | '/procedures'
     | '/sitemap.xml'
     | '/terms'
+    | '/device/$id'
     | '/procedures/$familyId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -88,6 +98,7 @@ export interface FileRouteTypes {
     | '/procedures'
     | '/sitemap.xml'
     | '/terms'
+    | '/device/$id'
     | '/procedures/$familyId'
   id:
     | '__root__'
@@ -96,6 +107,7 @@ export interface FileRouteTypes {
     | '/procedures'
     | '/sitemap.xml'
     | '/terms'
+    | '/device/$id'
     | '/procedures_/$familyId'
   fileRoutesById: FileRoutesById
 }
@@ -105,6 +117,7 @@ export interface RootRouteChildren {
   ProceduresRoute: typeof ProceduresRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
+  DeviceIdRoute: typeof DeviceIdRoute
   ProceduresFamilyIdRoute: typeof ProceduresFamilyIdRoute
 }
 
@@ -145,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/device/$id': {
+      id: '/device/$id'
+      path: '/device/$id'
+      fullPath: '/device/$id'
+      preLoaderRoute: typeof DeviceIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/procedures_/$familyId': {
       id: '/procedures_/$familyId'
       path: '/procedures/$familyId'
@@ -161,6 +181,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProceduresRoute: ProceduresRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
+  DeviceIdRoute: DeviceIdRoute,
   ProceduresFamilyIdRoute: ProceduresFamilyIdRoute,
 }
 export const routeTree = rootRouteImport

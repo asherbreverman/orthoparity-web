@@ -17,6 +17,7 @@ import type { VendorCoverage } from '@/lib/vendor-coverage';
 import type { View } from '@/lib/signals';
 import { redirectNavigation } from '@/lib/vendor-data';
 import { DockedSearch, ModeTabs } from '@/components/benchmark-navigation';
+import { normalizeDeviceNumber } from '@/lib/fda-device';
 const VendorWorkspace = lazy(() => import('@/components/vendor-workspace').then(m => ({default: m.VendorWorkspace})));
 const productExamples: [string, string][] = [['ATTUNE knee (K140881)', 'K140881'], ['ACTIS hip (K150862)', 'K150862'], ['ExcelsiusGPS spine robot (K171651)', 'K171651'], ['Equinoxe reverse shoulder (K063569)', 'K063569'], ['Smith+Nephew suture anchors (K151105)', 'K151105']];
 const vendorExamples: [string, string][] = [['Stryker', 'stryker'], ['Johnson & Johnson (DePuy Synthes)', 'jnj_depuy_synthes'], ['Zimmer Biomet', 'zimmer_biomet'], ['Medtronic', 'medtronic'], ['Smith+Nephew', 'smith_nephew']];
@@ -43,7 +44,9 @@ export const Route = createFileRoute('/')({
   component: DeviceBrief,
 });
 function DeviceBrief() {
-  const { k, v, compare, from, mode, view: viewParam } = Route.useSearch();
+  const { k: rawK, v, compare: rawCompare, from, mode, view: viewParam } = Route.useSearch();
+  const k = normalizeDeviceNumber(rawK ?? '') ?? rawK;
+  const compare = normalizeDeviceNumber(rawCompare ?? '') ?? rawCompare;
   const { data: initial } = useSuspenseQuery(publicPageOptions(pageSubject({ k, v })));
   const view: View = viewParam === 'analyst' ? 'analyst' : 'brief';
   const vendorMode = !!v || mode === 'vendor';

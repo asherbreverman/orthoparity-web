@@ -4,6 +4,7 @@ import type { Brief } from './reviewer-data';
 import type { VendorSignals } from './signals';
 import type { Meta } from './predicate-chain';
 import type { VendorCoverage } from './vendor-coverage';
+import { decisionDateLabel, devicePathway, normalizeDeviceNumber } from './fda-device';
 
 export const PAGE_CACHE_MS = 60 * 60 * 1000;
 export const PAGE_WAIT_MS = 2000;
@@ -12,8 +13,8 @@ export interface PagePreview { title: string; description: string }
 export interface PageData { meta: Meta | null; coverage: VendorCoverage | null; preview: PagePreview | null }
 export const emptyPageData = (): PageData => ({ meta: null, coverage: null, preview: null });
 export function pageSubject(input: { k?: string | undefined; v?: string | undefined }): PageSubject {
-  const k = (input.k ?? '').trim().toUpperCase();
-  return { k: /^(K|DEN)\d{6}$/.test(k) ? k : '', v: k ? '' : (input.v ?? '').trim().slice(0, 150) };
+  const k = normalizeDeviceNumber(input.k ?? '') ?? '';
+  return { k, v: input.k?.trim() ? '' : (input.v ?? '').trim().slice(0, 150) };
 }
 export function productPreview(brief: Brief): PagePreview | null {
   if (!brief.found || !brief.device) return null;
@@ -21,7 +22,7 @@ export function productPreview(brief: Brief): PagePreview | null {
   const category = brief.product_code;
   return {
     title: pageTitle(`${shortDeviceName(displayName(device.device_name ?? device.knumber))} (${device.knumber})`),
-    description: productSentence(category?.plain_description ?? `Cleared by FDA as ${category?.plain_name ?? category?.fda_name ?? 'Category unavailable'}`, category?.procedures),
+    description: productSentence(category?.plain_description ?? `${decisionDateLabel(devicePathway(device.knumber, brief.pathway))} by FDA as ${category?.plain_name ?? category?.fda_name ?? 'Category unavailable'}`, category?.procedures),
   };
 }
 export function vendorPreview(signals: VendorSignals): PagePreview | null {

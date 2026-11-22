@@ -6,6 +6,7 @@ import { productComparisonRows } from '@/lib/product-comparison';
 import { longDate, type Signals } from '@/lib/signals';
 import { DeviceSearch, Status, useRefetch } from './reviewer-shared';
 import { Button } from './ui/button';
+import { devicePathway, hasPredicateChain } from '@/lib/fda-device';
 
 export function ProductCompare({ k, compare, onCompare, onClose }: { k: string; compare?: string | undefined; onCompare: (k: string) => void; onClose: () => void }) {
   const [result, setResult] = useState<{ a: Signals; b: Signals } | null>(null);
@@ -29,7 +30,7 @@ export function ProductCompare({ k, compare, onCompare, onClose }: { k: string; 
       <div className="brief-table-scroll" tabIndex={0}><table className="brief-table product-comparison-table"><thead><tr><th scope="col">Question</th><th scope="col">{k}</th><th scope="col">{compare}</th></tr></thead><tbody>
         {row('Product', <Link to="/" search={{ k }} className="brief-link">{shortDeviceName(displayName(result.a.header.device_name ?? k))}</Link>, <Link to="/" search={{ k: compare }} className="brief-link">{shortDeviceName(displayName(result.b.header.device_name ?? compare ?? 'NOT FOUND'))}</Link>)}
         {row('Company', companyName(result.a.header.company ?? 'NOT FOUND'), companyName(result.b.header.company ?? 'NOT FOUND'))}
-        {row('Cleared', longDate(result.a.header.cleared), longDate(result.b.header.cleared))}
+        {row(hasPredicateChain(devicePathway(result.a.knumber, result.a.pathway)) && hasPredicateChain(devicePathway(result.b.knumber, result.b.pathway)) ? 'Cleared' : 'FDA decision', longDate(result.a.header.cleared), longDate(result.b.header.cleared))}
         {row('Product code', category(result.a), category(result.b))}
         {productComparisonRows(result.a.cards, result.b.cards).map(r => <tr key={r.key} data-question-key={r.key}><th scope="row">{r.question}</th><td>{r.a}</td><td>{r.b}</td></tr>)}
       </tbody></table></div>
