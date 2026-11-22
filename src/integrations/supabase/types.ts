@@ -1408,6 +1408,7 @@ export type Database = {
       }
       pc_category: { Args: { code: string }; Returns: Json }
       pc_clean_blanks: { Args: never; Returns: string }
+      pc_co: { Args: { n: string }; Returns: string }
       pc_code_procedures: { Args: { code: string }; Returns: Json }
       pc_code_vendors: { Args: { code: string; lim?: number }; Returns: Json }
       pc_compare: { Args: { a: string; b: string }; Returns: Json }
