@@ -152,3 +152,4 @@
 - [ ] Show pathway-aware headers, dates and FDA links; replace PMA/HDE ancestry with approval and supplement evidence.
 - [ ] Add pathway tags to company portfolios and preserve every returned count.
 - [ ] Test the five requested device pages, mobile tables, normal 510(k) behavior and formatting rules without query changes.
+- [ ] FDA approval header fixes (approval date, HDE class, company counts)

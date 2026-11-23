@@ -58,3 +58,12 @@ export function vendorOption(row: { vendor_id: string; display_name: string; seg
 export function redirectNavigation(to: string, original: string, view: string) { return { to: '/' as const, search: { v: to, from: original, view: view === 'analyst' ? 'analyst' as const : undefined }, replace: true }; }
 /** Product "Now part of" line, or null when the filer is its own parent. */
 export function ownerLine(o: DeviceOwner | null | undefined) { if (!o?.found || !o.now_part_of || !o.owner_name) return null; const src = o.divested && o.source_url && /^https:\/\//.test(o.source_url) ? o.source_url : null; return { text: `Now part of ${o.owner_name}. ${o.explanation ?? ''}`.trim(), source: src }; }
+
+export const isApprovalNumber = (n: string | null | undefined) => /^[PHN]/i.test(n ?? '');
+const plural = (n: number, one: string, many: string) => `${n.toLocaleString('en-US')} ${n === 1 ? one : many}`;
+/** Header count line: splits a portfolio total into 510(k)s and FDA approvals. */
+export function portfolioCountLine(total: number, approvals: number, codes: number) {
+  const a = Math.min(Math.max(approvals, 0), total), k = total - a;
+  const items = a === 0 ? plural(k, 'orthopedic 510(k)', 'orthopedic 510(k)s') : k === 0 ? plural(a, 'orthopedic FDA approval', 'orthopedic FDA approvals') : `${plural(k, 'orthopedic 510(k)', 'orthopedic 510(k)s')} and ${plural(a, 'FDA approval', 'FDA approvals')}`;
+  return `${items} · ${plural(codes, 'product code', 'product codes')}`;
+}

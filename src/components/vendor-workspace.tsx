@@ -2,7 +2,7 @@ import {ClientOnly,useNavigate} from '@tanstack/react-router';
 import {lazy,Suspense,useEffect,useRef,useState} from 'react';
 import {Download,Building2,GitCompareArrows,ExternalLink} from 'lucide-react';
 import {Button} from '@/components/ui/button';
-import {getVendorBrief,getVendorComparison,getVendorSignals,getCachedPortfolio,resolveVendor,getVendorMaude} from '@/lib/predicate-data';
+import {getVendorBrief,getVendorComparison,getVendorSignals,getCachedPortfolio,getCachedApprovalCount,resolveVendor,getVendorMaude} from '@/lib/predicate-data';
 import {maudeNumber} from '@/lib/maude';
 import {printBrief} from '@/lib/brief-print';
 import {companyName} from '@/lib/format';
@@ -13,7 +13,7 @@ import {getVendorSupplier,supplierNumber,type VendorSupplier} from '@/lib/suppli
 import {VendorSupplierEvidence} from './supplier-evidence';
 import {askLines,positionClass,longDate,brandsOutOfDistribution,type View,type VendorSignals,type CompetitionRow} from '@/lib/signals';
 import {BottomLine,GlanceTiles,DecisionCards,EvidenceSection,Notes,PrintBrief,useEvidence} from './decision-shared';
-import {vendorSubtitle,emptyProfile,money,dollars,percent,ratio,sourceLinks,showsRedirectNote,type OwnershipMode,type VendorBrief,type VendorComparison,type VendorResolve} from '@/lib/vendor-data';
+import {portfolioCountLine,vendorSubtitle,emptyProfile,money,dollars,percent,ratio,sourceLinks,showsRedirectNote,type OwnershipMode,type VendorBrief,type VendorComparison,type VendorResolve} from '@/lib/vendor-data';
 import type {Meta} from '@/lib/predicate-chain';
 import {PublicRecordLoading, Status, useRefetch} from './reviewer-shared';
 import {PaymentMix,Metrics,Studies,Questions,ProfileSummary} from './payment-shared';
@@ -40,6 +40,9 @@ export function VendorWorkspace({v,from,compare,meta,view,onView,onRedirect,onDi
  const [supplier,setSupplier]=useState<{v:string;data:VendorSupplier}|null>(null);
  useEffect(()=>{let active=true;if(!v||!brief?.found)return;getVendorSupplier(v,mode).then(data=>{if(active)setSupplier({v,data});}).catch(()=>{});return()=>{active=false;};},[v,brief]);
  const [maudeSummary,setMaudeSummary]=useState<{v:string;reports:number|null}|null>(null);
+ const [approvalState,setApprovalState]=useState<{v:string;n:number}|null>(null);
+ useEffect(()=>{let active=true;if(!v||!brief?.found)return;getCachedApprovalCount(v,mode,brief.portfolio.clearances).then(n=>{if(active)setApprovalState({v,n});}).catch(()=>{});return()=>{active=false;};},[v,brief]);
+ const approvals=approvalState&&approvalState.v===v?approvalState.n:null;
  const maudeOpen=ev.isOpen('maude');
  useEffect(()=>{let active=true;if(!v||!maudeOpen)return;getVendorMaude(v,mode).then(data=>{if(active)setMaudeSummary({v,reports:data.last5.reports});}).catch(()=>{});return()=>{active=false;};},[v,maudeOpen]);
  useEffect(()=>{if(brief?.found&&v&&scrolled.current!==v){scrolled.current=v;ref.current?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});}},[brief,v]);
@@ -50,6 +53,7 @@ export function VendorWorkspace({v,from,compare,meta,view,onView,onRedirect,onDi
  const s=signals?.found?signals:null;const cards=s?.cards??[];const asks=askLines(cards);const comp=s?.competition??[];
  const p=brief.payments.profile_latest ?? emptyProfile;const latest=brief.payments.latest_year ?? 2025;const funnel=[['Food and beverage',p.food_r],['Travel and lodging',p.travel_r],['Consulting',p.consulting_r],['Royalties',p.royalty_r]] as const;
  const card=(k:string)=>cards.find(c=>c.key===k);
+ const countLine=approvals===null?'…':portfolioCountLine(brief.portfolio.clearances,approvals,brief.portfolio.product_codes);
  const paidLine=brief.payments.profile_latest&&p.total>0?`${money(p.total)} in payments in ${latest}`:`No reported payments in ${latest}`;
  const catName=(c:CompetitionRow)=>c.plain_name??c.fda_name??c.product_code;
  const optional=(items:[string,string|number|null|undefined][])=>items.filter(([,x])=>x!==null&&x!==undefined&&x!==''&&x!=='None'&&x!=='0.0%'&&x!==0) as [string,string|number][];
@@ -70,9 +74,9 @@ export function VendorWorkspace({v,from,compare,meta,view,onView,onRedirect,onDi
  );
  return <>
  <Status error={error}/>
- <PrintBrief evidence={addOn?.v===v?<><h2>Medicare add-on payments</h2><VendorAddOnContent data={addOn.data}/></>:null} meta={meta} title={companyName(brief.vendor.display_name)} tableEvidence="competition" subtitle={vendorSubtitle(brief.vendor)} details={`${brief.portfolio.clearances.toLocaleString('en-US')} orthopedic 510(k)s · ${brief.portfolio.product_codes.toLocaleString('en-US')} product codes · ${paidLine}`} scope="Parent company, including every company it owns" bottomLine={s?.bottom_line??''} cards={cards} table={{caption:'Where they compete',head:['Category','Code','Clearances','Last five years','Share','Rank','Position'],rows:comp.map(c=>[catName(c),c.product_code,c.clearances,c.last5,`${c.share_last5_pct}%`,c.rank_last5??'NOT FOUND',c.position])}} questions={asks} notes={s?.notes??[]}/>
+ <PrintBrief evidence={addOn?.v===v?<><h2>Medicare add-on payments</h2><VendorAddOnContent data={addOn.data}/></>:null} meta={meta} title={companyName(brief.vendor.display_name)} tableEvidence="competition" subtitle={vendorSubtitle(brief.vendor)} details={`${countLine} · ${paidLine}`} scope="Parent company, including every company it owns" bottomLine={s?.bottom_line??''} cards={cards} table={{caption:'Where they compete',head:['Category','Code','Clearances','Last five years','Share','Rank','Position'],rows:comp.map(c=>[catName(c),c.product_code,c.clearances,c.last5,`${c.share_last5_pct}%`,c.rank_last5??'NOT FOUND',c.position])}} questions={asks} notes={s?.notes??[]}/>
  <section ref={ref} className="result-header" aria-label="Vendor">
-  <div className="result-heading"><div><h2 className="result-title vendor-name">{companyName(brief.vendor.display_name)}</h2><p className="vendor-description">{vendorSubtitle(brief.vendor)}</p><p className="result-meta">{brief.portfolio.clearances.toLocaleString('en-US')} orthopedic 510(k)s · {brief.portfolio.product_codes.toLocaleString('en-US')} product codes · {paidLine}</p></div>
+  <div className="result-heading"><div><h2 className="result-title vendor-name">{companyName(brief.vendor.display_name)}</h2><p className="vendor-description">{vendorSubtitle(brief.vendor)}</p><p className="result-meta">{countLine} · {paidLine}</p></div>
   <div className="result-actions"><div className="result-buttons no-print"><Button onClick={()=>void printBrief()}>Download brief</Button><Button variant="link" onClick={()=>setCompareOpen(true)} aria-expanded={compareOpen}>Compare with another vendor ›</Button></div></div></div>
   {showsRedirectNote(note,v)&&note&&<div className="notice"><p>{note.explanation} {sourceLinks(note.steps).map(l=><a key={l.url} className="brief-link" href={l.url} target="_blank" rel="noopener noreferrer">{l.label}<ExternalLink size={12}/></a>)} <Button variant="link" size="sm" onClick={onDismiss}>Dismiss</Button></p></div>}
   {s&&<BottomLine text={s.bottom_line}/>} {s&&<GlanceTiles cards={cards}/>}

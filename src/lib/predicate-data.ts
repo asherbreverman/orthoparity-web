@@ -1,3 +1,4 @@
+import { isApprovalNumber } from './vendor-data';
 import { supabase } from "@/integrations/supabase/client";
 import type { Brief, Comparison, BatchRow, ProductCode } from "./reviewer-data";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -131,6 +132,13 @@ const portfolios = new Map<string, Promise<PortfolioRow[]>>();
 export function getCachedPortfolio(v: string, m: OwnershipMode) {
   const key = `${v}|${m}`; let p = portfolios.get(key);
   if (!p) { p = getVendorPortfolio(v, m); portfolios.set(key, p); p.catch(() => portfolios.delete(key)); }
+  return p;
+}
+const approvalCounts = new Map<string, Promise<number>>();
+/** Counts PMA/HDE/De Novo items (numbers starting P, H or N) across the full portfolio list. */
+export function getCachedApprovalCount(v: string, m: OwnershipMode, total: number) {
+  const key = `${v}|${m}`; let p = approvalCounts.get(key);
+  if (!p) { p = (async () => { const { data, error } = await researchClient.rpc('pc_vendor_portfolio', { v, m, p_anatomy: null, p_kind: null, p_code: null, lim: Math.max(500, total) }); if (error) throw error; return ((data ?? []) as PortfolioRow[]).filter(r => isApprovalNumber(r.knumber)).length; })(); approvalCounts.set(key, p); p.catch(() => approvalCounts.delete(key)); }
   return p;
 }
 async function getBriefRaw(k: string): Promise<Brief> {
