@@ -1686,6 +1686,10 @@ export type Database = {
       pc_tc: { Args: { s: string }; Returns: string }
       pc_usd: { Args: { x: number }; Returns: string }
       pc_vendor_add_on: { Args: { m?: string; v: string }; Returns: Json }
+      pc_vendor_appr_words: {
+        Args: { only_appr: boolean; t: string }
+        Returns: string
+      }
       pc_vendor_brief: { Args: { m?: string; v: string }; Returns: Json }
       pc_vendor_brief_live: { Args: { m?: string; v: string }; Returns: Json }
       pc_vendor_compare: {
