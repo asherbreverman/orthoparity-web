@@ -9,11 +9,11 @@ describe('Public page reads', () => {
   it('stops optional reads at two seconds and preserves finished live counts', async () => {
     vi.useFakeTimers();
     const abort = vi.fn();
-    const pending = boundedPageData({ meta: Promise.resolve({ starting_set_clearances: '18224' }), coverage: Promise.resolve({ count: 1895, first: 1976, last: 2026 }), preview: new Promise(() => {}) }, abort);
+    const pending = boundedPageData({ meta: Promise.resolve({ starting_set_clearances: '18224' }), coverage: Promise.resolve({ count: 1898, devices: 18355, first: 1971, last: 2026 }), preview: new Promise(() => {}) }, abort);
     await vi.advanceTimersByTimeAsync(1999);
     expect(abort).not.toHaveBeenCalled();
     await vi.advanceTimersByTimeAsync(1);
-    expect(await pending).toEqual({ meta: { starting_set_clearances: '18224' }, coverage: { count: 1895, first: 1976, last: 2026 }, preview: null });
+    expect(await pending).toEqual({ meta: { starting_set_clearances: '18224' }, coverage: { count: 1898, devices: 18355, first: 1971, last: 2026 }, preview: null });
     expect(abort).toHaveBeenCalledOnce();
     expect(PAGE_WAIT_MS).toBe(2000);
   });

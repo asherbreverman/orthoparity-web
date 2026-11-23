@@ -35,7 +35,7 @@ export function publicPageReads(client: SupabaseClient, subject: PageSubject, si
     coverage: async (): Promise<VendorCoverage> => {
       const { data, error } = await client.rpc('pc_vendor_coverage').abortSignal(signal);
       if (error) throw error;
-      return vendorCoverage(data?.parent_companies ?? null, data?.first_year, data?.last_year);
+      return vendorCoverage(data?.parent_companies ?? null, data?.devices, data?.first_year, data?.last_year);
     },
     preview: async (): Promise<PagePreview | null> => {
       if (subject.k) {
@@ -100,7 +100,7 @@ export function getVendorCoverage() {
   coverage ??= resilient(async () => {
     const {data, error} = await researchClient.rpc('pc_vendor_coverage');
     if (error) throw error;
-    return vendorCoverage(data?.parent_companies ?? null, data?.first_year, data?.last_year);
+    return vendorCoverage(data?.parent_companies ?? null, data?.devices, data?.first_year, data?.last_year);
   })();
   coverage.catch(() => { coverage = undefined; });
   return coverage;
