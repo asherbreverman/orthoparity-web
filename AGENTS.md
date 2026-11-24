@@ -64,4 +64,4 @@ use the editor.
 - Compare products through the shared sheet and URL compare parameter using cached signal reads and key-matched rows; this avoids new data access and preserves source badges.
 - Keep full and summary Letter markup separate with shared print tokens; native print measures summary questions after fonts settle and restores title/mode, preserving full briefs.
 - Read public search previews through the adapter with an anonymous server client, a two-second deadline and hourly edge/query caches; this keeps source HTML useful without blocking slow reads.
-- Keep category directory reads (pc_directory_index, pc_directory) in the read-only adapter with session promise caches, and directory sort/filter/CSV rules in a pure helper module; this keeps directory pages testable and request-light.
+- Directory reads stay in the read-only adapter with session caches; sort/filter/CSV rules stay pure for tests.
