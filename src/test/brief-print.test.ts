@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { briefFileName, printBrief, printQuestionGroups, summaryQuestionCount } from '@/lib/brief-print';
+import { briefFileName, printBrief, printQuestionGroups, summaryQuestionCount, summaryQuestionSet } from '@/lib/brief-print';
 import type { DecisionCard } from '@/lib/signals';
 
 const card = (key: string, short: string, asks: string[]): DecisionCard => ({ key, short, asks, question: key, badge: 'None', finding: '', why: '', ask: asks[0] ?? '', evidence: key, tone: 'attention' });
@@ -10,6 +10,11 @@ describe('native brief printing', () => {
   });
   it('drops questions four and five first when space runs out', () => {
     expect(summaryQuestionCount([20, 20, 20, 20, 20], 99)).toBe(3);
+  });
+  it('prints the prioritized five plus one more and counts the rest', () => {
+    const cards = [card('novelty', 'New', ['New?']), card('owner', 'Owner', ['Owner?']), card('alternatives', 'Alternatives', ['Alternative?']), card('payments', 'Financial ties', ['Payments?']), card('catalog', 'Stocking', ['Stocking?']), card('procedures', 'Medicare', ['Medicare?'])];
+    const questions = ['New?', 'Owner?', 'Alternative?', 'Payments?', 'Stocking?', 'Medicare?', 'Recalls?'];
+    expect(summaryQuestionSet(cards, questions)).toEqual({ selected: ['New?', 'Alternative?', 'Payments?', 'Stocking?', 'Medicare?', 'Owner?'], remaining: 1 });
   });
   it('names product and company PDFs without changing source names', () => {
     expect(briefFileName('Smith and Nephew Suture Anchors', 'K151105')).toBe('OrthoParity brief - K151105 - Smith and Nephew Suture Anchors');

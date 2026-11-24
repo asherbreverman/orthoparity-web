@@ -14,6 +14,7 @@ import {getVendorSupplier,supplierNumber,type VendorSupplier} from '@/lib/suppli
 import {VendorSupplierEvidence} from './supplier-evidence';
 import {askLines,positionClass,longDate,brandsOutOfDistribution,type View,type VendorSignals,type CompetitionRow} from '@/lib/signals';
 import {BottomLine,GlanceTiles,DecisionCards,EvidenceSection,Notes,PrintBrief,useEvidence} from './decision-shared';
+import {ScopeLabel,Term} from './op-controls';
 import {portfolioApprovalCount,portfolioCountLine,vendorSubtitle,emptyProfile,money,dollars,percent,ratio,sourceLinks,showsRedirectNote,type OwnershipMode,type VendorBrief,type VendorComparison,type VendorResolve} from '@/lib/vendor-data';
 import type {Meta} from '@/lib/predicate-chain';
 import {PublicRecordLoading, Status, useRefetch} from './reviewer-shared';
@@ -55,6 +56,8 @@ export function VendorWorkspace({v,from,compare,meta,view,onView,onRedirect,onDi
  const card=(k:string)=>cards.find(c=>c.key===k);
  const countLine=approvals===null?'…':portfolioCountLine(brief.portfolio.clearances,approvals,brief.portfolio.product_codes);
  const paidLine=brief.payments.profile_latest&&p.total>0?`${money(p.total)} in payments in ${latest}`:`No reported payments in ${latest}`;
+ const dataThrough=meta.exported_utc?longDate(meta.exported_utc.slice(0,10)):'NOT FOUND';
+ const countParts=countLine.split(/(510\(k\)s?)/);
  const catName=(c:CompetitionRow)=>c.plain_name??c.fda_name??c.product_code;
  const optional=(items:[string,string|number|null|undefined][])=>items.filter(([,x])=>x!==null&&x!==undefined&&x!==''&&x!=='None'&&x!=='0.0%'&&x!==0) as [string,string|number][];
  const evidenceSections = (
@@ -72,18 +75,18 @@ export function VendorWorkspace({v,from,compare,meta,view,onView,onRedirect,onDi
   <EvidenceSection id="brands" title="Brands and distribution" summary={card('supply')?.badge??`${brief.portfolio.gudid.brands} GUDID brands`} open={ev.isOpen('brands')} onToggle={()=>ev.toggle('brands')}>{card('supply')&&<p className="section-lead">{card('supply')?.finding}</p>}<p className="section-caption">{brief.portfolio.gudid.brands.toLocaleString('en-US')} GUDID brands · {brief.portfolio.gudid.devices.toLocaleString('en-US')} devices, {brief.portfolio.gudid.in_distribution.toLocaleString('en-US')} in commercial distribution</p><OutOfDistribution v={v} mode={mode}/></EvidenceSection>
  </div>
  );
- return <>
+ return <div className="op-record-page">
  <Status error={error}/>
  <PrintBrief evidence={addOn?.v===v?<><h2>Medicare add-on payments</h2><VendorAddOnContent data={addOn.data}/></>:null} meta={meta} title={companyName(brief.vendor.display_name)} tableEvidence="competition" subtitle={vendorSubtitle(brief.vendor)} details={`${countLine} · ${paidLine}`} scope="Parent company, including every company it owns" bottomLine={s?.bottom_line??''} cards={cards} table={{caption:'Where they compete',head:['Category','Code','Clearances','Last five years','Share','Rank','Position'],rows:comp.map(c=>[catName(c),c.product_code,c.clearances,c.last5,`${c.share_last5_pct}%`,c.rank_last5??'NOT FOUND',c.position])}} questions={asks} notes={s?.notes??[]}/>
- <section ref={ref} className="result-header" aria-label="Vendor">
-  <div className="result-heading"><div><h2 className="result-title vendor-name">{companyName(brief.vendor.display_name)}</h2><p className="vendor-description">{vendorSubtitle(brief.vendor)}</p><p className="result-meta">{countLine} · {paidLine}</p></div>
-  <div className="result-actions"><div className="result-buttons no-print"><Button onClick={()=>void printBrief()}>Download brief</Button><Button variant="link" onClick={()=>onCompare('')}>Compare with another company ›</Button></div></div></div>
-  {showsRedirectNote(note,v)&&note&&<div className="notice"><p>{note.explanation} {sourceLinks(note.steps).map(l=><a key={l.url} className="brief-link" href={l.url} target="_blank" rel="noopener noreferrer">{l.label}<ExternalLink size={12}/></a>)} <Button variant="link" size="sm" onClick={onDismiss}>Dismiss</Button></p></div>}
-  {s&&<BottomLine text={s.bottom_line}/>} {s&&<GlanceTiles cards={cards}/>}
- </section>
- <LocalBar name={companyName(brief.vendor.display_name)} cards={cards} vendor view={view} onView={onView}/>
+ <section ref={ref} className="result-header op-band op-pagehead" aria-label="Vendor"><div className="op-wrap">
+  <div className="op-eyebrow">Company · counted by parent</div><h1 className="op-title">{companyName(brief.vendor.display_name)}</h1><p className="op-owner">{vendorSubtitle(brief.vendor)}</p>
+  <div className="op-meta"><span>{countParts.map((part,i)=>/^510\(k\)s?$/.test(part)?<Term key={i} term="510(k)">{part}</Term>:part)}<ScopeLabel>FDA records, not sales</ScopeLabel></span><span>{paidLine}</span><span>Data current through {dataThrough}</span></div>
+  <div className="op-row op-record-actions no-print"><button type="button" className="op-btn op-btn-sm" onClick={()=>void printBrief()}><Download size={15}/>Download brief</button><button type="button" className="op-btn-2" onClick={()=>onCompare('')}>Compare with another company</button></div>
+ </div></section>
+ <div className="op-wrap op-record-intro">{showsRedirectNote(note,v)&&note&&<div className="notice"><p>{note.explanation} {sourceLinks(note.steps).map(l=><a key={l.url} className="brief-link" href={l.url} target="_blank" rel="noopener noreferrer">{l.label}<ExternalLink size={12}/></a>)} <Button variant="link" size="sm" onClick={onDismiss}>Dismiss</Button></p></div>}{s&&<BottomLine text={s.bottom_line}/>} {s&&<GlanceTiles cards={cards} onEvidence={ev.reveal}/>}</div>
+ <LocalBar name={companyName(brief.vendor.display_name)} cards={cards} vendor view={view} onView={onView} onOpen={ev.reveal}/>
  {!s&&<Status busy={busy} error={signals&&!signals.found?'Decision signals are unavailable for this vendor.':undefined}/>}
- {s&&<DecisionCards cards={cards} onEvidence={ev.reveal} evidence={evidenceSections}/>}
+ {s&&<DecisionCards cards={cards} isOpen={ev.isOpen} onToggle={ev.toggle} evidence={evidenceSections}/>}
 
 
 
@@ -97,10 +100,10 @@ export function VendorWorkspace({v,from,compare,meta,view,onView,onRedirect,onDi
   <h3 className="mt-6">Reporting entities · 2019 to {latest}</h3><div className="brief-table-scroll"><table className="brief-table"><thead><tr><th>Entity</th><th>Dollars</th><th>Royalty %</th><th>Food %</th><th>Profile</th><th>Years active</th></tr></thead><tbody>{brief.payments.entities.map(e=><tr key={e.payer_name}><td>{e.payer_name}</td><td title={dollars(e.amount)}>{money(e.amount)}</td><td>{e.royalty_pct}%</td><td>{e.food_pct}%</td><td><span className="data-tag">{e.profile}</span></td><td>{e.first_year}–{e.last_year}</td></tr>)}</tbody></table></div>
   <h3 className="mt-6">Company names we matched</h3><div className="name-groups">{[['payer','Open Payments'],['applicant','510(k) applicant'],['labeler','GUDID labeler']].map(([source,label])=><div key={source}><h3>{label}</h3><ul>{brief.names.filter(n=>n.source===source).map((n,i)=><li key={i}>{n.name}</li>)}</ul></div>)}</div>
  </section>}
- {asks.length>0&&<><Questions questions={asks} title="Questions for the vendor" caption="Generated by fixed rules from the public data."/><div className="closing-download"><Button onClick={()=>void printBrief()}>Download brief</Button></div></>}
+ {asks.length>0&&<Questions questions={asks} title="Questions for the vendor" caption="Generated by fixed rules from the public data." actions={<button type="button" className="op-btn op-btn-sm" onClick={()=>void printBrief()}><Download size={15}/>Download brief</button>}/>}
  {s&&<Notes notes={s.notes}/>}
 
- </>;
+ </div>;
 }
 function FamilyChips({family}:{family:VendorBrief['family']}){return <div className="family-chips">{family.map(f=>f.source_url&&/^https:\/\//.test(f.source_url)?<a className="data-tag brief-link" key={f.vendor_id} href={f.source_url} target="_blank" rel="noopener noreferrer">{f.display_name}{f.since?` · since ${f.since}`:''}</a>:<span className="data-tag" key={f.vendor_id}>{f.display_name}{f.since?` · since ${f.since}`:''}</span>)}</div>;}
 function OutOfDistribution({v,mode}:{v:string;mode:OwnershipMode}){const [rows,setRows]=useState<{brand:string;devices:number}[]|null>(null);const [error,setError]=useState('');useEffect(()=>{let active=true;getCachedPortfolio(v,mode).then(r=>{if(active)setRows(brandsOutOfDistribution(r));}).catch(e=>{if(active)setError(e.message);});return()=>{active=false;};},[v,mode]);if(!rows)return <Status busy={!error} error={error}/>;return <><h3>Brands with no devices in commercial distribution</h3>{rows.length?<ul className="brand-list">{rows.map(r=><li key={r.brand}>{r.brand} <small>· {r.devices.toLocaleString('en-US')} device IDs</small></li>)}</ul>:<p className="section-note">Every listed brand has at least one device in commercial distribution.</p>}<p className="section-caption">From the GUDID brands on this vendor's 510(k) portfolio (up to 500 clearances).</p></>;}

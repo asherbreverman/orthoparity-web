@@ -14,7 +14,9 @@ import { ProductAddOnSection, ProductAddOnPrint } from './add-on-evidence';
 import { ProductProceduresSection } from './benchmark-procedures';
 import { ProductIndicationsEvidence, ProductOwnerEvidence } from './product-context-evidence';
 import { ProductSupplierSection } from './supplier-evidence';
-import { BottomLine, GlanceTiles, DecisionCards, EvidenceSection, Notes, PrintBrief, useEvidence } from './decision-shared';
+import { BottomLine, GlanceTiles, DecisionCards, EvidenceSection, Notes, PrintBrief, TopVendorQuestions, useEvidence } from './decision-shared';
+import { ScopeLabel, Term } from './op-controls';
+import { vacSummaryText } from '@/lib/vac-summary';
 import { getBrief, getFamily, lookupChain, getProductPayments, getSignals, getDeviceOwner } from '@/lib/predicate-data';
 import { ownerLine, withPaymentQuestions, money, dollars, type ProductPayments } from '@/lib/vendor-data';
 import { LocalBar, ExtraEvidence } from './story-shared';
@@ -88,12 +90,18 @@ export function ProductResult({ k, compare, view, meta, onView, onCompare, notic
   const p = payments;
   const filer = owner?.filer ?? h?.company ?? device.applicant ?? 'NOT FOUND';
   const ownerNow = !!ownerLine(owner) || (!!owner?.found && headerOwnerChanged(filer, owner.owner_name ?? ''));
+  const ownerText = `${companyName(filer)}${ownerNow ? `, now part of ${companyName(owner?.owner_name ?? 'NOT FOUND')}` : ''}`;
   const fullName = h?.device_name ?? device.device_name ?? device.knumber;
   const name = productDisplayTitle(fullName);
   const plain = h?.plain_name ?? brief.product_code?.plain_name ?? h?.fda_name ?? brief.product_code?.fda_name ?? 'Category unavailable';
   const code = h?.product_code ?? device.product_code ?? 'NOT FOUND';
   const kind = h?.kind?.trim().replace(/_/g, ' ').toLowerCase() ?? '';
   const kindLabel = kind && kind !== 'implant' ? kind.charAt(0).toUpperCase() + kind.slice(1) : '';
+  const dataThrough = meta.exported_utc ? longDate(meta.exported_utc.slice(0, 10)) : 'NOT FOUND';
+  async function copyVacSummary() {
+    if (!device) return;
+    try { await navigator.clipboard.writeText(vacSummaryText({ name, number: device.knumber, owner: ownerText, decisionDate: approvalDateText(h?.cleared ?? device.decision_date), bottomLine: s?.bottom_line ?? '', cards, dataThrough, url: window.location.href })); setCopied('summary'); toast.success('Summary copied'); } catch { setError('Copy was unavailable. Select the summary text to copy it.'); }
+  }
   async function copy(which: 'all' | 'selected' | 'asks') {
     try { await navigator.clipboard.writeText(which === 'asks' ? asks.map((q, i) => `${i + 1}. ${q}`).join('\n') : questionsText(groups, which === 'selected' ? selected : undefined)); setCopied(which); toast.success('Questions copied'); } catch { setError('Copy was unavailable. Select the questions to copy them.'); }
   }
@@ -103,7 +111,7 @@ export function ProductResult({ k, compare, view, meta, onView, onCompare, notic
     try { const [chain, family] = await Promise.all([lookupChain([device.knumber], Number(meta.max_generations) || 10), getFamily(device.knumber)]); const { exportWorkbook } = await import('@/lib/predicate-export'); await exportWorkbook(chain, meta, device.device_name ?? device.knumber, family); }
     catch (e) { setError(e instanceof Error ? e.message : 'The download could not be created.'); } finally { setDownloading(false); }
   }
-  const qList = (items: QuestionGroup['items']) => <ol className="vendor-questions" start={(items[0]?.id ?? 0) + 1}>{items.map(item => <li className={`question-hue-${cards[item.id]?.key === 'recalls' ? 7 : item.id % 7 + 1}`} key={item.id}><label><Checkbox checked={selected.has(item.id)} onCheckedChange={c => tick(item.id, c === true)} aria-label={`Select question ${item.id + 1}`} /><span>{item.question}</span></label></li>)}</ol>;
+  const qList = (items: QuestionGroup['items']) => <ol className="vendor-questions" start={(items[0]?.id ?? 0) + 1}>{items.map(item => <li className={`q${item.id % 6 + 1}`} key={item.id}><label><Checkbox checked={selected.has(item.id)} onCheckedChange={c => tick(item.id, c === true)} aria-label={`Select question ${item.id + 1}`} /><span>{item.question}</span></label></li>)}</ol>;
   const category = brief.category;
   const evidenceSections = (
 <div className="evidence-list">
@@ -165,28 +173,22 @@ export function ProductResult({ k, compare, view, meta, onView, onCompare, notic
       <ProductProceduresSection id="procedures" key={k} k={k} code={code} open={ev.isOpen('procedures')} onToggle={() => ev.toggle('procedures')} />
     </div>
   );
-  return <>
+  return <div className="op-record-page">
     <Status error={error} />
-    <PrintBrief recordNote={fdaRecordNote(pathway)} evidence={<ProductAddOnPrint k={k} />} approvalEvidence={approval ? <><h2>Approval and supplements</h2><ApprovalContent approval={approval} /></> : undefined} meta={meta} title={displayName(shortDeviceName(fullName, 120))} fullDeviceName={fullName} knumber={device.knumber} tableEvidence="alternatives" kindLabel={kindLabel} subtitle={`${companyName(filer)}${ownerNow ? `, now part of ${companyName(owner?.owner_name ?? 'NOT FOUND')}` : ''}`} description={`Product code ${code} covers: ${productSentence(brief.product_code?.plain_description ?? `${dateLabelText} by FDA as ${plain}`, h?.procedures ?? brief.product_code?.procedures)}`} details={`${device.knumber} · ${pathway} · ${plain} (${code}) · ${approvalDateText(h?.cleared ?? device.decision_date)}${pathway === 'HDE' ? '' : ` · Class ${h?.device_class ?? device.device_class ?? 'NOT FOUND'}`}`} bottomLine={s?.bottom_line ?? ''} newClearanceNote={newClearanceNote} cards={cards} table={{ caption: `Alternatives in product code ${code} · ${s?.alternatives.window ?? ''}`, head: ['Company', 'Clearances', 'Latest device', 'Latest FDA number', 'Latest date'], rows: altRows.map(r => [displayName(r.company), r.clearances, r.latest_device ? displayName(shortDeviceName(r.latest_device, 60)) : 'NOT FOUND', r.latest_knumber ?? 'NOT FOUND', longDate(r.latest_date)]) }} questions={asks} notes={s?.notes ?? []} />
-    <section ref={top} className="result-header" aria-label="Device">{notice}
-      <div className="result-heading">
-        <div><h2 className="result-title" title={fullName}>{name}</h2>
-          {fullName.length > 120 && <><Button variant="link" size="sm" className="px-0" aria-expanded={showFullName} aria-controls="full-device-name" onClick={() => setShowFullName(value => !value)}>Show full name</Button>{showFullName && <p id="full-device-name" className="section-caption break-words" title={fullName}>{displayName(fullName)}</p>}</>}
-          <p className="result-meta">{owner?.found && owner.owner_vendor_id ? <Link className="brief-link" to="/" search={{ v: owner.owner_vendor_id }}>{companyName(filer)}{ownerNow ? `, now part of ${companyName(owner.owner_name ?? 'NOT FOUND')}` : ''}</Link> : companyName(filer)}</p>
-          <p className="result-meta"><span className="font-mono">{device.knumber}</span> <span className="data-tag">{pathway}</span> · {approvalDateText(h?.cleared ?? device.decision_date)} · {predicatesVisible ? <PdfLink url={h?.summary_url ?? device.summary_url} /> : approval?.url && /^https:\/\//.test(approval.url) ? <a className="brief-link" href={approval.url} target="_blank" rel="noopener noreferrer">FDA record</a> : null}</p>
-          <p className="plain-description" title={`FDA groups devices by product code. This description covers every device in the code. The device's own name and its FDA-${predicatesVisible ? 'cleared' : 'approved'} use are below.`}>Product code {code === 'NOT FOUND' ? code : <Link className="brief-link font-mono" to="/browse/$code" params={{ code }}>{code}</Link>} covers: {productSentence(brief.product_code?.plain_description ?? `${dateLabelText} by FDA as ${plain}`, h?.procedures ?? brief.product_code?.procedures)}{brief.product_code?.reviewed === false && <> <span className="review-tag" title="Plain-English description drafted from FDA's definition, pending expert review." tabIndex={0}>Draft</span></>}</p>
-          {kindLabel && <p className="section-caption">{kindLabel}</p>}
-        </div>
-        <div className="result-actions"><div className="no-print result-buttons"><ProductDownloadMenu /><Button asChild variant="secondary"><Link to="/packet-check" search={{k}}>Packet check</Link></Button><Button variant="link" onClick={() => onCompare('')}>Compare with another product ›</Button></div></div>
-      </div>
-      {s && <BottomLine text={s.bottom_line} />}
-      {newClearanceNote && <p className="section-caption new-clearance-note">{newClearanceNote}</p>}
-      {s && <GlanceTiles cards={cards} />}
-    </section>
-    <LocalBar name={name} cards={cards} ancestry={predicatesVisible} view={view} onView={onView} />
+    <PrintBrief printEyebrow={`Product · ${pathway} · ${device.knumber}`} recordNote={fdaRecordNote(pathway)} evidence={<ProductAddOnPrint k={k} />} approvalEvidence={approval ? <><h2>Approval and supplements</h2><ApprovalContent approval={approval} /></> : undefined} meta={meta} title={displayName(shortDeviceName(fullName, 120))} fullDeviceName={fullName} knumber={device.knumber} tableEvidence="alternatives" kindLabel={kindLabel} subtitle={`${companyName(filer)}${ownerNow ? `, now part of ${companyName(owner?.owner_name ?? 'NOT FOUND')}` : ''}`} description={`Product code ${code} covers: ${productSentence(brief.product_code?.plain_description ?? `${dateLabelText} by FDA as ${plain}`, h?.procedures ?? brief.product_code?.procedures)}`} details={`${device.knumber} · ${pathway} · ${plain} (${code}) · ${approvalDateText(h?.cleared ?? device.decision_date)}${pathway === 'HDE' ? '' : ` · Class ${h?.device_class ?? device.device_class ?? 'NOT FOUND'}`}`} bottomLine={s?.bottom_line ?? ''} newClearanceNote={newClearanceNote} cards={cards} table={{ caption: `Alternatives in product code ${code} · ${s?.alternatives.window ?? ''}`, head: ['Company', 'Clearances', 'Latest device', 'Latest FDA number', 'Latest date'], rows: altRows.map(r => [displayName(r.company), r.clearances, r.latest_device ? displayName(shortDeviceName(r.latest_device, 60)) : 'NOT FOUND', r.latest_knumber ?? 'NOT FOUND', longDate(r.latest_date)]) }} questions={asks} notes={s?.notes ?? []} />
+    <section ref={top} className="result-header op-band op-pagehead" aria-label="Device"><div className="op-wrap">{notice}
+      <div className="op-eyebrow">Product · {pathway === '510(k)' ? <Term term="510(k)">{pathway}</Term> : pathway}{pathway === 'PMA' ? ' · Class III' : ''}<ScopeLabel>Name as filed with FDA</ScopeLabel></div>
+      <h1 className="op-title" title={fullName}>{name}</h1>
+          {fullName.length > 120 && <><button type="button" className="op-copy" aria-expanded={showFullName} aria-controls="full-device-name" onClick={() => setShowFullName(value => !value)}>Show full name</button>{showFullName && <p id="full-device-name" className="section-caption break-words" title={fullName}>{displayName(fullName)}</p>}</>}
+      <p className="op-owner">{owner?.found && owner.owner_vendor_id ? <Link to="/" search={{ v: owner.owner_vendor_id }}>{ownerText}</Link> : ownerText}</p>
+      <div className="op-meta"><span className="op-mono">{device.knumber}</span><span>{approvalDateText(h?.cleared ?? device.decision_date)}</span><span><Term term="Product code">Product code</Term> {code === 'NOT FOUND' ? code : <Link className="op-mono" to="/browse/$code" params={{ code }}>{code}</Link>} {plain}</span><span>{predicatesVisible ? <PdfLink url={h?.summary_url ?? device.summary_url} /> : approval?.url && /^https:\/\//.test(approval.url) ? <a href={approval.url} target="_blank" rel="noopener noreferrer">FDA record</a> : null}</span><span>Data current through {dataThrough}</span>{kindLabel && <span>{kindLabel}</span>}</div>
+      <div className="op-row op-record-actions no-print"><ProductDownloadMenu /><button type="button" className="op-btn-2" onClick={() => void copyVacSummary()}>{copied === 'summary' ? <Check size={15} /> : <Copy size={15} />}Copy summary for the VAC packet</button><Link className="op-btn-2" to="/packet-check" search={{k}}>Packet check</Link><button type="button" className="op-btn-2" onClick={() => onCompare('')}>Compare with another product</button></div>
+    </div></section>
+    <div className="op-wrap op-record-intro">{s && <BottomLine text={s.bottom_line} />}{newClearanceNote && <p className="section-caption new-clearance-note">{newClearanceNote}</p>}{s && <GlanceTiles cards={cards} onEvidence={ev.reveal} />}{s && <TopVendorQuestions cards={cards} />}</div>
+    <LocalBar name={name} cards={cards} ancestry={predicatesVisible} view={view} onView={onView} onOpen={ev.reveal} />
     {!s && <Status busy={!signals && !error} error={signals && !signals.found ? 'Decision signals are unavailable for this clearance.' : undefined} />}
-    {s && <DecisionCards recordNote={fdaRecordNote(pathway)} cards={cards} onEvidence={ev.reveal} evidence={evidenceSections} />}
-    <section id="all-questions" className="brief-section question-section"><div className="section-heading"><h2>Questions for the vendor</h2><div className="question-actions no-print"><Button size="sm" onClick={() => void copy('all')}>{copied === 'all' ? <Check /> : <Copy />}Copy all</Button>{selected.size > 0 && <Button variant="outline" size="sm" onClick={() => void copy('selected')}>{copied === 'selected' ? <Check /> : <Copy />}Copy selected</Button>}<ProductDownloadMenu /></div></div>
+    {s && <DecisionCards recordNote={fdaRecordNote(pathway)} cards={cards} isOpen={ev.isOpen} onToggle={ev.toggle} evidence={evidenceSections} />}
+    <section id="all-questions" className="brief-section question-section op-card op-record-questions"><div className="section-heading op-record-card-heading"><h2 className="op-h3">Questions for the vendor</h2><div className="question-actions op-row no-print"><button type="button" className="op-btn-2" onClick={() => void copy('all')}>{copied === 'all' ? <Check size={15} /> : <Copy size={15} />}Copy all</button>{selected.size > 0 && <button type="button" className="op-btn-2" onClick={() => void copy('selected')}>{copied === 'selected' ? <Check size={15} /> : <Copy size={15} />}Copy selected</button>}<ProductDownloadMenu /></div></div>
       {groups[0] && qList(groups[0].items)}
       <EvidenceSection id="checklist" title="Full value analysis checklist" summary={`${checklistCount} questions`} open={checklist} onToggle={() => setChecklist(!checklist)}>{groups.slice(1).map((g, i) => <div className="question-group" key={i}><h3>{g.topic}</h3>{qList(g.items)}</div>)}</EvidenceSection>
       <p className="section-caption">Questions come from fixed rules on the public data. The checklist is a starting point for value analysis; adapt it to your committee.</p>
@@ -195,5 +197,5 @@ export function ProductResult({ k, compare, view, meta, onView, onCompare, notic
     <ExtraEvidence sections={evidenceSections} cards={cards} />
     {s && <Notes notes={s.notes} />}
     {predicatesVisible && <section id="ancestry" className="ancestry-section"><EvidenceSection id="ancestry" title="Ancestry" summary={device.knumber} open={workspace} onToggle={() => setWorkspace(!workspace)}><div className="brief-actions no-print"><Button variant="outline" disabled={downloading} onClick={() => void workbook()}><FileSpreadsheet />Analyst workbook (Excel)</Button></div><ClientOnly><Suspense fallback={<Status busy />}><Evidence key={device.knumber} meta={meta} selected={{ knumber: device.knumber, device_name: device.device_name ?? '', applicant: device.applicant ?? '', decision_date: device.decision_date }} /></Suspense></ClientOnly></EvidenceSection></section>}
-  </>;
+  </div>;
 }

@@ -1,4 +1,3 @@
-import { Link } from '@tanstack/react-router';
 import { Check, Link2 } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { glossaryEntry, type GlossaryTermName } from '@/lib/glossary';
@@ -6,7 +5,7 @@ import { glossaryEntry, type GlossaryTermName } from '@/lib/glossary';
 export function Term({ term, children }: { term: GlossaryTermName; children?: ReactNode }) {
   const entry = glossaryEntry(term);
   if (!entry) return children ?? term;
-  return <abbr className="op-term" title={entry.definition}><Link to="/glossary" hash={entry.id}>{children ?? term}</Link></abbr>;
+  return <abbr className="op-term" title={entry.definition}><a href={`/glossary#${entry.id}`}>{children ?? term}</a></abbr>;
 }
 
 export function CopyLink() {

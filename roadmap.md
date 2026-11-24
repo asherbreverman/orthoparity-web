@@ -173,3 +173,9 @@
 - [x] Add role, tool, step and live public-record sections plus materials-management audience page.
 - [x] Replace the 404 page and remove outdated home and metadata copy.
 - [x] Verify light, dark, 390px phone, keyboard, live searches, comparisons and all tests.
+
+# OrthoParity redesign, part 3
+- [x] Restyle product and company headers, glance tiles, question cards, rail and evidence using the supplied v2 classes.
+- [x] Add VAC summary copying, Top 5 vendor questions, payment and Medicare links, and glossary terms.
+- [x] Rebuild the one-page product print brief with six questions, committee notes, limitations and sources.
+- [x] Verify live 510(k), PMA and company pages in light, dark and 390px phone layouts; run print checks and all tests.

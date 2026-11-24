@@ -1,5 +1,6 @@
 import { displayName } from './format';
 import type { DecisionCard } from './signals';
+import { topVendorQuestions } from './vac-summary';
 
 /** Keep the browser's native Save as PDF flow, after its fonts have settled. */
 export async function printBrief(mode: 'full' | 'summary' = 'full') {
@@ -25,6 +26,14 @@ export function fitSummaryQuestions(summary: HTMLElement) {
   const available = 9.85 * 96 - (list.getBoundingClientRect().top - summary.getBoundingClientRect().top) - footer.getBoundingClientRect().height - 24;
   const count = summaryQuestionCount(heights, available);
   questions.forEach((question, index) => { question.hidden = index >= count; });
+}
+
+/** The prioritized five plus one additional question, without duplicates. */
+export function summaryQuestionSet(cards: DecisionCard[], questions: string[]) {
+  const first = topVendorQuestions(cards);
+  const additional = questions.find(question => !first.includes(question));
+  const selected = [...first, ...(additional ? [additional] : [])];
+  return { selected, remaining: questions.filter(question => !selected.includes(question)).length };
 }
 
 export function briefFileName(name: string, knumber?: string) {
