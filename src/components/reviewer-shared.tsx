@@ -26,6 +26,11 @@ export function useRelease(initial?: Meta) {
 export function ReviewerShell({ children }: { children: ReactNode }) {
   const [about, setAbout] = useState(false);
   const { meta, error } = useRelease();
+  useEffect(() => {
+    const open = () => { setAbout(true); requestAnimationFrame(() => document.getElementById('about-limitations')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })); };
+    window.addEventListener('op-methodology', open);
+    return () => window.removeEventListener('op-methodology', open);
+  }, []);
 
   function toggleMethodology() {
     const next = !about;
@@ -52,10 +57,10 @@ const loadDevices = async (q: string, signal: AbortSignal): Promise<SearchLoad> 
   return { rows: [...rows.map(r => partRows.length ? { ...r, group: 'Products' } : r), ...partRows], note: partResult?.note ?? null };
 };
 
-export function DeviceSearch({ label = 'Identify an orthopedic device to benchmark', resetKey = '', initialValue, onSelect }: { label?: string; resetKey?: string; initialValue?: string; onSelect: (row: SearchResult, part?: string) => void }) {
+export function DeviceSearch({ label = 'Identify an orthopedic device to benchmark', resetKey = '', initialValue, onSelect, placeholder = 'e.g. an FDA number, product name, company or part number', variant = 'legacy', submitLabel, autoSearch = false, onSubmitValue, inputId }: { label?: string; resetKey?: string; initialValue?: string; onSelect: (row: SearchResult, part?: string) => void; placeholder?: string; variant?: 'legacy' | 'op'; submitLabel?: string; autoSearch?: boolean; onSubmitValue?: (value: string) => void; inputId?: string }) {
   const [name, setName] = useState(initialValue ?? resetKey);
   useEffect(() => { setName(initialValue ?? resetKey); const update = (event: Event) => { if (event instanceof CustomEvent && typeof event.detail === 'string') setName(event.detail); }; window.addEventListener('benchmark-name', update); return () => window.removeEventListener('benchmark-name', update); }, [initialValue, resetKey]);
-  return <ResearchSearch label={label} placeholder="e.g. an FDA number, product name, company or part number" initialValue={name} load={loadDevices} onSelect={id => { const part = parts.get(id); if (part) { onSelect({ knumber: part.number } as SearchResult, part.part_number); return; } const row = devices.get(id); if (row) onSelect(row); }} />;
+  return <ResearchSearch label={label} placeholder={placeholder} initialValue={name} load={loadDevices} onSelect={id => { const part = parts.get(id); if (part) { onSelect({ knumber: part.number } as SearchResult, part.part_number); return; } const row = devices.get(id); if (row) onSelect(row); }} variant={variant} submitLabel={submitLabel} autoSearch={autoSearch} onSubmitValue={onSubmitValue} inputId={inputId} />;
 }
 
 export function BriefLink({ k }: { k: string }) { return <Link to="/" search={{ k: normalizeDeviceNumber(k) ?? k }} className="brief-link font-mono">{k}</Link>; }

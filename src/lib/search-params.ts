@@ -9,7 +9,7 @@ export function parsePlainSearch(searchStr: string): Record<string, string> {
 export function stringifyPlainSearch(search: Record<string, unknown>): string {
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(search)) {
-    if (value === undefined || value === null || value === '') continue;
+    if (value === undefined || value === null || (value === '' && key !== 'compare')) continue;
     params.set(key, typeof value === 'string' ? value : JSON.stringify(value));
   }
   const text = params.toString();

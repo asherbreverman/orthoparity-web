@@ -4,4 +4,5 @@ describe('plain search params', () => {
   it('writes all-digit part numbers without quotes', () => expect(stringifyPlainSearch({ k: 'K140881', part: '5251300' })).toBe('?k=K140881&part=5251300'));
   it('reads digits as strings', () => expect(parsePlainSearch('?part=5251300')).toEqual({ part: '5251300' }));
   it('strips quotes from old links', () => expect(parsePlainSearch('?part=%225251300%22')).toEqual({ part: '5251300' }));
+  it('keeps an empty compare switch in the URL', () => expect(stringifyPlainSearch({ level: 'part', compare: '' })).toBe('?level=part&compare='));
 });

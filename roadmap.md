@@ -167,3 +167,9 @@
 - [x] Replace the shared header, responsive navigation, footer and brand mark on every route.
 - [x] Add the glossary route, sitemap entry, Term, CopyLink and ScopeLabel helpers.
 - [x] Verify desktop, mobile, keyboard, dark mode, existing routes and the full test suite.
+
+# OrthoParity redesign, part 2
+- [x] Rebuild the landing hero, three search tabs, compare mode, examples and shared search links.
+- [x] Add role, tool, step and live public-record sections plus materials-management audience page.
+- [x] Replace the 404 page and remove outdated home and metadata copy.
+- [x] Verify light, dark, 390px phone, keyboard, live searches, comparisons and all tests.

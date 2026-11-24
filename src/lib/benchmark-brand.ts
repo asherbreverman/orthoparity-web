@@ -9,6 +9,6 @@ export const logoDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponen
 export const faviconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="OrthoParity"><rect width="64" height="64" rx="14" fill="#0A0A0A"/><g transform="translate(9 9) scale(1.77)">${logoContents.replace(/currentColor/g, '#FFFFFF')}</g></svg>`;
 // One tab-title shape everywhere: page name, separator, brand. Matches the procedure pages.
 export const pageTitle = (name: string) => `${name} | OrthoParity`;
-export const benchmarkTitle = pageTitle('Know what the vendor knows: free orthopedic device and vendor benchmarks');
-export const benchmarkDescription = 'Their public record plus your private pricing. Benchmark any new orthopedic product or vendor yourself, without a GPO. Free, open-source briefs built from public FDA and CMS data. OrthoParity never asks for your pricing.';
+export const benchmarkTitle = 'OrthoParity: orthopedic part, product and company benchmarks from public FDA and CMS data';
+export const benchmarkDescription = 'Their public record plus your private pricing. Look up any orthopedic part, product or company, or put them side by side. Free and open source, built only from public FDA and CMS data. OrthoParity never asks for your pricing.';
 export const benchmarkOrigin = 'https://www.orthoparity.com';

@@ -30,7 +30,7 @@ describe("App routing", () => {
   it('includes the public home and procedure index in the sitemap with the www URL', () => {
     const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
     const paths = sitemapStaticPaths(router);
-    expect(paths).toEqual(['/', '/browse', '/corrections', '/for/asc', '/for/supply-chain', '/for/value-analysis', '/glossary', '/packet-check', '/privacy', '/procedures', '/team', '/team/calculator', '/terms', '/updates']);
+    expect(paths).toEqual(['/', '/browse', '/corrections', '/for/asc', '/for/materials-management', '/for/supply-chain', '/for/value-analysis', '/glossary', '/packet-check', '/privacy', '/procedures', '/team', '/team/calculator', '/terms', '/updates']);
     const xml = sitemapXML(benchmarkOrigin, paths.map(path => ({ path })));
     expect(xml).toContain('<loc>https://www.orthoparity.com/</loc>');
     expect(xml).toContain('<loc>https://www.orthoparity.com/procedures</loc>');
@@ -51,7 +51,7 @@ describe("App routing", () => {
 
   it('puts " | OrthoParity" at the end of every page tab title', () => {
     expect(pageTitle('Medicare payments by procedure')).toBe('Medicare payments by procedure | OrthoParity');
-    expect(benchmarkTitle).toBe('Know what the vendor knows: free orthopedic device and vendor benchmarks | OrthoParity');
+    expect(benchmarkTitle).toBe('OrthoParity: orthopedic part, product and company benchmarks from public FDA and CMS data');
     expect(pageHead('LANDMARK Total Knee System', 'A device brief.').meta?.[0]?.title).toBe('LANDMARK Total Knee System | OrthoParity');
     expect(titleOf(ProceduresIndex.options.head, {})).toBe('Medicare payments by procedure | OrthoParity');
     expect(titleOf(ProcedureDetail.options.head, { loaderData: null, params: { familyId: 'not_a_family' } })).toBe('Procedure unavailable | OrthoParity');

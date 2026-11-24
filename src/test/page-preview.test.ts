@@ -37,7 +37,7 @@ describe('Public page reads', () => {
   it('canonicalizes the vendor without dropping its id', () => expect(previewMetadata({ k: '', v: 'stryker' }, null).url).toBe('https://www.orthoparity.com/?v=stryker'));
   it('falls back to the home title and description after an unsuccessful lookup', () => {
     const home = previewMetadata({ k: 'K000000', v: '' }, null);
-    expect(home.title).toBe('Know what the vendor knows: free orthopedic device and vendor benchmarks | OrthoParity');
-    expect(home.description).toBe('Their public record plus your private pricing. Benchmark any new orthopedic product or vendor yourself, without a GPO. Free, open-source briefs built from public FDA and CMS data. OrthoParity never asks for your pricing.');
+    expect(home.title).toBe('OrthoParity: orthopedic part, product and company benchmarks from public FDA and CMS data');
+    expect(home.description).toBe('Their public record plus your private pricing. Look up any orthopedic part, product or company, or put them side by side. Free and open source, built only from public FDA and CMS data. OrthoParity never asks for your pricing.');
   });
 });

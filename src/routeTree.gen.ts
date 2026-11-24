@@ -24,6 +24,7 @@ import { Route as UpdatesDotxmlRouteImport } from './routes/updates[.]xml'
 import { Route as BrowseCodeRouteImport } from './routes/browse_.$code'
 import { Route as DeviceIdRouteImport } from './routes/device.$id'
 import { Route as ForAscRouteImport } from './routes/for.asc'
+import { Route as ForMaterialsManagementRouteImport } from './routes/for.materials-management'
 import { Route as ForSupplyChainRouteImport } from './routes/for.supply-chain'
 import { Route as ForValueAnalysisRouteImport } from './routes/for.value-analysis'
 import { Route as ProceduresFamilyIdRouteImport } from './routes/procedures_.$familyId'
@@ -104,6 +105,11 @@ const ForAscRoute = ForAscRouteImport.update({
   path: '/for/asc',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ForMaterialsManagementRoute = ForMaterialsManagementRouteImport.update({
+  id: '/for/materials-management',
+  path: '/for/materials-management',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ForSupplyChainRoute = ForSupplyChainRouteImport.update({
   id: '/for/supply-chain',
   path: '/for/supply-chain',
@@ -141,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/browse/$code': typeof BrowseCodeRoute
   '/device/$id': typeof DeviceIdRoute
   '/for/asc': typeof ForAscRoute
+  '/for/materials-management': typeof ForMaterialsManagementRoute
   '/for/supply-chain': typeof ForSupplyChainRoute
   '/for/value-analysis': typeof ForValueAnalysisRoute
   '/procedures/$familyId': typeof ProceduresFamilyIdRoute
@@ -162,6 +169,7 @@ export interface FileRoutesByTo {
   '/browse/$code': typeof BrowseCodeRoute
   '/device/$id': typeof DeviceIdRoute
   '/for/asc': typeof ForAscRoute
+  '/for/materials-management': typeof ForMaterialsManagementRoute
   '/for/supply-chain': typeof ForSupplyChainRoute
   '/for/value-analysis': typeof ForValueAnalysisRoute
   '/procedures/$familyId': typeof ProceduresFamilyIdRoute
@@ -184,6 +192,7 @@ export interface FileRoutesById {
   '/browse_/$code': typeof BrowseCodeRoute
   '/device/$id': typeof DeviceIdRoute
   '/for/asc': typeof ForAscRoute
+  '/for/materials-management': typeof ForMaterialsManagementRoute
   '/for/supply-chain': typeof ForSupplyChainRoute
   '/for/value-analysis': typeof ForValueAnalysisRoute
   '/procedures_/$familyId': typeof ProceduresFamilyIdRoute
@@ -207,6 +216,7 @@ export interface FileRouteTypes {
     | '/browse/$code'
     | '/device/$id'
     | '/for/asc'
+    | '/for/materials-management'
     | '/for/supply-chain'
     | '/for/value-analysis'
     | '/procedures/$familyId'
@@ -228,6 +238,7 @@ export interface FileRouteTypes {
     | '/browse/$code'
     | '/device/$id'
     | '/for/asc'
+    | '/for/materials-management'
     | '/for/supply-chain'
     | '/for/value-analysis'
     | '/procedures/$familyId'
@@ -249,6 +260,7 @@ export interface FileRouteTypes {
     | '/browse_/$code'
     | '/device/$id'
     | '/for/asc'
+    | '/for/materials-management'
     | '/for/supply-chain'
     | '/for/value-analysis'
     | '/procedures_/$familyId'
@@ -271,6 +283,7 @@ export interface RootRouteChildren {
   BrowseCodeRoute: typeof BrowseCodeRoute
   DeviceIdRoute: typeof DeviceIdRoute
   ForAscRoute: typeof ForAscRoute
+  ForMaterialsManagementRoute: typeof ForMaterialsManagementRoute
   ForSupplyChainRoute: typeof ForSupplyChainRoute
   ForValueAnalysisRoute: typeof ForValueAnalysisRoute
   ProceduresFamilyIdRoute: typeof ProceduresFamilyIdRoute
@@ -384,6 +397,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForAscRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/for/materials-management': {
+      id: '/for/materials-management'
+      path: '/for/materials-management'
+      fullPath: '/for/materials-management'
+      preLoaderRoute: typeof ForMaterialsManagementRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/for/supply-chain': {
       id: '/for/supply-chain'
       path: '/for/supply-chain'
@@ -431,6 +451,7 @@ const rootRouteChildren: RootRouteChildren = {
   BrowseCodeRoute: BrowseCodeRoute,
   DeviceIdRoute: DeviceIdRoute,
   ForAscRoute: ForAscRoute,
+  ForMaterialsManagementRoute: ForMaterialsManagementRoute,
   ForSupplyChainRoute: ForSupplyChainRoute,
   ForValueAnalysisRoute: ForValueAnalysisRoute,
   ProceduresFamilyIdRoute: ProceduresFamilyIdRoute,
