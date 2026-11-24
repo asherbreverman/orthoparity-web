@@ -326,6 +326,36 @@ export type Database = {
         }
         Relationships: []
       }
+      pc_corrections: {
+        Row: {
+          area: string | null
+          corrected_on: string
+          id: string
+          pages_affected: string | null
+          source: string | null
+          what_changed: string | null
+          what_was_wrong: string | null
+        }
+        Insert: {
+          area?: string | null
+          corrected_on: string
+          id: string
+          pages_affected?: string | null
+          source?: string | null
+          what_changed?: string | null
+          what_was_wrong?: string | null
+        }
+        Update: {
+          area?: string | null
+          corrected_on?: string
+          id?: string
+          pages_affected?: string | null
+          source?: string | null
+          what_changed?: string | null
+          what_was_wrong?: string | null
+        }
+        Relationships: []
+      }
       pc_devices: {
         Row: {
           applicant: string | null
@@ -1466,6 +1496,33 @@ export type Database = {
         }
         Relationships: []
       }
+      pc_release_notes: {
+        Row: {
+          data_release: string | null
+          id: string
+          released_on: string
+          summary: string | null
+          title: string | null
+          url: string | null
+        }
+        Insert: {
+          data_release?: string | null
+          id: string
+          released_on: string
+          summary?: string | null
+          title?: string | null
+          url?: string | null
+        }
+        Update: {
+          data_release?: string | null
+          id?: string
+          released_on?: string
+          summary?: string | null
+          title?: string | null
+          url?: string | null
+        }
+        Relationships: []
+      }
       pc_supply_evidence: {
         Row: {
           data_years: string | null
@@ -1490,6 +1547,276 @@ export type Database = {
           result?: string | null
           source?: string | null
           source_url?: string | null
+        }
+        Relationships: []
+      }
+      pc_team_family: {
+        Row: {
+          basis: string | null
+          category_id: string | null
+          family_drgs_in_team: string | null
+          family_drgs_not_in_team: string | null
+          family_id: string
+          note: string | null
+          price_drgs: string | null
+        }
+        Insert: {
+          basis?: string | null
+          category_id?: string | null
+          family_drgs_in_team?: string | null
+          family_drgs_not_in_team?: string | null
+          family_id: string
+          note?: string | null
+          price_drgs?: string | null
+        }
+        Update: {
+          basis?: string | null
+          category_id?: string | null
+          family_drgs_in_team?: string | null
+          family_drgs_not_in_team?: string | null
+          family_id?: string
+          note?: string | null
+          price_drgs?: string | null
+        }
+        Relationships: []
+      }
+      pc_team_participant: {
+        Row: {
+          as_of: string | null
+          cbsa: string | null
+          cbsa_name: string | null
+          ccn: string
+          end_date: string | null
+          hospital: string | null
+          newly_identified: boolean | null
+          participation: string | null
+          source_url: string | null
+          start_date: string | null
+          state: string | null
+        }
+        Insert: {
+          as_of?: string | null
+          cbsa?: string | null
+          cbsa_name?: string | null
+          ccn: string
+          end_date?: string | null
+          hospital?: string | null
+          newly_identified?: boolean | null
+          participation?: string | null
+          source_url?: string | null
+          start_date?: string | null
+          state?: string | null
+        }
+        Update: {
+          as_of?: string | null
+          cbsa?: string | null
+          cbsa_name?: string | null
+          ccn?: string
+          end_date?: string | null
+          hospital?: string | null
+          newly_identified?: boolean | null
+          participation?: string | null
+          source_url?: string | null
+          start_date?: string | null
+          state?: string | null
+        }
+        Relationships: []
+      }
+      pc_team_target_price: {
+        Row: {
+          benchmark_price: number | null
+          category_id: string | null
+          discount_factor: number | null
+          drg: string
+          py: number
+          region: string
+          region_name: string | null
+          source_file: string | null
+          source_url: string | null
+          target_price: number | null
+          trend_factor: number | null
+          year: number | null
+        }
+        Insert: {
+          benchmark_price?: number | null
+          category_id?: string | null
+          discount_factor?: number | null
+          drg: string
+          py: number
+          region: string
+          region_name?: string | null
+          source_file?: string | null
+          source_url?: string | null
+          target_price?: number | null
+          trend_factor?: number | null
+          year?: number | null
+        }
+        Update: {
+          benchmark_price?: number | null
+          category_id?: string | null
+          discount_factor?: number | null
+          drg?: string
+          py?: number
+          region?: string
+          region_name?: string | null
+          source_file?: string | null
+          source_url?: string | null
+          target_price?: number | null
+          trend_factor?: number | null
+          year?: number | null
+        }
+        Relationships: []
+      }
+      pc_team_trigger: {
+        Row: {
+          category: string | null
+          category_id: string
+          code: string
+          code_type: string
+          note: string | null
+          price_drg: string | null
+          setting: string | null
+          source: string | null
+          source_url: string | null
+        }
+        Insert: {
+          category?: string | null
+          category_id: string
+          code: string
+          code_type: string
+          note?: string | null
+          price_drg?: string | null
+          setting?: string | null
+          source?: string | null
+          source_url?: string | null
+        }
+        Update: {
+          category?: string | null
+          category_id?: string
+          code?: string
+          code_type?: string
+          note?: string | null
+          price_drg?: string | null
+          setting?: string | null
+          source?: string | null
+          source_url?: string | null
+        }
+        Relationships: []
+      }
+      pc_trial: {
+        Row: {
+          allocation: string | null
+          completion_date: string | null
+          conditions: string | null
+          devices: string | null
+          enrollment: number | null
+          has_results: boolean | null
+          last_update: string | null
+          musculoskeletal: boolean | null
+          nct: string
+          phase: string | null
+          primary_completion: string | null
+          primary_outcome: string | null
+          primary_timeframe: string | null
+          purpose: string | null
+          sponsor: string | null
+          sponsor_class: string | null
+          start_date: string | null
+          status: string | null
+          study_type: string | null
+          title: string | null
+          url: string | null
+        }
+        Insert: {
+          allocation?: string | null
+          completion_date?: string | null
+          conditions?: string | null
+          devices?: string | null
+          enrollment?: number | null
+          has_results?: boolean | null
+          last_update?: string | null
+          musculoskeletal?: boolean | null
+          nct: string
+          phase?: string | null
+          primary_completion?: string | null
+          primary_outcome?: string | null
+          primary_timeframe?: string | null
+          purpose?: string | null
+          sponsor?: string | null
+          sponsor_class?: string | null
+          start_date?: string | null
+          status?: string | null
+          study_type?: string | null
+          title?: string | null
+          url?: string | null
+        }
+        Update: {
+          allocation?: string | null
+          completion_date?: string | null
+          conditions?: string | null
+          devices?: string | null
+          enrollment?: number | null
+          has_results?: boolean | null
+          last_update?: string | null
+          musculoskeletal?: boolean | null
+          nct?: string
+          phase?: string | null
+          primary_completion?: string | null
+          primary_outcome?: string | null
+          primary_timeframe?: string | null
+          purpose?: string | null
+          sponsor?: string | null
+          sponsor_class?: string | null
+          start_date?: string | null
+          status?: string | null
+          study_type?: string | null
+          title?: string | null
+          url?: string | null
+        }
+        Relationships: []
+      }
+      pc_trial_device: {
+        Row: {
+          basis: string | null
+          context: string | null
+          nct: string
+          number: string
+        }
+        Insert: {
+          basis?: string | null
+          context?: string | null
+          nct: string
+          number: string
+        }
+        Update: {
+          basis?: string | null
+          context?: string | null
+          nct?: string
+          number?: string
+        }
+        Relationships: []
+      }
+      pc_trial_vendor: {
+        Row: {
+          basis: string | null
+          nct: string
+          owner_id: string | null
+          sponsor: string | null
+          vendor_id: string | null
+        }
+        Insert: {
+          basis?: string | null
+          nct: string
+          owner_id?: string | null
+          sponsor?: string | null
+          vendor_id?: string | null
+        }
+        Update: {
+          basis?: string | null
+          nct?: string
+          owner_id?: string | null
+          sponsor?: string | null
+          vendor_id?: string | null
         }
         Relationships: []
       }
@@ -1678,6 +2005,7 @@ export type Database = {
       pc_device_procedures: { Args: { k: string }; Returns: Json }
       pc_device_recalls: { Args: { k: string }; Returns: Json }
       pc_device_supplier: { Args: { k: string }; Returns: Json }
+      pc_device_trials: { Args: { k: string }; Returns: Json }
       pc_direct: {
         Args: { k: string }
         Returns: {
@@ -1694,6 +2022,30 @@ export type Database = {
           role: string
           same_code: boolean
           same_company: boolean
+        }[]
+      }
+      pc_directory: { Args: { code: string }; Returns: Json }
+      pc_directory_index: { Args: never; Returns: Json }
+      pc_directory_rows: {
+        Args: { code: string }
+        Returns: {
+          decision_date: string
+          device_name: string
+          filer: string
+          gudid_brand: string
+          gudid_devices: number
+          gudid_in_distribution: number
+          number: string
+          owner_id: string
+          owner_name: string
+          pathway: string
+          product: string
+        }[]
+      }
+      pc_drg_title_lookup: {
+        Args: { d: string }
+        Returns: {
+          title: string
         }[]
       }
       pc_family_conflict: {
@@ -1770,6 +2122,18 @@ export type Database = {
       pc_signals_live: { Args: { k: string }; Returns: Json }
       pc_supplier_notes: { Args: never; Returns: Json }
       pc_tc: { Args: { s: string }; Returns: string }
+      pc_team_code: { Args: { code: string }; Returns: Json }
+      pc_team_family: { Args: { fam: string }; Returns: Json }
+      pc_team_family_note: { Args: { fam: string }; Returns: Json }
+      pc_team_hospital: { Args: { lim?: number; q: string }; Returns: Json }
+      pc_team_notes: { Args: never; Returns: Json }
+      pc_team_prices: { Args: { drgs: string[]; p_py?: number }; Returns: Json }
+      pc_trial_json: {
+        Args: { t: Database["public"]["Tables"]["pc_trial"]["Row"] }
+        Returns: Json
+      }
+      pc_trial_lookup: { Args: { nct: string }; Returns: Json }
+      pc_trial_notes: { Args: never; Returns: Json }
       pc_usd: { Args: { x: number }; Returns: string }
       pc_vendor_add_on: { Args: { m?: string; v: string }; Returns: Json }
       pc_vendor_appr_words: {
@@ -1824,6 +2188,7 @@ export type Database = {
         Args: { m?: string; v: string }
         Returns: Json
       }
+      pc_vendor_trials: { Args: { lim?: number; v: string }; Returns: Json }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
     }
