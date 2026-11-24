@@ -96,6 +96,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+      { rel: "alternate", type: "application/rss+xml", title: "OrthoParity release notes", href: "/updates.xml" },
       { rel: "apple-touch-icon", href: "/favicon.svg", type: "image/svg+xml" },
     ],
   }),

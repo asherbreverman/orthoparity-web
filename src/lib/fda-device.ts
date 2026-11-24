@@ -53,3 +53,11 @@ export interface DeviceApproval {
   study_changes: number;
   supplements_listed: ApprovalSupplement[];
 }
+const notClaims = 'It is not a finding that the device is better than others, that its marketing claims are true, or that it suits a given patient.';
+/** What the FDA decision on this pathway does and doesn't establish. */
+export function fdaRecordNote(pathway: DevicePathway): string {
+  if (pathway === 'PMA') return "FDA approval of a PMA means FDA found reasonable assurance of safety and effectiveness for the approved indications, based on the sponsor's data. It is not a comparison with other devices.";
+  if (pathway === 'HDE') return 'A humanitarian device exemption allows a device for a rare condition based on probable benefit, without proof of effectiveness.';
+  if (pathway === 'De Novo') return `A De Novo grant classifies a new low-to-moderate risk device type with special controls. ${notClaims}`;
+  return `An FDA 510(k) clearance means FDA found the device substantially equivalent to a legally marketed device for the cleared indications. ${notClaims}`;
+}

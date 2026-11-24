@@ -6,7 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { BriefLink, PdfLink, PublicRecordLoading, Status, useRefetch } from './reviewer-shared';
 import { ApprovalContent, ApprovalEvidence } from './approval-evidence';
-import { decisionDateLabel, devicePathway, hasPredicateChain } from '@/lib/fda-device';
+import { decisionDateLabel, devicePathway, hasPredicateChain , fdaRecordNote } from '@/lib/fda-device';
 import { Metrics, Studies } from './payment-shared';
 import { ProductRecallEvidence } from './recall-evidence';
 import { ProductMaudeSection } from './maude-evidence';
@@ -167,7 +167,7 @@ export function ProductResult({ k, compare, view, meta, onView, onCompare, notic
   );
   return <>
     <Status error={error} />
-    <PrintBrief evidence={<ProductAddOnPrint k={k} />} approvalEvidence={approval ? <><h2>Approval and supplements</h2><ApprovalContent approval={approval} /></> : undefined} meta={meta} title={displayName(shortDeviceName(fullName, 120))} fullDeviceName={fullName} knumber={device.knumber} tableEvidence="alternatives" kindLabel={kindLabel} subtitle={`${companyName(filer)}${ownerNow ? `, now part of ${companyName(owner?.owner_name ?? 'NOT FOUND')}` : ''}`} description={`Product code ${code} covers: ${productSentence(brief.product_code?.plain_description ?? `${dateLabelText} by FDA as ${plain}`, h?.procedures ?? brief.product_code?.procedures)}`} details={`${device.knumber} · ${pathway} · ${plain} (${code}) · ${approvalDateText(h?.cleared ?? device.decision_date)}${pathway === 'HDE' ? '' : ` · Class ${h?.device_class ?? device.device_class ?? 'NOT FOUND'}`}`} bottomLine={s?.bottom_line ?? ''} newClearanceNote={newClearanceNote} cards={cards} table={{ caption: `Alternatives in product code ${code} · ${s?.alternatives.window ?? ''}`, head: ['Company', 'Clearances', 'Latest device', 'Latest FDA number', 'Latest date'], rows: altRows.map(r => [displayName(r.company), r.clearances, r.latest_device ? displayName(shortDeviceName(r.latest_device, 60)) : 'NOT FOUND', r.latest_knumber ?? 'NOT FOUND', longDate(r.latest_date)]) }} questions={asks} notes={s?.notes ?? []} />
+    <PrintBrief recordNote={fdaRecordNote(pathway)} evidence={<ProductAddOnPrint k={k} />} approvalEvidence={approval ? <><h2>Approval and supplements</h2><ApprovalContent approval={approval} /></> : undefined} meta={meta} title={displayName(shortDeviceName(fullName, 120))} fullDeviceName={fullName} knumber={device.knumber} tableEvidence="alternatives" kindLabel={kindLabel} subtitle={`${companyName(filer)}${ownerNow ? `, now part of ${companyName(owner?.owner_name ?? 'NOT FOUND')}` : ''}`} description={`Product code ${code} covers: ${productSentence(brief.product_code?.plain_description ?? `${dateLabelText} by FDA as ${plain}`, h?.procedures ?? brief.product_code?.procedures)}`} details={`${device.knumber} · ${pathway} · ${plain} (${code}) · ${approvalDateText(h?.cleared ?? device.decision_date)}${pathway === 'HDE' ? '' : ` · Class ${h?.device_class ?? device.device_class ?? 'NOT FOUND'}`}`} bottomLine={s?.bottom_line ?? ''} newClearanceNote={newClearanceNote} cards={cards} table={{ caption: `Alternatives in product code ${code} · ${s?.alternatives.window ?? ''}`, head: ['Company', 'Clearances', 'Latest device', 'Latest FDA number', 'Latest date'], rows: altRows.map(r => [displayName(r.company), r.clearances, r.latest_device ? displayName(shortDeviceName(r.latest_device, 60)) : 'NOT FOUND', r.latest_knumber ?? 'NOT FOUND', longDate(r.latest_date)]) }} questions={asks} notes={s?.notes ?? []} />
     <section ref={top} className="result-header" aria-label="Device">{notice}
       <div className="result-heading">
         <div><h2 className="result-title" title={fullName}>{name}</h2>
@@ -185,7 +185,7 @@ export function ProductResult({ k, compare, view, meta, onView, onCompare, notic
     </section>
     <LocalBar name={name} cards={cards} ancestry={predicatesVisible} view={view} onView={onView} />
     {!s && <Status busy={!signals && !error} error={signals && !signals.found ? 'Decision signals are unavailable for this clearance.' : undefined} />}
-    {s && <DecisionCards cards={cards} onEvidence={ev.reveal} evidence={evidenceSections} />}
+    {s && <DecisionCards recordNote={fdaRecordNote(pathway)} cards={cards} onEvidence={ev.reveal} evidence={evidenceSections} />}
     <section id="all-questions" className="brief-section question-section"><div className="section-heading"><h2>Questions for the vendor</h2><div className="question-actions no-print"><Button size="sm" onClick={() => void copy('all')}>{copied === 'all' ? <Check /> : <Copy />}Copy all</Button>{selected.size > 0 && <Button variant="outline" size="sm" onClick={() => void copy('selected')}>{copied === 'selected' ? <Check /> : <Copy />}Copy selected</Button>}<ProductDownloadMenu /></div></div>
       {groups[0] && qList(groups[0].items)}
       <EvidenceSection id="checklist" title="Full value analysis checklist" summary={`${checklistCount} questions`} open={checklist} onToggle={() => setChecklist(!checklist)}>{groups.slice(1).map((g, i) => <div className="question-group" key={i}><h3>{g.topic}</h3>{qList(g.items)}</div>)}</EvidenceSection>

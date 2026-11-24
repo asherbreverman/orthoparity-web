@@ -52,11 +52,11 @@ export function cardHue(_card: DecisionCard, index: number) { return questionHue
 export function GlanceTiles({ cards }: { cards: DecisionCard[] }) {
   return <section className="result-glance" aria-label="Questions at a glance"><p className="glance-caption">{cards.length} questions, each with its evidence and a question for the vendor. Select one to go to it.</p><div className={`glance-tiles glance-count-${cards.length}`}>{cards.map((c, i) => <Button asChild variant="ghost" key={c.key} className={`glance-tile ${cardHue(c, i)}`}><a href={`#chapter-${c.key}`}><span className="glance-label">{c.question}</span><strong>{c.badge}</strong></a></Button>)}</div></section>;
 }
-export function DecisionCards({ cards, evidence }: { cards: DecisionCard[]; onEvidence: (id: string, keyboard?: boolean) => void; evidence?: ReactNode }) {
+export function DecisionCards({ cards, evidence, recordNote }: { cards: DecisionCard[]; onEvidence: (id: string, keyboard?: boolean) => void; evidence?: ReactNode; recordNote?: string }) {
   const sections=evidenceItems(evidence);
   return <section className="decision-grid story-chapters" aria-label="Decision cards">{cards.map((c,index) => <article id={`chapter-${c.key}`} className={`decision-card story-chapter ${cardHue(c,index)}`} key={c.key}><StoryReveal className="chapter-grid">
     <div className="chapter-sidebar"><h2 className="chapter-headline">{c.question}</h2><span className="decision-badge tone-info">{c.badge}</span></div>
-    <div className="chapter-content"><p className="decision-finding">{c.finding}</p>
+    <div className="chapter-content"><p className="decision-finding">{c.finding}</p>{recordNote && c.key === 'novelty' && <p className="section-caption fda-record-note">{recordNote}</p>}
       {!!c.figs?.length && <div className="chapter-stats">{c.figs.map((fig,i) => <div className="chapter-stat" key={i}><strong className={/^[^\d$]*[a-zA-Z].*\s/.test(String(fig.value)) ? 'stat-text' : undefined}>{fig.value}</strong><span>{fig.label}</span></div>)}</div>}
       <div className="chapter-context"><div className="decision-why"><h3>Why it matters</h3><p>{c.why}</p></div><div className="decision-ask"><h3>Ask the vendor</h3>{(c.asks?.length ? c.asks : [c.ask]).length === 1 ? <><p>{(c.asks?.length ? c.asks : [c.ask])[0]}</p><CopyAsk text={(c.asks?.length ? c.asks : [c.ask])[0] ?? c.ask} /></> : <ul className="card-questions">{(c.asks?.length ? c.asks : [c.ask]).map((ask, i) => <li key={i}><p>{ask}</p><CopyAsk text={ask} /></li>)}</ul>}</div></div>
     </div></StoryReveal>
@@ -83,9 +83,9 @@ export function Notes({ notes }: { notes: string[] }) {
 }
 
 /** Print-only brief; screen CSS hides it and print CSS hides everything else. */
-export function PrintBrief({ title, subtitle, description, kindLabel, details, scope, knumber, fullDeviceName, tableEvidence, bottomLine, newClearanceNote, cards, table, questions, notes, meta, evidence, approvalEvidence }: {
+export function PrintBrief({ title, subtitle, description, kindLabel, details, scope, knumber, fullDeviceName, tableEvidence, bottomLine, newClearanceNote, recordNote, cards, table, questions, notes, meta, evidence, approvalEvidence }: {
   evidence?: ReactNode; approvalEvidence?: ReactNode; title: string; subtitle: string; description?: string; kindLabel?: string; details?: string; scope?: string; knumber?: string; fullDeviceName?: string;
-  tableEvidence: 'alternatives' | 'competition'; bottomLine: string; newClearanceNote?: string; cards: DecisionCard[];
+  tableEvidence: 'alternatives' | 'competition'; bottomLine: string; newClearanceNote?: string; recordNote?: string; cards: DecisionCard[];
   table: { caption: string; head: string[]; rows: (string | number)[][] }; questions: string[]; notes: string[]; meta: Meta;
 }) {
   const [url, setUrl] = useState('');
@@ -112,6 +112,7 @@ export function PrintBrief({ title, subtitle, description, kindLabel, details, s
       {details && <p className="print-details">{details}</p>}
       {scope && <p className="print-details">{scope}</p>}
       <div className="print-bottom"><strong>Bottom line</strong><p>{bottomLine}</p></div>
+      {recordNote && <p className="section-caption fda-record-note">{recordNote}</p>}
       {newClearanceNote && <p className="section-caption new-clearance-note">{newClearanceNote}</p>}
       <div className="print-glance">{cards.map((c, index) => <div className={`print-glance-tile ${questionHue(index)}`} key={c.key}><span>{c.question}</span><strong>{c.badge}</strong></div>)}</div>
     </section>
@@ -137,6 +138,7 @@ export function PrintBrief({ title, subtitle, description, kindLabel, details, s
     <h1>{title}</h1><p className="print-sub">{subtitle}</p>
     {details && <p className="print-details">{details}</p>}
     <div className="print-bottom"><strong>Bottom line</strong><p>{bottomLine}</p></div>
+      {recordNote && <p className="section-caption fda-record-note">{recordNote}</p>}
     {newClearanceNote && <p className="section-caption new-clearance-note">{newClearanceNote}</p>}
     <div className="print-glance">{cards.map((c, index) => <div className={`print-glance-tile ${questionHue(index)}`} key={c.key}><span>{c.short ?? c.question}</span><strong>{c.badge}</strong></div>)}</div>
     <h2>Questions for the vendor</h2><ol className="summary-questions">{questions.slice(0, 5).map((question, index) => <li key={index}>{question}</li>)}</ol>

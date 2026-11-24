@@ -11,14 +11,20 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BrowseRouteImport } from './routes/browse'
+import { Route as CorrectionsRouteImport } from './routes/corrections'
 import { Route as PacketCheckRouteImport } from './routes/packet-check'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProceduresRouteImport } from './routes/procedures'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TeamRouteImport } from './routes/team'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as UpdatesRouteImport } from './routes/updates'
+import { Route as UpdatesDotxmlRouteImport } from './routes/updates[.]xml'
 import { Route as BrowseCodeRouteImport } from './routes/browse_.$code'
 import { Route as DeviceIdRouteImport } from './routes/device.$id'
+import { Route as ForAscRouteImport } from './routes/for.asc'
+import { Route as ForSupplyChainRouteImport } from './routes/for.supply-chain'
+import { Route as ForValueAnalysisRouteImport } from './routes/for.value-analysis'
 import { Route as ProceduresFamilyIdRouteImport } from './routes/procedures_.$familyId'
 import { Route as TeamCalculatorRouteImport } from './routes/team_.calculator'
 
@@ -30,6 +36,11 @@ const IndexRoute = IndexRouteImport.update({
 const BrowseRoute = BrowseRouteImport.update({
   id: '/browse',
   path: '/browse',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CorrectionsRoute = CorrectionsRouteImport.update({
+  id: '/corrections',
+  path: '/corrections',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PacketCheckRoute = PacketCheckRouteImport.update({
@@ -62,6 +73,16 @@ const TermsRoute = TermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UpdatesRoute = UpdatesRouteImport.update({
+  id: '/updates',
+  path: '/updates',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UpdatesDotxmlRoute = UpdatesDotxmlRouteImport.update({
+  id: '/updates.xml',
+  path: '/updates.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BrowseCodeRoute = BrowseCodeRouteImport.update({
   id: '/browse_/$code',
   path: '/browse/$code',
@@ -70,6 +91,21 @@ const BrowseCodeRoute = BrowseCodeRouteImport.update({
 const DeviceIdRoute = DeviceIdRouteImport.update({
   id: '/device/$id',
   path: '/device/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForAscRoute = ForAscRouteImport.update({
+  id: '/for/asc',
+  path: '/for/asc',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForSupplyChainRoute = ForSupplyChainRouteImport.update({
+  id: '/for/supply-chain',
+  path: '/for/supply-chain',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForValueAnalysisRoute = ForValueAnalysisRouteImport.update({
+  id: '/for/value-analysis',
+  path: '/for/value-analysis',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProceduresFamilyIdRoute = ProceduresFamilyIdRouteImport.update({
@@ -86,28 +122,40 @@ const TeamCalculatorRoute = TeamCalculatorRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/browse': typeof BrowseRoute
+  '/corrections': typeof CorrectionsRoute
   '/packet-check': typeof PacketCheckRoute
   '/privacy': typeof PrivacyRoute
   '/procedures': typeof ProceduresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
+  '/updates': typeof UpdatesRoute
+  '/updates.xml': typeof UpdatesDotxmlRoute
   '/browse/$code': typeof BrowseCodeRoute
   '/device/$id': typeof DeviceIdRoute
+  '/for/asc': typeof ForAscRoute
+  '/for/supply-chain': typeof ForSupplyChainRoute
+  '/for/value-analysis': typeof ForValueAnalysisRoute
   '/procedures/$familyId': typeof ProceduresFamilyIdRoute
   '/team/calculator': typeof TeamCalculatorRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/browse': typeof BrowseRoute
+  '/corrections': typeof CorrectionsRoute
   '/packet-check': typeof PacketCheckRoute
   '/privacy': typeof PrivacyRoute
   '/procedures': typeof ProceduresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
+  '/updates': typeof UpdatesRoute
+  '/updates.xml': typeof UpdatesDotxmlRoute
   '/browse/$code': typeof BrowseCodeRoute
   '/device/$id': typeof DeviceIdRoute
+  '/for/asc': typeof ForAscRoute
+  '/for/supply-chain': typeof ForSupplyChainRoute
+  '/for/value-analysis': typeof ForValueAnalysisRoute
   '/procedures/$familyId': typeof ProceduresFamilyIdRoute
   '/team/calculator': typeof TeamCalculatorRoute
 }
@@ -115,14 +163,20 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/browse': typeof BrowseRoute
+  '/corrections': typeof CorrectionsRoute
   '/packet-check': typeof PacketCheckRoute
   '/privacy': typeof PrivacyRoute
   '/procedures': typeof ProceduresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
+  '/updates': typeof UpdatesRoute
+  '/updates.xml': typeof UpdatesDotxmlRoute
   '/browse_/$code': typeof BrowseCodeRoute
   '/device/$id': typeof DeviceIdRoute
+  '/for/asc': typeof ForAscRoute
+  '/for/supply-chain': typeof ForSupplyChainRoute
+  '/for/value-analysis': typeof ForValueAnalysisRoute
   '/procedures_/$familyId': typeof ProceduresFamilyIdRoute
   '/team_/calculator': typeof TeamCalculatorRoute
 }
@@ -131,42 +185,60 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/browse'
+    | '/corrections'
     | '/packet-check'
     | '/privacy'
     | '/procedures'
     | '/sitemap.xml'
     | '/team'
     | '/terms'
+    | '/updates'
+    | '/updates.xml'
     | '/browse/$code'
     | '/device/$id'
+    | '/for/asc'
+    | '/for/supply-chain'
+    | '/for/value-analysis'
     | '/procedures/$familyId'
     | '/team/calculator'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/browse'
+    | '/corrections'
     | '/packet-check'
     | '/privacy'
     | '/procedures'
     | '/sitemap.xml'
     | '/team'
     | '/terms'
+    | '/updates'
+    | '/updates.xml'
     | '/browse/$code'
     | '/device/$id'
+    | '/for/asc'
+    | '/for/supply-chain'
+    | '/for/value-analysis'
     | '/procedures/$familyId'
     | '/team/calculator'
   id:
     | '__root__'
     | '/'
     | '/browse'
+    | '/corrections'
     | '/packet-check'
     | '/privacy'
     | '/procedures'
     | '/sitemap.xml'
     | '/team'
     | '/terms'
+    | '/updates'
+    | '/updates.xml'
     | '/browse_/$code'
     | '/device/$id'
+    | '/for/asc'
+    | '/for/supply-chain'
+    | '/for/value-analysis'
     | '/procedures_/$familyId'
     | '/team_/calculator'
   fileRoutesById: FileRoutesById
@@ -174,14 +246,20 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BrowseRoute: typeof BrowseRoute
+  CorrectionsRoute: typeof CorrectionsRoute
   PacketCheckRoute: typeof PacketCheckRoute
   PrivacyRoute: typeof PrivacyRoute
   ProceduresRoute: typeof ProceduresRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TeamRoute: typeof TeamRoute
   TermsRoute: typeof TermsRoute
+  UpdatesRoute: typeof UpdatesRoute
+  UpdatesDotxmlRoute: typeof UpdatesDotxmlRoute
   BrowseCodeRoute: typeof BrowseCodeRoute
   DeviceIdRoute: typeof DeviceIdRoute
+  ForAscRoute: typeof ForAscRoute
+  ForSupplyChainRoute: typeof ForSupplyChainRoute
+  ForValueAnalysisRoute: typeof ForValueAnalysisRoute
   ProceduresFamilyIdRoute: typeof ProceduresFamilyIdRoute
   TeamCalculatorRoute: typeof TeamCalculatorRoute
 }
@@ -200,6 +278,13 @@ declare module '@tanstack/react-router' {
       path: '/browse'
       fullPath: '/browse'
       preLoaderRoute: typeof BrowseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/corrections': {
+      id: '/corrections'
+      path: '/corrections'
+      fullPath: '/corrections'
+      preLoaderRoute: typeof CorrectionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/packet-check': {
@@ -244,6 +329,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/updates': {
+      id: '/updates'
+      path: '/updates'
+      fullPath: '/updates'
+      preLoaderRoute: typeof UpdatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/updates.xml': {
+      id: '/updates.xml'
+      path: '/updates.xml'
+      fullPath: '/updates.xml'
+      preLoaderRoute: typeof UpdatesDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/browse_/$code': {
       id: '/browse_/$code'
       path: '/browse/$code'
@@ -256,6 +355,27 @@ declare module '@tanstack/react-router' {
       path: '/device/$id'
       fullPath: '/device/$id'
       preLoaderRoute: typeof DeviceIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/for/asc': {
+      id: '/for/asc'
+      path: '/for/asc'
+      fullPath: '/for/asc'
+      preLoaderRoute: typeof ForAscRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/for/supply-chain': {
+      id: '/for/supply-chain'
+      path: '/for/supply-chain'
+      fullPath: '/for/supply-chain'
+      preLoaderRoute: typeof ForSupplyChainRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/for/value-analysis': {
+      id: '/for/value-analysis'
+      path: '/for/value-analysis'
+      fullPath: '/for/value-analysis'
+      preLoaderRoute: typeof ForValueAnalysisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/procedures_/$familyId': {
@@ -278,14 +398,20 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BrowseRoute: BrowseRoute,
+  CorrectionsRoute: CorrectionsRoute,
   PacketCheckRoute: PacketCheckRoute,
   PrivacyRoute: PrivacyRoute,
   ProceduresRoute: ProceduresRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TeamRoute: TeamRoute,
   TermsRoute: TermsRoute,
+  UpdatesRoute: UpdatesRoute,
+  UpdatesDotxmlRoute: UpdatesDotxmlRoute,
   BrowseCodeRoute: BrowseCodeRoute,
   DeviceIdRoute: DeviceIdRoute,
+  ForAscRoute: ForAscRoute,
+  ForSupplyChainRoute: ForSupplyChainRoute,
+  ForValueAnalysisRoute: ForValueAnalysisRoute,
   ProceduresFamilyIdRoute: ProceduresFamilyIdRoute,
   TeamCalculatorRoute: TeamCalculatorRoute,
 }

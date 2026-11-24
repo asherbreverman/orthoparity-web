@@ -69,3 +69,9 @@ export async function readPublicDirectoryPaths(): Promise<string[]> {
     });
   } finally { clearTimeout(timer); }
 }
+
+export async function readPublicReleaseNotes() {
+  const {data, error} = await publicClient().from('pc_release_notes').select('id, released_on, title, summary, data_release, url').order('released_on', {ascending: false});
+  if (error) throw error;
+  return data ?? [];
+}

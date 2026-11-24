@@ -378,3 +378,9 @@ const trialLookupRead = resilient(async (nct: string): Promise<TrialLookup> => {
 export function getDeviceTrials(k: string) { return cachedTeamRead(`trials:${k.toUpperCase()}`, () => deviceTrialsRead(k.toUpperCase())); }
 export function getVendorTrials(v: string, lim = 1000) { return cachedTeamRead(`vendor-trials:${v}:${lim}`, () => vendorTrialsRead(v, lim)); }
 export function getTrialLookup(nct: string) { return cachedTeamRead(`trial:${nct}`, () => trialLookupRead(nct)); }
+
+import type { Correction, ReleaseNote } from './site-log';
+const correctionsRead = resilient(async (): Promise<Correction[]> => { const {data, error} = await researchClient.from('pc_corrections').select('id, corrected_on, area, what_was_wrong, what_changed, pages_affected, source').order('corrected_on', {ascending: false}); if (error) throw error; return (data ?? []) as Correction[]; });
+const releaseNotesRead = resilient(async (): Promise<ReleaseNote[]> => { const {data, error} = await researchClient.from('pc_release_notes').select('id, released_on, title, summary, data_release, url').order('released_on', {ascending: false}); if (error) throw error; return (data ?? []) as ReleaseNote[]; });
+export function getCorrections() { return cachedTeamRead('corrections', correctionsRead); }
+export function getReleaseNotes() { return cachedTeamRead('release-notes', releaseNotesRead); }
