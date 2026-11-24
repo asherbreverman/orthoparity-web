@@ -17,8 +17,7 @@ import { ProductSupplierSection } from './supplier-evidence';
 import { BottomLine, GlanceTiles, DecisionCards, EvidenceSection, Notes, PrintBrief, useEvidence } from './decision-shared';
 import { getBrief, getFamily, lookupChain, getProductPayments, getSignals, getDeviceOwner } from '@/lib/predicate-data';
 import { ownerLine, withPaymentQuestions, money, dollars, type ProductPayments } from '@/lib/vendor-data';
-import { LocalBar, ExtraEvidence, ComparisonSheet } from './story-shared';
-import { ProductCompare } from './product-compare';
+import { LocalBar, ExtraEvidence } from './story-shared';
 import { companyName, displayName, shortDeviceName, productDisplayTitle, productSentence } from '@/lib/format';
 import { headerOwnerChanged } from '@/lib/product-comparison';
 import { ProductDownloadMenu } from './product-download-menu';
@@ -32,9 +31,6 @@ const Evidence = lazy(() => import('./predicate-evidence').then(m => ({ default:
 
 export function ProductResult({ k, compare, view, meta, onView, onCompare }: { k: string; compare?: string | undefined; view: View; meta: Meta; onView: (v: View) => void; onCompare: (k: string) => void }) {
   const [showFullName, setShowFullName] = useState(false);
-  const [compareOpen, setCompareOpen] = useState(!!compare);
-  useEffect(() => { setCompareOpen(!!compare); }, [compare]);
-  const closeCompare = () => { setCompareOpen(false); onCompare(''); };
   const [brief, setBrief] = useState<Brief | null>(null);
   const [signals, setSignals] = useState<Signals | null>(null);
   const [payments, setPayments] = useState<ProductPayments | null>(null);
@@ -179,14 +175,13 @@ export function ProductResult({ k, compare, view, meta, onView, onCompare }: { k
           <p className="plain-description" title={`FDA groups devices by product code. This description covers every device in the code. The device's own name and its FDA-${predicatesVisible ? 'cleared' : 'approved'} use are below.`}>Product code {code} covers: {productSentence(brief.product_code?.plain_description ?? `${dateLabelText} by FDA as ${plain}`, h?.procedures ?? brief.product_code?.procedures)}{brief.product_code?.reviewed === false && <> <span className="review-tag" title="Plain-English description drafted from FDA's definition, pending expert review." tabIndex={0}>Draft</span></>}</p>
           {kindLabel && <p className="section-caption">{kindLabel}</p>}
         </div>
-        <div className="result-actions"><div className="no-print result-buttons"><ProductDownloadMenu /><Button variant="link" onClick={() => setCompareOpen(true)} aria-expanded={compareOpen}>Compare with another product ›</Button></div></div>
+        <div className="result-actions"><div className="no-print result-buttons"><ProductDownloadMenu /><Button variant="link" onClick={() => onCompare('')}>Compare with another product ›</Button></div></div>
       </div>
       {s && <BottomLine text={s.bottom_line} />}
       {newClearanceNote && <p className="section-caption new-clearance-note">{newClearanceNote}</p>}
       {s && <GlanceTiles cards={cards} />}
     </section>
     <LocalBar name={name} cards={cards} ancestry={predicatesVisible} view={view} onView={onView} />
-    <ComparisonSheet title="Compare products" open={compareOpen} onClose={closeCompare}>{compareOpen && <ProductCompare k={k} compare={compare} onCompare={onCompare} onClose={closeCompare} />}</ComparisonSheet>
     {!s && <Status busy={!signals && !error} error={signals && !signals.found ? 'Decision signals are unavailable for this clearance.' : undefined} />}
     {s && <DecisionCards cards={cards} onEvidence={ev.reveal} evidence={evidenceSections} />}
     <section id="all-questions" className="brief-section question-section"><div className="section-heading"><h2>Questions for the vendor</h2><div className="question-actions no-print"><Button size="sm" onClick={() => void copy('all')}>{copied === 'all' ? <Check /> : <Copy />}Copy all</Button>{selected.size > 0 && <Button variant="outline" size="sm" onClick={() => void copy('selected')}>{copied === 'selected' ? <Check /> : <Copy />}Copy selected</Button>}<ProductDownloadMenu /></div></div>

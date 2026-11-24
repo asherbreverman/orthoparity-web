@@ -1,6 +1,4 @@
 import { Children, isValidElement, useEffect, useRef, useState, type ReactNode } from 'react';
-import * as Dialog from '@radix-ui/react-dialog';
-import { X } from 'lucide-react';
 import { Button } from './ui/button';
 import type { DecisionCard } from '@/lib/signals';
 import type { View } from '@/lib/signals';
@@ -27,7 +25,4 @@ export function LocalBar({name,cards,vendor=false,ancestry=true,view,onView}: {n
   },[]);
   useEffect(()=>{const ids=[...cards.map(c=>`chapter-${c.key}`),'all-questions',...(!vendor&&ancestry?['ancestry']:[])];const update=()=>{let next='';for(const id of ids){const node=document.getElementById(id);if(node&&node.getBoundingClientRect().top<=220)next=id;}setActive(next);};update();window.addEventListener('scroll',update,{passive:true});return()=>window.removeEventListener('scroll',update);},[cards,vendor,ancestry]);
   return <nav ref={rail} className="local-bar no-print" aria-label={`Chapters for ${name}`}><div className="local-bar-inner"><div className="rail-links">{cards.map((c,i)=><a className={`${questionHue(i)} ${active===`chapter-${c.key}`?'is-active':''}`} aria-current={active===`chapter-${c.key}`?'location':undefined} key={c.key} href={`#chapter-${c.key}`}>{c.short ?? c.question}</a>)}<a href="#all-questions" className={active==='all-questions'?'is-active':''}>All questions</a>{!vendor&&ancestry&&<a href="#ancestry" className={active==='ancestry'?'is-active':''}>Ancestry</a>}</div><Button variant="secondary" className="analyst-switch" role="switch" aria-checked={view==='analyst'} onClick={()=>onView(view==='analyst'?'brief':'analyst')}>Analyst detail</Button></div></nav>;
-}
-export function ComparisonSheet({open,onClose,children,title='Compare vendors'}: {open:boolean;onClose:()=>void;children:ReactNode;title?:string}) {
-  return <Dialog.Root open={open} onOpenChange={value=>{if(!value)onClose();}}><Dialog.Portal><Dialog.Overlay className="comparison-overlay"/><Dialog.Content className="comparison-sheet" aria-describedby={undefined}><Dialog.Title className="sr-only">{title}</Dialog.Title><Dialog.Close asChild><Button variant="secondary" size="icon" className="sheet-close" aria-label="Close comparison"><X/></Button></Dialog.Close>{children}</Dialog.Content></Dialog.Portal></Dialog.Root>;
 }

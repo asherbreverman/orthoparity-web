@@ -13,6 +13,7 @@ import { DeviceSearch, PublicRecordLoading, useRelease } from '@/components/revi
 import { getVendorCoverage } from '@/lib/predicate-data';
 import { VendorSearch } from '@/components/vendor-search';
 import { ProductResult } from '@/components/product-result';
+import { ProductComparePage, VendorComparePage } from '@/components/compare-pages';
 import type { VendorCoverage } from '@/lib/vendor-coverage';
 import type { View } from '@/lib/signals';
 import { redirectNavigation } from '@/lib/vendor-data';
@@ -46,7 +47,8 @@ export const Route = createFileRoute('/')({
 function DeviceBrief() {
   const { k: rawK, v, compare: rawCompare, from, mode, view: viewParam } = Route.useSearch();
   const k = normalizeDeviceNumber(rawK ?? '') ?? rawK;
-  const compare = normalizeDeviceNumber(rawCompare ?? '') ?? rawCompare;
+  const comparing = rawCompare !== undefined;
+  const compare = rawCompare;
   const { data: initial } = useSuspenseQuery(publicPageOptions(pageSubject({ k, v })));
   const view: View = viewParam === 'analyst' ? 'analyst' : 'brief';
   const vendorMode = !!v || mode === 'vendor';
@@ -83,6 +85,6 @@ function DeviceBrief() {
       <div className="home-about-tiles auto-rows-fr"><div><strong>{coverage?.devices.toLocaleString('en-US') ?? '…'}</strong><p>orthopedic devices cleared or approved by FDA, {coverage?.first ?? '…'} to {coverage?.last ?? '…'}</p></div><div><strong>{coverage?.count.toLocaleString('en-US') ?? '…'}</strong><p>orthopedic companies, counted by parent company</p></div><div><strong>10</strong><p className="text-sm!">public sources: FDA 510(k)s, FDA approvals (PMA and HDE), GUDID, recalls, adverse event reports (MAUDE), establishment registrations, and inspections and warning letters; CMS Open Payments, Medicare hospital payments and Medicare add-on payments</p></div></div>
       <p className="section-caption home-about-note">Every answer traces to a public record.</p>
     </section>}
-    {selected ? vendorMode ? <ClientOnly fallback={<PublicRecordLoading />}><Suspense fallback={<PublicRecordLoading />}><VendorWorkspace v={v} compare={compare} view={view} onView={setView} from={from || undefined} meta={meta} onRedirect={(to, original) => void navigate(redirectNavigation(to, original, view))} onDismiss={() => void navigate({to:'/', search: prev => ({...prev, from: undefined}), replace:true, resetScroll:false})} onCompare={value => void navigate({to:'/',search:prev => ({...prev,compare:value || undefined}), resetScroll: false})} /></Suspense></ClientOnly> : <ProductResult key={k} k={k ?? ''} compare={compare} view={view} meta={meta} onView={setView} onCompare={value => void navigate({to:'/', search:prev => ({...prev, compare:value || undefined}), resetScroll:false})} /> : null}
+    {selected ? vendorMode ? <ClientOnly fallback={<PublicRecordLoading />}><Suspense fallback={<PublicRecordLoading />}>{comparing && v ? <VendorComparePage v={v} compare={compare ?? ''} meta={meta} onCompare={value => void navigate({to:'/',search:prev => ({...prev,compare:value})})} onBack={() => void navigate({to:'/',search:prev => ({...prev,compare:undefined})})} /> : <VendorWorkspace v={v} compare={compare} view={view} onView={setView} from={from || undefined} meta={meta} onRedirect={(to, original) => void navigate(redirectNavigation(to, original, view))} onDismiss={() => void navigate({to:'/', search: prev => ({...prev, from: undefined}), replace:true, resetScroll:false})} onCompare={value => void navigate({to:'/',search:prev => ({...prev,compare:value})})} />}</Suspense></ClientOnly> : comparing && k ? <ProductComparePage k={k} compare={rawCompare} meta={meta} onChange={others => void navigate({to:'/', search:prev => ({...prev, compare: others.join(',')}), replace:true, resetScroll:false})} onBack={() => void navigate({to:'/', search:prev => ({...prev, compare:undefined})})} /> : <ProductResult key={k} k={k ?? ''} compare={compare} view={view} meta={meta} onView={setView} onCompare={value => void navigate({to:'/', search:prev => ({...prev, compare:value})})} /> : null}
   </>;
 }

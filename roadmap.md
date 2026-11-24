@@ -158,3 +158,6 @@
 - [x] Correct shared footer punctuation and the intentional PMA parsing expectation.
 - [x] Use brief approval counts, retaining the unchanged full-list read only for missing counts.
 - [x] Verify four live company headers with zero header portfolio requests and both footers; 22 targeted tests pass, full suite has 291 passes and 3 unrelated live-data expectation mismatches.
+
+# Compare pages
+- [x] Product and company compare as in-page routes with print, CSV, up to 50 products and company wording fixes.
