@@ -65,4 +65,4 @@ use the editor.
 - Keep full and summary Letter markup separate with shared print tokens; native print measures summary questions after fonts settle and restores title/mode, preserving full briefs.
 - Read public search previews through the adapter with an anonymous server client, a two-second deadline and hourly edge/query caches; this keeps source HTML useful without blocking slow reads.
 - Directory reads stay in the read-only adapter with session caches; sort/filter/CSV rules stay pure for tests.
-- Keep Medicare TEAM reads (pc_team_family, pc_team_code, pc_team_hospital, pc_team_notes) in the read-only adapter with session caches and TEAM arithmetic in pure helpers; calculator inputs stay in component state and are never sent or stored.
+- TEAM reads stay in the cached adapter; calculator math is pure and inputs never leave component state.
