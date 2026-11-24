@@ -263,6 +263,42 @@ export type Database = {
         }
         Relationships: []
       }
+      pc_catalog: {
+        Row: {
+          brand_id: number | null
+          ident: string
+          in_dist: boolean | null
+          n: string
+        }
+        Insert: {
+          brand_id?: number | null
+          ident: string
+          in_dist?: boolean | null
+          n: string
+        }
+        Update: {
+          brand_id?: number | null
+          ident?: string
+          in_dist?: boolean | null
+          n?: string
+        }
+        Relationships: []
+      }
+      pc_catalog_brand: {
+        Row: {
+          brand: string | null
+          brand_id: number
+        }
+        Insert: {
+          brand?: string | null
+          brand_id: number
+        }
+        Update: {
+          brand?: string | null
+          brand_id?: number
+        }
+        Relationships: []
+      }
       pc_compliance_action: {
         Row: {
           action_date: string | null
@@ -1079,6 +1115,54 @@ export type Database = {
         }
         Relationships: []
       }
+      pc_procedure_asc: {
+        Row: {
+          asc_rate: number | null
+          asc_status: string | null
+          cpt: string
+          device_intensive: boolean | null
+          device_portion: number | null
+          device_share: number | null
+          family_id: string
+          payment_indicator: string | null
+          procedure: string | null
+          rate_year: number | null
+          sort_order: number | null
+          source: string | null
+          source_url: string | null
+        }
+        Insert: {
+          asc_rate?: number | null
+          asc_status?: string | null
+          cpt: string
+          device_intensive?: boolean | null
+          device_portion?: number | null
+          device_share?: number | null
+          family_id: string
+          payment_indicator?: string | null
+          procedure?: string | null
+          rate_year?: number | null
+          sort_order?: number | null
+          source?: string | null
+          source_url?: string | null
+        }
+        Update: {
+          asc_rate?: number | null
+          asc_status?: string | null
+          cpt?: string
+          device_intensive?: boolean | null
+          device_portion?: number | null
+          device_share?: number | null
+          family_id?: string
+          payment_indicator?: string | null
+          procedure?: string | null
+          rate_year?: number | null
+          sort_order?: number | null
+          source?: string | null
+          source_url?: string | null
+        }
+        Relationships: []
+      }
       pc_procedure_devices: {
         Row: {
           active_vendors: number | null
@@ -1628,6 +1712,8 @@ export type Database = {
       pc_money: { Args: { x: number }; Returns: string }
       pc_num: { Args: { n: number }; Returns: string }
       pc_owner_at: { Args: { d: string; v: string }; Returns: string }
+      pc_part_key: { Args: { t: string }; Returns: string }
+      pc_part_search: { Args: { lim?: number; q: string }; Returns: Json }
       pc_pathway: { Args: { k: string }; Returns: string }
       pc_pay_range: {
         Args: { compact?: boolean; hi: number; lo: number }
