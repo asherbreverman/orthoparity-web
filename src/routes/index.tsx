@@ -32,7 +32,7 @@ const howItWorks = [
 ];
 export const Route = createFileRoute('/')({
   staticData: { sitemap: true },
-  validateSearch: zodValidator(z.object({k: fallback(z.string(), '').optional(), v: fallback(z.string(), '').optional(), compare: fallback(z.string(), '').optional(), from: fallback(z.string(), '').optional(), mode: fallback(z.string(), '').optional(), view: fallback(z.string(), '').optional(), part: fallback(z.coerce.string(), '').optional()})),
+  validateSearch: zodValidator(z.object({k: fallback(z.string(), '').optional(), v: fallback(z.string(), '').optional(), compare: fallback(z.string(), '').optional(), from: fallback(z.string(), '').optional(), mode: fallback(z.string(), '').optional(), view: fallback(z.string(), '').optional(), part: fallback(z.string(), '').optional()})),
   loaderDeps: ({ search }) => pageSubject(search),
   loader: ({ context, deps }) => context.queryClient.ensureQueryData(publicPageOptions(deps)),
   pendingComponent: PublicRecordLoading,
@@ -40,7 +40,10 @@ export const Route = createFileRoute('/')({
   errorComponent: ProcedureError,
   notFoundComponent: ProcedureNotFound,
   head: ({ loaderData, match }) => {
-    const { title, description, url } = previewMetadata(match.loaderDeps, loaderData?.preview ?? null);
+    const base = previewMetadata(match.loaderDeps, loaderData?.preview ?? null);
+    const part = match.search.part && !match.search.k ? match.search.part : '';
+    const { description, url } = base;
+    const title = part ? `Part number ${part} | OrthoParity` : base.title;
     return { meta: [{ title }, { name: 'description', content: description }, { property: 'og:title', content: title }, { property: 'og:description', content: description }, { property: 'og:type', content: 'website' }, { property: 'og:url', content: url }, { property: 'og:image', content: new URL(shareImage.url, benchmarkOrigin).href }, { name: 'twitter:image', content: new URL(shareImage.url, benchmarkOrigin).href }, { name: 'twitter:title', content: title }, { name: 'twitter:description', content: description }, { name: 'twitter:card', content: 'summary_large_image' }], links: [{ rel: 'canonical', href: url }] };
   },
   component: DeviceBrief,
