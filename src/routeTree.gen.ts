@@ -14,10 +14,12 @@ import { Route as BrowseRouteImport } from './routes/browse'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProceduresRouteImport } from './routes/procedures'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as TeamRouteImport } from './routes/team'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as BrowseCodeRouteImport } from './routes/browse_.$code'
 import { Route as DeviceIdRouteImport } from './routes/device.$id'
 import { Route as ProceduresFamilyIdRouteImport } from './routes/procedures_.$familyId'
+import { Route as TeamCalculatorRouteImport } from './routes/team_.calculator'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -44,6 +46,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TeamRoute = TeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -64,6 +71,11 @@ const ProceduresFamilyIdRoute = ProceduresFamilyIdRouteImport.update({
   path: '/procedures/$familyId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TeamCalculatorRoute = TeamCalculatorRouteImport.update({
+  id: '/team_/calculator',
+  path: '/team/calculator',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -71,10 +83,12 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/procedures': typeof ProceduresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
   '/browse/$code': typeof BrowseCodeRoute
   '/device/$id': typeof DeviceIdRoute
   '/procedures/$familyId': typeof ProceduresFamilyIdRoute
+  '/team/calculator': typeof TeamCalculatorRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -82,10 +96,12 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/procedures': typeof ProceduresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
   '/browse/$code': typeof BrowseCodeRoute
   '/device/$id': typeof DeviceIdRoute
   '/procedures/$familyId': typeof ProceduresFamilyIdRoute
+  '/team/calculator': typeof TeamCalculatorRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -94,10 +110,12 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/procedures': typeof ProceduresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
   '/browse_/$code': typeof BrowseCodeRoute
   '/device/$id': typeof DeviceIdRoute
   '/procedures_/$familyId': typeof ProceduresFamilyIdRoute
+  '/team_/calculator': typeof TeamCalculatorRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -107,10 +125,12 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/procedures'
     | '/sitemap.xml'
+    | '/team'
     | '/terms'
     | '/browse/$code'
     | '/device/$id'
     | '/procedures/$familyId'
+    | '/team/calculator'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -118,10 +138,12 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/procedures'
     | '/sitemap.xml'
+    | '/team'
     | '/terms'
     | '/browse/$code'
     | '/device/$id'
     | '/procedures/$familyId'
+    | '/team/calculator'
   id:
     | '__root__'
     | '/'
@@ -129,10 +151,12 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/procedures'
     | '/sitemap.xml'
+    | '/team'
     | '/terms'
     | '/browse_/$code'
     | '/device/$id'
     | '/procedures_/$familyId'
+    | '/team_/calculator'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -141,10 +165,12 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   ProceduresRoute: typeof ProceduresRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TeamRoute: typeof TeamRoute
   TermsRoute: typeof TermsRoute
   BrowseCodeRoute: typeof BrowseCodeRoute
   DeviceIdRoute: typeof DeviceIdRoute
   ProceduresFamilyIdRoute: typeof ProceduresFamilyIdRoute
+  TeamCalculatorRoute: typeof TeamCalculatorRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -184,6 +210,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/team': {
+      id: '/team'
+      path: '/team'
+      fullPath: '/team'
+      preLoaderRoute: typeof TeamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -212,6 +245,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProceduresFamilyIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/team_/calculator': {
+      id: '/team_/calculator'
+      path: '/team/calculator'
+      fullPath: '/team/calculator'
+      preLoaderRoute: typeof TeamCalculatorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -221,10 +261,12 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   ProceduresRoute: ProceduresRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TeamRoute: TeamRoute,
   TermsRoute: TermsRoute,
   BrowseCodeRoute: BrowseCodeRoute,
   DeviceIdRoute: DeviceIdRoute,
   ProceduresFamilyIdRoute: ProceduresFamilyIdRoute,
+  TeamCalculatorRoute: TeamCalculatorRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1642,3 +1642,10 @@ html { scroll-behavior: smooth; scroll-padding-top: 0; }
 .directory-pager { display:flex; align-items:center; gap:12px; margin:12px 0; font-size:13px; color:var(--muted-foreground); }
 .directory-source { margin-top:24px; }
 @media(max-width:760px) { .directory-stats-3,.directory-stats-4 { grid-template-columns:minmax(0,1fr); } }
+
+.team-form { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; margin-top:12px; }
+.team-form label { display:flex; flex-direction:column; gap:6px; font-size:14px; }
+.team-select { height:40px; border:1px solid var(--border); border-radius:8px; background:var(--background); color:var(--foreground); padding:0 10px; }
+.team-hospitals { grid-column:1/-1; display:flex; flex-direction:column; align-items:flex-start; gap:4px; }
+.header-link { font-size:14px; }
+@media (max-width: 760px) { .header-link { display:none; } }

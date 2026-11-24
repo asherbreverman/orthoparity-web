@@ -353,3 +353,20 @@ export async function publicDirectoryIndex(client: SupabaseClient, signal: Abort
   if (error) throw error;
   return data as DirectoryIndex;
 }
+
+import type { TeamCode, TeamFamily, TeamHospitalSearch } from './team';
+const teamReads = new Map<string, Promise<unknown>>();
+function cachedTeamRead<T>(key: string, read: () => Promise<T>): Promise<T> {
+  const existing = teamReads.get(key);
+  if (existing) return existing as Promise<T>;
+  const pending = read(); teamReads.set(key, pending); pending.catch(() => teamReads.delete(key));
+  return pending;
+}
+const teamFamilyRead = resilient(async (fam: string): Promise<TeamFamily> => { const {data, error} = await researchClient.rpc('pc_team_family' as never, {fam} as never); if (error) throw error; return data as unknown as TeamFamily; });
+const teamCodeRead = resilient(async (code: string): Promise<TeamCode> => { const {data, error} = await researchClient.rpc('pc_team_code' as never, {code} as never); if (error) throw error; return data as unknown as TeamCode; });
+const teamHospitalRead = resilient(async (q: string, lim: number): Promise<TeamHospitalSearch> => { const {data, error} = await researchClient.rpc('pc_team_hospital' as never, {q, lim} as never); if (error) throw error; return data as unknown as TeamHospitalSearch; });
+const teamNotesRead = resilient(async (): Promise<string[]> => { const {data, error} = await researchClient.rpc('pc_team_notes' as never); if (error) throw error; return (data ?? []) as unknown as string[]; });
+export function getTeamFamily(fam: string) { return cachedTeamRead(`family:${fam}`, () => teamFamilyRead(fam)); }
+export function getTeamCode(code: string) { const c = code.trim().toUpperCase(); return cachedTeamRead(`code:${c}`, () => teamCodeRead(c)); }
+export function getTeamHospitals(q: string, lim = 50) { const t = q.trim(); return cachedTeamRead(`hospital:${t.toLowerCase()}:${lim}`, () => teamHospitalRead(t, lim)); }
+export function getTeamNotes() { return cachedTeamRead('notes', teamNotesRead); }
