@@ -66,5 +66,3 @@ use the editor.
 - Read public search previews through the adapter with an anonymous server client, a two-second deadline and hourly edge/query caches; this keeps source HTML useful without blocking slow reads.
 - Directory reads stay in the read-only adapter with session caches; sort/filter/CSV rules stay pure for tests.
 - TEAM reads stay in the cached adapter; calculator math is pure and inputs never leave component state.
-- Packet check claims persist only in the URL fragment through the pure packet-claims helpers, flushed by CopyLink's flush event; fragments never reach requests, so typed text stays private.
-- Secondary pages open with the shared PageHead (op-band/op-pagehead) and put content in op-wrap op-section; this keeps eyebrows, titles and spacing consistent.

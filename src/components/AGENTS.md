@@ -1,0 +1,2 @@
+- Packet check claims persist only in the URL fragment (packet-claims helpers, flushed by CopyLink); fragments never reach requests.
+- Secondary pages start with the shared PageHead and put content in op-wrap op-section for consistent heads.
