@@ -4,7 +4,7 @@ import { csvCell } from '@/lib/reviewer-export';
 describe('Reviewer data rules', () => {
   it('parses K and DEN numbers using any separator and removes duplicates', () => {
     expect(parseBatch('k110694; DEN170001\nK241487 / K110694')).toEqual(['K110694', 'DEN170001', 'K241487']);
-    expect(parseBatch('K12345 K1234567 P960025')).toEqual([]);
+    expect(parseBatch('K12345 K1234567 P960025')).toEqual(['P960025']);
   });
   it('accepts 50 clearance numbers and rejects 51 without silent truncation', () => {
     expect(batchAllowed(Array.from({length:50}, (_,i) => `K${String(i).padStart(6,'0')}`))).toBe(true);

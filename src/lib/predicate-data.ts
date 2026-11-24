@@ -135,7 +135,7 @@ export function getCachedPortfolio(v: string, m: OwnershipMode) {
   return p;
 }
 const approvalCounts = new Map<string, Promise<number>>();
-/** Counts PMA/HDE/De Novo items (numbers starting P, H or N) across the full portfolio list. */
+/** Counts P (PMA), H (HDE) and N (pre-1976 approvals) across the full portfolio; DEN (De Novo) counts as 510(k)s. */
 export function getCachedApprovalCount(v: string, m: OwnershipMode, total: number) {
   const key = `${v}|${m}`; let p = approvalCounts.get(key);
   if (!p) { p = (async () => { const { data, error } = await researchClient.rpc('pc_vendor_portfolio', { v, m, p_anatomy: null, p_kind: null, p_code: null, lim: Math.max(500, total) }); if (error) throw error; return ((data ?? []) as PortfolioRow[]).filter(r => isApprovalNumber(r.knumber)).length; })(); approvalCounts.set(key, p); p.catch(() => approvalCounts.delete(key)); }

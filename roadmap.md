@@ -153,3 +153,8 @@
 - [ ] Add pathway tags to company portfolios and preserve every returned count.
 - [ ] Test the five requested device pages, mobile tables, normal 510(k) behavior and formatting rules without query changes.
 - [x] FDA approval header fixes (approval date, HDE class, company counts)
+
+# Three targeted front-end fixes
+- [x] Correct shared footer punctuation and the intentional PMA parsing expectation.
+- [x] Use brief approval counts, retaining the unchanged full-list read only for missing counts.
+- [x] Verify four live company headers with zero header portfolio requests and both footers; 22 targeted tests pass, full suite has 291 passes and 3 unrelated live-data expectation mismatches.

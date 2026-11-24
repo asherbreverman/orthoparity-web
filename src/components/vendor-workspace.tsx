@@ -13,7 +13,7 @@ import {getVendorSupplier,supplierNumber,type VendorSupplier} from '@/lib/suppli
 import {VendorSupplierEvidence} from './supplier-evidence';
 import {askLines,positionClass,longDate,brandsOutOfDistribution,type View,type VendorSignals,type CompetitionRow} from '@/lib/signals';
 import {BottomLine,GlanceTiles,DecisionCards,EvidenceSection,Notes,PrintBrief,useEvidence} from './decision-shared';
-import {portfolioCountLine,vendorSubtitle,emptyProfile,money,dollars,percent,ratio,sourceLinks,showsRedirectNote,type OwnershipMode,type VendorBrief,type VendorComparison,type VendorResolve} from '@/lib/vendor-data';
+import {portfolioApprovalCount,portfolioCountLine,vendorSubtitle,emptyProfile,money,dollars,percent,ratio,sourceLinks,showsRedirectNote,type OwnershipMode,type VendorBrief,type VendorComparison,type VendorResolve} from '@/lib/vendor-data';
 import type {Meta} from '@/lib/predicate-chain';
 import {PublicRecordLoading, Status, useRefetch} from './reviewer-shared';
 import {PaymentMix,Metrics,Studies,Questions,ProfileSummary} from './payment-shared';
@@ -41,8 +41,8 @@ export function VendorWorkspace({v,from,compare,meta,view,onView,onRedirect,onDi
  useEffect(()=>{let active=true;if(!v||!brief?.found)return;getVendorSupplier(v,mode).then(data=>{if(active)setSupplier({v,data});}).catch(()=>{});return()=>{active=false;};},[v,brief]);
  const [maudeSummary,setMaudeSummary]=useState<{v:string;reports:number|null}|null>(null);
  const [approvalState,setApprovalState]=useState<{v:string;n:number}|null>(null);
- useEffect(()=>{let active=true;if(!v||!brief?.found)return;getCachedApprovalCount(v,mode,brief.portfolio.clearances).then(n=>{if(active)setApprovalState({v,n});}).catch(()=>{});return()=>{active=false;};},[v,brief]);
- const approvals=approvalState&&approvalState.v===v?approvalState.n:null;
+ useEffect(()=>{let active=true;if(!v||!brief?.found)return;portfolioApprovalCount(brief.portfolio,()=>getCachedApprovalCount(v,mode,brief.portfolio.clearances)).then(n=>{if(active)setApprovalState({v,n});}).catch(()=>{});return()=>{active=false;};},[v,brief]);
+ const approvals=brief?.portfolio?.approvals??(approvalState&&approvalState.v===v?approvalState.n:null);
  const maudeOpen=ev.isOpen('maude');
  useEffect(()=>{let active=true;if(!v||!maudeOpen)return;getVendorMaude(v,mode).then(data=>{if(active)setMaudeSummary({v,reports:data.last5.reports});}).catch(()=>{});return()=>{active=false;};},[v,maudeOpen]);
  useEffect(()=>{if(brief?.found&&v&&scrolled.current!==v){scrolled.current=v;ref.current?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});}},[brief,v]);
