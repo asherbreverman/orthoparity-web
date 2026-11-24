@@ -6,6 +6,7 @@
  *   src/routes/__root.tsx and name the family in a --font-* token in @theme inline below.
  */
 @import "tailwindcss" source(none);
+@import "./orthoparity.css";
 @source "../src";
 @import "tw-animate-css";
 @import "@xyflow/react/dist/style.css";
@@ -83,26 +84,26 @@
 }
 
 :root {
-  --radius: 0.375rem;
-  --background: oklch(0.985 0.001 250);
-  --foreground: oklch(0.26 0.015 250);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.343 0.079 248);
-  --primary-foreground: oklch(0.984 0.003 247.858);
+  --radius: 12px;
+  --background: var(--op-surface-page);
+  --foreground: var(--op-text);
+  --card: var(--op-surface-card);
+  --card-foreground: var(--op-text);
+  --popover: var(--op-surface-card);
+  --popover-foreground: var(--op-text);
+  --primary: var(--op-accent-fill);
+  --primary-foreground: var(--op-on-accent);
   --secondary: oklch(0.968 0.007 247.896);
   --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.49 0.015 250);
-  --accent: oklch(0.956 0.012 250);
-  --accent-foreground: oklch(0.208 0.042 265.755);
+  --muted: var(--op-surface-subtle);
+  --muted-foreground: var(--op-muted);
+  --accent: var(--op-surface-accent);
+  --accent-foreground: var(--op-ink);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.9 0.005 250);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
+  --border: var(--op-border);
+  --input: var(--op-border-input);
+  --ring: var(--op-focus);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -129,25 +130,25 @@
 }
 
 .dark {
-  --background: oklch(0.2 0.006 250);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.24 0.008 250);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.82 0.055 245);
-  --primary-foreground: oklch(0.208 0.042 265.755);
+  --background: var(--op-surface-page);
+  --foreground: var(--op-text);
+  --card: var(--op-surface-card);
+  --card-foreground: var(--op-text);
+  --popover: var(--op-surface-card);
+  --popover-foreground: var(--op-text);
+  --primary: var(--op-accent-fill);
+  --primary-foreground: var(--op-on-accent);
   --secondary: oklch(0.279 0.041 260.031);
   --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
+  --muted: var(--op-surface-subtle);
+  --muted-foreground: var(--op-muted);
+  --accent: var(--op-surface-accent);
+  --accent-foreground: var(--op-ink);
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
+  --border: var(--op-border);
+  --input: var(--op-border-input);
+  --ring: var(--op-focus);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
@@ -161,10 +162,6 @@
   --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
-  --muted: oklch(0.27 0.006 250);
-  --secondary: oklch(0.27 0.006 250);
-  --accent: oklch(0.29 0.012 250);
-  --muted-foreground: oklch(0.7 0.015 250);
 }
 
 @layer base {
@@ -1184,24 +1181,25 @@
 
 /* Reference presentation: question hues are identities, never ratings. */
 :root {
- --story-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
- --display-font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
- --background: oklch(1 0 0); --foreground: oklch(from #0b0b0d l c h); --card: oklch(from #f5f5f7 l c h); --card-foreground: var(--foreground);
- --popover: var(--background); --popover-foreground: var(--foreground); --primary: oklch(from #0066cc l c h); --primary-foreground: oklch(1 0 0);
- --secondary: var(--card); --secondary-foreground: var(--foreground); --muted: var(--card); --muted-foreground: oklch(from #55555c l c h);
- --ink-3: oklch(from #8a8a92 l c h); --accent: oklch(from #e8e8ed l c h); --accent-foreground: var(--foreground); --panel: var(--card);
- --border: oklch(0 0 0 / .09); --input: oklch(0 0 0 / .18); --ring: var(--primary);
+ --story-font: var(--op-font-sans);
+ --display-font: var(--op-font-display);
+ --background: var(--op-surface-page); --foreground: var(--op-text); --card: var(--op-surface-card); --card-foreground: var(--op-text);
+ --popover: var(--op-surface-card); --popover-foreground: var(--op-text); --primary: var(--op-accent-fill); --primary-foreground: var(--op-on-accent);
+ --secondary: var(--card); --secondary-foreground: var(--foreground); --muted: var(--op-surface-subtle); --muted-foreground: var(--op-muted);
+ --ink-3: oklch(from #8a8a92 l c h); --accent: var(--op-surface-accent); --accent-foreground: var(--op-ink); --panel: var(--card);
+ --border: var(--op-border); --input: var(--op-border-input); --ring: var(--op-focus);
  --action: oklch(from #0071e3 l c h); --action-foreground: oklch(1 0 0); --wordmark-main: var(--foreground); --wordmark-muted: var(--muted-foreground);
  --attention-bg: oklch(from #fff3d1 l c h); --attention-fg: oklch(from #7a5200 l c h);
  --question-1: oklch(from #0068d6 l c h); --question-2: oklch(from #7a3ff2 l c h); --question-3: oklch(from #d2237a l c h); --question-4: oklch(from #0a7f88 l c h); --question-5: oklch(from #177f40 l c h); --question-6: oklch(from #946500 l c h); --question-7: oklch(from #5a6b7d l c h);
  --hue: var(--question-1); --ask-foreground: oklch(1 0 0); --glass: color-mix(in srgb, var(--background) 82%, transparent);
  --shadow-search: 0 10px 32px oklch(0 0 0 / .07); --shadow-popover: 0 14px 45px oklch(0 0 0 / .12); --shadow-thumb: 0 1px 4px oklch(0 0 0 / .18);
- --radius: 1.75rem; --ease-ui-out: cubic-bezier(.23,1,.32,1);
+ --radius: 12px; --ease-ui-out: cubic-bezier(.23,1,.32,1);
 }
 .dark {
- --background: oklch(0 0 0); --foreground: oklch(from #f5f5f7 l c h); --card: oklch(from #1c1c1f l c h); --surface: oklch(from #0e0e10 l c h);
- --muted-foreground: oklch(from #a8a8b0 l c h); --ink-3: oklch(from #74747c l c h); --accent: oklch(from #2b2b30 l c h);
- --primary: oklch(from #4da3ff l c h); --action: oklch(from #2997ff l c h); --action-foreground: oklch(0 0 0); --border: oklch(1 0 0 / .12); --input: oklch(1 0 0 / .22);
+ --background: var(--op-surface-page); --foreground: var(--op-text); --card: var(--op-surface-card); --card-foreground: var(--op-text); --surface: oklch(from #0e0e10 l c h);
+ --popover: var(--op-surface-card); --popover-foreground: var(--op-text); --primary-foreground: var(--op-on-accent); --accent-foreground: var(--op-ink);
+ --muted: var(--op-surface-subtle); --muted-foreground: var(--op-muted); --ink-3: oklch(from #74747c l c h); --accent: var(--op-surface-accent);
+ --primary: var(--op-accent-fill); --action: oklch(from #2997ff l c h); --action-foreground: oklch(0 0 0); --border: var(--op-border); --input: var(--op-border-input); --ring: var(--op-focus);
  --attention-bg: oklch(from #3a2a08 l c h); --attention-fg: oklch(from #f3c36b l c h);
  --question-1: oklch(from #4da3ff l c h); --question-2: oklch(from #a98bff l c h); --question-3: oklch(from #ff6fb0 l c h); --question-4: oklch(from #3fd0d8 l c h); --question-5: oklch(from #4cd787 l c h); --question-6: oklch(from #f0c14a l c h); --question-7: oklch(from #9fb0c2 l c h);
  --ask-foreground: oklch(0 0 0);
@@ -1656,3 +1654,35 @@ html { scroll-behavior: smooth; scroll-padding-top: 0; }
 .site-log-card dl { display:grid; gap:4px; margin-top:8px; }
 .site-log-card dt { font-weight:600; margin-top:8px; }
 .fda-record-note { margin-top:12px; max-width:950px; }
+
+/* Shared v2 shell: structural rules only; color and typography come from orthoparity.css. */
+.op-header { position:sticky; top:0; z-index:50; }
+.op-header-actions { display:flex; align-items:center; gap:var(--op-space-8); flex:none; }
+.op-tools { position:relative; }
+.op-tools .op-menu { top:calc(100% + 4px); right:0; }
+.op-nav .op-navbtn[aria-current="page"] { color:var(--op-ink)!important; box-shadow:inset 0 -2px 0 var(--op-accent); border-radius:0; }
+.op-header-search { border-top:1px solid var(--op-border); }
+.op-header-search .op-wrap { padding-top:var(--op-space-8); padding-bottom:var(--op-space-8); }
+.op-header-search .docked-search { max-width:none; }
+.op-logo .brand-mark { width:26px; height:26px; flex:none; }
+.op-mobile-menu { display:none; border-top:1px solid var(--op-border); background:var(--op-surface-card); }
+.op-mobile-menu .op-wrap { display:block; }
+.op-mobile-links { display:grid; width:100%; padding-top:var(--op-space-8); padding-bottom:var(--op-space-8); }
+.op-mobile-links a { display:block; padding:12px 0; border-bottom:1px solid var(--op-border); color:var(--op-text)!important; font-size:15px; font-weight:600; }
+.op-mobile-links a:last-child { border-bottom:0; }
+.op-mobile-links a[aria-current="page"] { color:var(--op-accent)!important; }
+.op-footer-link { border:0; padding:0; background:none; color:var(--op-footer-text)!important; text-align:left; font-size:inherit; }
+.op-footer-link:hover { text-decoration:underline; }
+.op-glossary-chips { margin-bottom:var(--op-space-20); }
+.op-glossary-table tr[id] { scroll-margin-top:calc(var(--record-header-height, 72px) + var(--op-space-16)); }
+.op-glossary-table td:first-child { width:140px; }
+.op-page .op-term a { color:inherit; text-decoration:none; }
+.op-page .op-term a:hover { text-decoration:none; }
+@media (max-width:899px) { .op-tagline { display:none; } }
+@media (max-width:640px) {
+  .op-header-main { flex-wrap:nowrap; }
+  .op-theme { display:none; }
+  .op-mobile-menu { display:block; }
+  .op-glossary-table td:first-child { width:110px; }
+}
+@media print { .op-header,.op-footer,.op-mobile-menu { display:none!important; } }

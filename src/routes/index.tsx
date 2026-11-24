@@ -32,7 +32,7 @@ const howItWorks = [
 ];
 export const Route = createFileRoute('/')({
   staticData: { sitemap: true },
-  validateSearch: zodValidator(z.object({k: fallback(z.string(), '').optional(), v: fallback(z.string(), '').optional(), compare: fallback(z.string(), '').optional(), from: fallback(z.string(), '').optional(), mode: fallback(z.string(), '').optional(), view: fallback(z.string(), '').optional(), part: fallback(z.string(), '').optional()})),
+  validateSearch: zodValidator(z.object({k: fallback(z.string(), '').optional(), v: fallback(z.string(), '').optional(), compare: fallback(z.string(), '').optional(), from: fallback(z.string(), '').optional(), mode: fallback(z.string(), '').optional(), level: fallback(z.string(), '').optional(), view: fallback(z.string(), '').optional(), part: fallback(z.string(), '').optional()})),
   loaderDeps: ({ search }) => pageSubject(search),
   loader: ({ context, deps }) => context.queryClient.ensureQueryData(publicPageOptions(deps)),
   pendingComponent: PublicRecordLoading,
@@ -49,20 +49,20 @@ export const Route = createFileRoute('/')({
   component: DeviceBrief,
 });
 function DeviceBrief() {
-  const { k: rawK, v, compare: rawCompare, from, mode, view: viewParam, part } = Route.useSearch();
+  const { k: rawK, v, compare: rawCompare, from, mode, level, view: viewParam, part } = Route.useSearch();
   const k = normalizeDeviceNumber(rawK ?? '') ?? rawK;
   const comparing = rawCompare !== undefined;
   const compare = rawCompare;
   const { data: initial } = useSuspenseQuery(publicPageOptions(pageSubject({ k, v })));
   const view: View = viewParam === 'analyst' ? 'analyst' : 'brief';
-  const vendorMode = !!v || mode === 'vendor';
+  const vendorMode = !!v || mode === 'vendor' || level === 'company';
   const selected = !!k || !!v || !!part;
   const navigate = useNavigate();
   const { meta } = useRelease(initial.meta ?? undefined);
   const [coverage, setCoverage] = useState<VendorCoverage | null>(initial.coverage);
   useEffect(() => { if (initial.coverage) { setCoverage(initial.coverage); return; } let active = true; getVendorCoverage().then(data => { if (active) setCoverage(data); }).catch(() => {}); return () => { active = false; }; }, [initial.coverage]);
   const setView = (next: View) => void navigate({ to: '/', search: prev => ({ ...prev, view: next === 'analyst' ? 'analyst' : undefined }), replace: true, resetScroll: false });
-  const changeMode = (vendor: boolean) => void navigate({ to: '/', search: vendor ? { mode: 'vendor' } : {} });
+  const changeMode = (vendor: boolean) => void navigate({ to: '/', search: vendor ? { mode: 'vendor', level: 'company' } : { level: 'product' } });
   const search = vendorMode ? <VendorSearch key={v ?? 'vendor'} initialValue={v ?? ''} onSelect={row => void navigate({to:'/',search:{v:row.vendor_id, from: row.via_vendor_id ?? undefined, view: view === 'analyst' ? 'analyst' : undefined}, viewTransition: !window.matchMedia('(prefers-reduced-motion: reduce)').matches})} /> : <DeviceSearch resetKey={k ?? ''} onSelect={(row, partNumber) => void navigate({ to: '/', search: { k: row.knumber, part: partNumber, view: view === 'analyst' ? 'analyst' : undefined }, viewTransition: !window.matchMedia('(prefers-reduced-motion: reduce)').matches })} />;
   return <>
     {selected ? <DockedSearch>{search}</DockedSearch> : <section className="identify-step home-hero">

@@ -161,3 +161,9 @@
 
 # Compare pages
 - [x] Product and company compare as in-page routes with print, CSV, up to 50 products and company wording fixes.
+
+# OrthoParity redesign, part 1
+- [x] Connect the supplied design tokens and exact font weights without editing the supplied stylesheet.
+- [x] Replace the shared header, responsive navigation, footer and brand mark on every route.
+- [x] Add the glossary route, sitemap entry, Term, CopyLink and ScopeLabel helpers.
+- [x] Verify desktop, mobile, keyboard, dark mode, existing routes and the full test suite.

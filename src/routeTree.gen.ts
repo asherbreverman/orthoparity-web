@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BrowseRouteImport } from './routes/browse'
 import { Route as CorrectionsRouteImport } from './routes/corrections'
+import { Route as GlossaryRouteImport } from './routes/glossary'
 import { Route as PacketCheckRouteImport } from './routes/packet-check'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProceduresRouteImport } from './routes/procedures'
@@ -41,6 +42,11 @@ const BrowseRoute = BrowseRouteImport.update({
 const CorrectionsRoute = CorrectionsRouteImport.update({
   id: '/corrections',
   path: '/corrections',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GlossaryRoute = GlossaryRouteImport.update({
+  id: '/glossary',
+  path: '/glossary',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PacketCheckRoute = PacketCheckRouteImport.update({
@@ -123,6 +129,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/browse': typeof BrowseRoute
   '/corrections': typeof CorrectionsRoute
+  '/glossary': typeof GlossaryRoute
   '/packet-check': typeof PacketCheckRoute
   '/privacy': typeof PrivacyRoute
   '/procedures': typeof ProceduresRoute
@@ -143,6 +150,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/browse': typeof BrowseRoute
   '/corrections': typeof CorrectionsRoute
+  '/glossary': typeof GlossaryRoute
   '/packet-check': typeof PacketCheckRoute
   '/privacy': typeof PrivacyRoute
   '/procedures': typeof ProceduresRoute
@@ -164,6 +172,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/browse': typeof BrowseRoute
   '/corrections': typeof CorrectionsRoute
+  '/glossary': typeof GlossaryRoute
   '/packet-check': typeof PacketCheckRoute
   '/privacy': typeof PrivacyRoute
   '/procedures': typeof ProceduresRoute
@@ -186,6 +195,7 @@ export interface FileRouteTypes {
     | '/'
     | '/browse'
     | '/corrections'
+    | '/glossary'
     | '/packet-check'
     | '/privacy'
     | '/procedures'
@@ -206,6 +216,7 @@ export interface FileRouteTypes {
     | '/'
     | '/browse'
     | '/corrections'
+    | '/glossary'
     | '/packet-check'
     | '/privacy'
     | '/procedures'
@@ -226,6 +237,7 @@ export interface FileRouteTypes {
     | '/'
     | '/browse'
     | '/corrections'
+    | '/glossary'
     | '/packet-check'
     | '/privacy'
     | '/procedures'
@@ -247,6 +259,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BrowseRoute: typeof BrowseRoute
   CorrectionsRoute: typeof CorrectionsRoute
+  GlossaryRoute: typeof GlossaryRoute
   PacketCheckRoute: typeof PacketCheckRoute
   PrivacyRoute: typeof PrivacyRoute
   ProceduresRoute: typeof ProceduresRoute
@@ -285,6 +298,13 @@ declare module '@tanstack/react-router' {
       path: '/corrections'
       fullPath: '/corrections'
       preLoaderRoute: typeof CorrectionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/glossary': {
+      id: '/glossary'
+      path: '/glossary'
+      fullPath: '/glossary'
+      preLoaderRoute: typeof GlossaryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/packet-check': {
@@ -399,6 +419,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BrowseRoute: BrowseRoute,
   CorrectionsRoute: CorrectionsRoute,
+  GlossaryRoute: GlossaryRoute,
   PacketCheckRoute: PacketCheckRoute,
   PrivacyRoute: PrivacyRoute,
   ProceduresRoute: ProceduresRoute,
