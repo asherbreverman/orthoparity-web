@@ -1986,6 +1986,7 @@ export type Database = {
         Returns: Json
       }
       pc_category: { Args: { code: string }; Returns: Json }
+      pc_class_label: { Args: { c: string }; Returns: string }
       pc_clean_blanks: { Args: never; Returns: string }
       pc_clean_ifu: { Args: { t: string }; Returns: string }
       pc_co: { Args: { n: string }; Returns: string }
