@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BrowseRouteImport } from './routes/browse'
+import { Route as PacketCheckRouteImport } from './routes/packet-check'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProceduresRouteImport } from './routes/procedures'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
@@ -29,6 +30,11 @@ const IndexRoute = IndexRouteImport.update({
 const BrowseRoute = BrowseRouteImport.update({
   id: '/browse',
   path: '/browse',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PacketCheckRoute = PacketCheckRouteImport.update({
+  id: '/packet-check',
+  path: '/packet-check',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -80,6 +86,7 @@ const TeamCalculatorRoute = TeamCalculatorRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/browse': typeof BrowseRoute
+  '/packet-check': typeof PacketCheckRoute
   '/privacy': typeof PrivacyRoute
   '/procedures': typeof ProceduresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -93,6 +100,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/browse': typeof BrowseRoute
+  '/packet-check': typeof PacketCheckRoute
   '/privacy': typeof PrivacyRoute
   '/procedures': typeof ProceduresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -107,6 +115,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/browse': typeof BrowseRoute
+  '/packet-check': typeof PacketCheckRoute
   '/privacy': typeof PrivacyRoute
   '/procedures': typeof ProceduresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -122,6 +131,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/browse'
+    | '/packet-check'
     | '/privacy'
     | '/procedures'
     | '/sitemap.xml'
@@ -135,6 +145,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/browse'
+    | '/packet-check'
     | '/privacy'
     | '/procedures'
     | '/sitemap.xml'
@@ -148,6 +159,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/browse'
+    | '/packet-check'
     | '/privacy'
     | '/procedures'
     | '/sitemap.xml'
@@ -162,6 +174,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BrowseRoute: typeof BrowseRoute
+  PacketCheckRoute: typeof PacketCheckRoute
   PrivacyRoute: typeof PrivacyRoute
   ProceduresRoute: typeof ProceduresRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -187,6 +200,13 @@ declare module '@tanstack/react-router' {
       path: '/browse'
       fullPath: '/browse'
       preLoaderRoute: typeof BrowseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/packet-check': {
+      id: '/packet-check'
+      path: '/packet-check'
+      fullPath: '/packet-check'
+      preLoaderRoute: typeof PacketCheckRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -258,6 +278,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BrowseRoute: BrowseRoute,
+  PacketCheckRoute: PacketCheckRoute,
   PrivacyRoute: PrivacyRoute,
   ProceduresRoute: ProceduresRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,

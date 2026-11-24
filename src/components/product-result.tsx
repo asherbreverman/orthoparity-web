@@ -21,6 +21,7 @@ import { LocalBar, ExtraEvidence } from './story-shared';
 import { companyName, displayName, shortDeviceName, productDisplayTitle, productSentence } from '@/lib/format';
 import { headerOwnerChanged } from '@/lib/product-comparison';
 import { ProductDownloadMenu } from './product-download-menu';
+import { ProductTrials } from './trial-evidence';
 import { toast } from 'sonner';
 import { dateLabel, type Meta } from '@/lib/predicate-chain';
 import { filterPeers, lineageSentence, patternExplanation, unreviewedLow, questionGroups, questionsText, type Brief, type QuestionGroup } from '@/lib/reviewer-data';
@@ -147,6 +148,7 @@ export function ProductResult({ k, compare, view, meta, onView, onCompare, notic
       <EvidenceSection id="research" title="Industry-funded research" summary={p ? (p.research?.length ? `${p.research.length} industry-funded studies` : 'None in Open Payments') : 'Loading…'} open={ev.isOpen('research')} onToggle={() => ev.toggle('research')}>
         <p className="section-caption">Studies come from research payments that companies report to CMS Open Payments. Published papers and registry data are not included yet.</p>
         {p ? <Studies rows={p.research ?? []} /> : <Status busy={!paymentError} error={paymentError} />}
+        <ProductTrials k={k} />
       </EvidenceSection>
       <EvidenceSection id="catalog" title="Catalog" summary={card('catalog')?.badge ?? 'Catalog items'} open={ev.isOpen('catalog')} onToggle={() => ev.toggle('catalog')}>
         {card('catalog') ? <p className="section-lead">{card('catalog')?.finding}</p> : <p className="section-note">Catalog data unavailable.</p>}
@@ -175,7 +177,7 @@ export function ProductResult({ k, compare, view, meta, onView, onCompare, notic
           <p className="plain-description" title={`FDA groups devices by product code. This description covers every device in the code. The device's own name and its FDA-${predicatesVisible ? 'cleared' : 'approved'} use are below.`}>Product code {code === 'NOT FOUND' ? code : <Link className="brief-link font-mono" to="/browse/$code" params={{ code }}>{code}</Link>} covers: {productSentence(brief.product_code?.plain_description ?? `${dateLabelText} by FDA as ${plain}`, h?.procedures ?? brief.product_code?.procedures)}{brief.product_code?.reviewed === false && <> <span className="review-tag" title="Plain-English description drafted from FDA's definition, pending expert review." tabIndex={0}>Draft</span></>}</p>
           {kindLabel && <p className="section-caption">{kindLabel}</p>}
         </div>
-        <div className="result-actions"><div className="no-print result-buttons"><ProductDownloadMenu /><Button variant="link" onClick={() => onCompare('')}>Compare with another product ›</Button></div></div>
+        <div className="result-actions"><div className="no-print result-buttons"><ProductDownloadMenu /><Button asChild variant="secondary"><Link to="/packet-check" search={{k}}>Packet check</Link></Button><Button variant="link" onClick={() => onCompare('')}>Compare with another product ›</Button></div></div>
       </div>
       {s && <BottomLine text={s.bottom_line} />}
       {newClearanceNote && <p className="section-caption new-clearance-note">{newClearanceNote}</p>}

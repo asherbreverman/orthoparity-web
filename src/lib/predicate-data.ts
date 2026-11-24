@@ -370,3 +370,11 @@ export function getTeamFamily(fam: string) { return cachedTeamRead(`family:${fam
 export function getTeamCode(code: string) { const c = code.trim().toUpperCase(); return cachedTeamRead(`code:${c}`, () => teamCodeRead(c)); }
 export function getTeamHospitals(q: string, lim = 50) { const t = q.trim(); return cachedTeamRead(`hospital:${t.toLowerCase()}:${lim}`, () => teamHospitalRead(t, lim)); }
 export function getTeamNotes() { return cachedTeamRead('notes', teamNotesRead); }
+
+import type { DeviceTrials, TrialLookup, VendorTrials } from './trials';
+const deviceTrialsRead = resilient(async (k: string): Promise<DeviceTrials> => { const {data, error} = await researchClient.rpc('pc_device_trials', {k}); if (error) throw error; return data as DeviceTrials; });
+const vendorTrialsRead = resilient(async (v: string, lim: number): Promise<VendorTrials> => { const {data, error} = await researchClient.rpc('pc_vendor_trials', {v, lim}); if (error) throw error; return data as VendorTrials; });
+const trialLookupRead = resilient(async (nct: string): Promise<TrialLookup> => { const {data, error} = await researchClient.rpc('pc_trial_lookup', {nct}); if (error) throw error; return data as TrialLookup; });
+export function getDeviceTrials(k: string) { return cachedTeamRead(`trials:${k.toUpperCase()}`, () => deviceTrialsRead(k.toUpperCase())); }
+export function getVendorTrials(v: string, lim = 1000) { return cachedTeamRead(`vendor-trials:${v}:${lim}`, () => vendorTrialsRead(v, lim)); }
+export function getTrialLookup(nct: string) { return cachedTeamRead(`trial:${nct}`, () => trialLookupRead(nct)); }
