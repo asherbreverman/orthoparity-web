@@ -2083,7 +2083,7 @@ export type Database = {
       }
       pc_procedure_list: { Args: never; Returns: Json }
       pc_procedure_notes: { Args: never; Returns: Json }
-      pc_procedure_worksheet: { Args: never; Returns: Json }
+      pc_procedure_worksheet: { Args: { fam?: string }; Returns: Json }
       pc_product_payments: { Args: { k: string }; Returns: Json }
       pc_recall_card_product: {
         Args: { company: string; kn: string }
