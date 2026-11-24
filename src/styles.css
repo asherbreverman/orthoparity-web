@@ -1619,3 +1619,11 @@ html { scroll-behavior: smooth; scroll-padding-top: 0; }
   .compare-print .no-print, .compare-print button { display:none !important; }
   .compare-print .comparison-codes { grid-template-columns:repeat(3,1fr); gap:8pt; font-size:8pt; }
 }
+
+/* Part-number search */
+.search-results>p.search-group { padding:12px 20px 4px; font-size:.75rem; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--muted-foreground); }
+.search-note { margin-top:8px; font-size:.875rem; color:var(--muted-foreground); }
+.part-note { margin:0 0 12px; padding:8px 14px; border-radius:14px; background:var(--muted); font-size:.875rem; color:var(--muted-foreground); display:flex; flex-wrap:wrap; gap:4px 12px; align-items:center; }
+.part-table { width:100%; border-collapse:collapse; font-size:.875rem; }
+.part-table th, .part-table td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--border); vertical-align:top; }
+.part-table-wrap { overflow-x:auto; }

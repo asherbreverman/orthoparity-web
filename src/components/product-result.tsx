@@ -1,6 +1,6 @@
 import type { DeviceOwner } from '@/lib/vendor-data';
 import { ClientOnly, Link } from '@tanstack/react-router';
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Copy, Check, Download, FileSpreadsheet, ChevronDown, Info, ExternalLink } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
@@ -29,7 +29,7 @@ const CategoryChart = lazy(() => import('./category-chart'));
 const PaymentYears = lazy(() => import('./payment-charts').then(m => ({ default: m.PaymentYears })));
 const Evidence = lazy(() => import('./predicate-evidence').then(m => ({ default: m.PredicateEvidence })));
 
-export function ProductResult({ k, compare, view, meta, onView, onCompare }: { k: string; compare?: string | undefined; view: View; meta: Meta; onView: (v: View) => void; onCompare: (k: string) => void }) {
+export function ProductResult({ k, compare, view, meta, onView, onCompare, notice }: { notice?: ReactNode; k: string; compare?: string | undefined; view: View; meta: Meta; onView: (v: View) => void; onCompare: (k: string) => void }) {
   const [showFullName, setShowFullName] = useState(false);
   const [brief, setBrief] = useState<Brief | null>(null);
   const [signals, setSignals] = useState<Signals | null>(null);
@@ -166,7 +166,7 @@ export function ProductResult({ k, compare, view, meta, onView, onCompare }: { k
   return <>
     <Status error={error} />
     <PrintBrief evidence={<ProductAddOnPrint k={k} />} approvalEvidence={approval ? <><h2>Approval and supplements</h2><ApprovalContent approval={approval} /></> : undefined} meta={meta} title={displayName(shortDeviceName(fullName, 120))} fullDeviceName={fullName} knumber={device.knumber} tableEvidence="alternatives" kindLabel={kindLabel} subtitle={`${companyName(filer)}${ownerNow ? `, now part of ${companyName(owner?.owner_name ?? 'NOT FOUND')}` : ''}`} description={`Product code ${code} covers: ${productSentence(brief.product_code?.plain_description ?? `${dateLabelText} by FDA as ${plain}`, h?.procedures ?? brief.product_code?.procedures)}`} details={`${device.knumber} · ${pathway} · ${plain} (${code}) · ${approvalDateText(h?.cleared ?? device.decision_date)}${pathway === 'HDE' ? '' : ` · Class ${h?.device_class ?? device.device_class ?? 'NOT FOUND'}`}`} bottomLine={s?.bottom_line ?? ''} newClearanceNote={newClearanceNote} cards={cards} table={{ caption: `Alternatives in product code ${code} · ${s?.alternatives.window ?? ''}`, head: ['Company', 'Clearances', 'Latest device', 'Latest FDA number', 'Latest date'], rows: altRows.map(r => [displayName(r.company), r.clearances, r.latest_device ? displayName(shortDeviceName(r.latest_device, 60)) : 'NOT FOUND', r.latest_knumber ?? 'NOT FOUND', longDate(r.latest_date)]) }} questions={asks} notes={s?.notes ?? []} />
-    <section ref={top} className="result-header" aria-label="Device">
+    <section ref={top} className="result-header" aria-label="Device">{notice}
       <div className="result-heading">
         <div><h2 className="result-title" title={fullName}>{name}</h2>
           {fullName.length > 120 && <><Button variant="link" size="sm" className="px-0" aria-expanded={showFullName} aria-controls="full-device-name" onClick={() => setShowFullName(value => !value)}>Show full name</Button>{showFullName && <p id="full-device-name" className="section-caption break-words" title={fullName}>{displayName(fullName)}</p>}</>}

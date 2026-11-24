@@ -312,3 +312,20 @@ const vendorProceduresRead = resilient(async (v: string, m: OwnershipMode): Prom
 });
 export function getDeviceProcedures(k: string) { return cachedProcedureRead(JSON.stringify(['device-procedures', k]), () => deviceProceduresRead(k)); }
 export function getVendorProcedures(v: string, m: OwnershipMode) { return cachedProcedureRead(JSON.stringify(['vendor-procedures', v, m]), () => vendorProceduresRead(v, m)); }
+
+export interface PartMatch { part_number: string; match: string; number: string; brand: string | null; in_distribution: boolean | null; device_name: string | null; company: string | null; vendor_id: string | null }
+export interface PartSearch { query: string; key: string; note: string | null; results: PartMatch[]; source: string | null }
+const partSearches = new Map<string, Promise<PartSearch>>();
+const partRead = resilient(async (q: string, lim: number): Promise<PartSearch> => {
+  const { data, error } = await researchClient.rpc('pc_part_search', { q, lim });
+  if (error) throw error;
+  const d = (data ?? {}) as Partial<PartSearch>;
+  return { query: d.query ?? q, key: d.key ?? q, note: d.note ?? null, results: d.results ?? [], source: d.source ?? null };
+});
+/** Read-only GUDID part-number lookup, cached per query and limit for the session. */
+export function searchParts(q: string, lim = 25) {
+  const key = `${lim}|${q.trim().toUpperCase()}`;
+  let pending = partSearches.get(key);
+  if (!pending) { pending = partRead(q.trim(), lim); partSearches.set(key, pending); pending.catch(() => partSearches.delete(key)); }
+  return pending;
+}

@@ -10,6 +10,7 @@ import { benchmarkOrigin } from '@/lib/benchmark-brand';
 import shareImage from '@/assets/orthoparity-share.png.asset.json';
 import { Button } from '@/components/ui/button';
 import { DeviceSearch, PublicRecordLoading, useRelease } from '@/components/reviewer-shared';
+import { PartNote, PartResults } from '@/components/part-results';
 import { getVendorCoverage } from '@/lib/predicate-data';
 import { VendorSearch } from '@/components/vendor-search';
 import { ProductResult } from '@/components/product-result';
@@ -31,7 +32,7 @@ const howItWorks = [
 ];
 export const Route = createFileRoute('/')({
   staticData: { sitemap: true },
-  validateSearch: zodValidator(z.object({k: fallback(z.string(), '').optional(), v: fallback(z.string(), '').optional(), compare: fallback(z.string(), '').optional(), from: fallback(z.string(), '').optional(), mode: fallback(z.string(), '').optional(), view: fallback(z.string(), '').optional()})),
+  validateSearch: zodValidator(z.object({k: fallback(z.string(), '').optional(), v: fallback(z.string(), '').optional(), compare: fallback(z.string(), '').optional(), from: fallback(z.string(), '').optional(), mode: fallback(z.string(), '').optional(), view: fallback(z.string(), '').optional(), part: fallback(z.coerce.string(), '').optional()})),
   loaderDeps: ({ search }) => pageSubject(search),
   loader: ({ context, deps }) => context.queryClient.ensureQueryData(publicPageOptions(deps)),
   pendingComponent: PublicRecordLoading,
@@ -45,27 +46,27 @@ export const Route = createFileRoute('/')({
   component: DeviceBrief,
 });
 function DeviceBrief() {
-  const { k: rawK, v, compare: rawCompare, from, mode, view: viewParam } = Route.useSearch();
+  const { k: rawK, v, compare: rawCompare, from, mode, view: viewParam, part } = Route.useSearch();
   const k = normalizeDeviceNumber(rawK ?? '') ?? rawK;
   const comparing = rawCompare !== undefined;
   const compare = rawCompare;
   const { data: initial } = useSuspenseQuery(publicPageOptions(pageSubject({ k, v })));
   const view: View = viewParam === 'analyst' ? 'analyst' : 'brief';
   const vendorMode = !!v || mode === 'vendor';
-  const selected = !!k || !!v;
+  const selected = !!k || !!v || !!part;
   const navigate = useNavigate();
   const { meta } = useRelease(initial.meta ?? undefined);
   const [coverage, setCoverage] = useState<VendorCoverage | null>(initial.coverage);
   useEffect(() => { if (initial.coverage) { setCoverage(initial.coverage); return; } let active = true; getVendorCoverage().then(data => { if (active) setCoverage(data); }).catch(() => {}); return () => { active = false; }; }, [initial.coverage]);
   const setView = (next: View) => void navigate({ to: '/', search: prev => ({ ...prev, view: next === 'analyst' ? 'analyst' : undefined }), replace: true, resetScroll: false });
   const changeMode = (vendor: boolean) => void navigate({ to: '/', search: vendor ? { mode: 'vendor' } : {} });
-  const search = vendorMode ? <VendorSearch key={v ?? 'vendor'} initialValue={v ?? ''} onSelect={row => void navigate({to:'/',search:{v:row.vendor_id, from: row.via_vendor_id ?? undefined, view: view === 'analyst' ? 'analyst' : undefined}, viewTransition: !window.matchMedia('(prefers-reduced-motion: reduce)').matches})} /> : <DeviceSearch resetKey={k ?? ''} onSelect={row => void navigate({ to: '/', search: { k: row.knumber, view: view === 'analyst' ? 'analyst' : undefined }, viewTransition: !window.matchMedia('(prefers-reduced-motion: reduce)').matches })} />;
+  const search = vendorMode ? <VendorSearch key={v ?? 'vendor'} initialValue={v ?? ''} onSelect={row => void navigate({to:'/',search:{v:row.vendor_id, from: row.via_vendor_id ?? undefined, view: view === 'analyst' ? 'analyst' : undefined}, viewTransition: !window.matchMedia('(prefers-reduced-motion: reduce)').matches})} /> : <DeviceSearch resetKey={k ?? ''} onSelect={(row, partNumber) => void navigate({ to: '/', search: { k: row.knumber, part: partNumber, view: view === 'analyst' ? 'analyst' : undefined }, viewTransition: !window.matchMedia('(prefers-reduced-motion: reduce)').matches })} />;
   return <>
     {selected ? <DockedSearch>{search}</DockedSearch> : <section className="identify-step home-hero">
       <p className="home-tagline">Free and open source, for ASCs and IDNs. Built from public FDA and CMS data.</p>
       <ModeTabs vendor={vendorMode} onChange={changeMode} />
       <h1>Know what the vendor knows.</h1>
-      <p>{vendorMode ? 'Their public record plus your private pricing. Search any orthopedic company and benchmark it against the vendors you already buy from, without a GPO.' : 'Their public record plus your private pricing. Search any orthopedic product by 510(k) number, name or company, and benchmark it against what you already pay, without a GPO.'}</p>
+      <p>{vendorMode ? 'Their public record plus your private pricing. Search any orthopedic company and benchmark it against the vendors you already buy from, without a GPO.' : 'Their public record plus your private pricing. Search any orthopedic product by 510(k) number, name, company or part number, and benchmark it against what you already pay, without a GPO.'}</p>
       {search}
       <div className="try-examples"><span>Try:</span>{vendorMode ? vendorExamples.map(([label, id]) => <Button key={id} variant="secondary" size="sm" onClick={() => void navigate({to:'/',search:{v:id}})}>{label}</Button>) : productExamples.map(([label, id]) => <Button key={id} variant="secondary" size="sm" onClick={() => void navigate({to:'/',search:{k:id}})}>{label}</Button>)}</div>
       <p className="home-pill question-hue-5">Your pricing stays yours. OrthoParity never asks for it: no login, nothing to upload.</p>
@@ -85,6 +86,6 @@ function DeviceBrief() {
       <div className="home-about-tiles auto-rows-fr"><div><strong>{coverage?.devices.toLocaleString('en-US') ?? '…'}</strong><p>orthopedic devices cleared or approved by FDA, {coverage?.first ?? '…'} to {coverage?.last ?? '…'}</p></div><div><strong>{coverage?.count.toLocaleString('en-US') ?? '…'}</strong><p>orthopedic companies, counted by parent company</p></div><div><strong>10</strong><p className="text-sm!">public sources: FDA 510(k)s, FDA approvals (PMA and HDE), GUDID, recalls, adverse event reports (MAUDE), establishment registrations, and inspections and warning letters; CMS Open Payments, Medicare hospital payments and Medicare add-on payments</p></div></div>
       <p className="section-caption home-about-note">Every answer traces to a public record.</p>
     </section>}
-    {selected ? vendorMode ? <ClientOnly fallback={<PublicRecordLoading />}><Suspense fallback={<PublicRecordLoading />}>{comparing && v ? <VendorComparePage v={v} compare={compare ?? ''} meta={meta} onCompare={value => void navigate({to:'/',search:prev => ({...prev,compare:value})})} onBack={() => void navigate({to:'/',search:prev => ({...prev,compare:undefined})})} /> : <VendorWorkspace v={v} compare={compare} view={view} onView={setView} from={from || undefined} meta={meta} onRedirect={(to, original) => void navigate(redirectNavigation(to, original, view))} onDismiss={() => void navigate({to:'/', search: prev => ({...prev, from: undefined}), replace:true, resetScroll:false})} onCompare={value => void navigate({to:'/',search:prev => ({...prev,compare:value})})} />}</Suspense></ClientOnly> : comparing && k ? <ProductComparePage k={k} compare={rawCompare} meta={meta} onChange={others => void navigate({to:'/', search:prev => ({...prev, compare: others.join(',')}), replace:true, resetScroll:false})} onBack={() => void navigate({to:'/', search:prev => ({...prev, compare:undefined})})} /> : <ProductResult key={k} k={k ?? ''} compare={compare} view={view} meta={meta} onView={setView} onCompare={value => void navigate({to:'/', search:prev => ({...prev, compare:value})})} /> : null}
+    {selected ? vendorMode ? <ClientOnly fallback={<PublicRecordLoading />}><Suspense fallback={<PublicRecordLoading />}>{comparing && v ? <VendorComparePage v={v} compare={compare ?? ''} meta={meta} onCompare={value => void navigate({to:'/',search:prev => ({...prev,compare:value})})} onBack={() => void navigate({to:'/',search:prev => ({...prev,compare:undefined})})} /> : <VendorWorkspace v={v} compare={compare} view={view} onView={setView} from={from || undefined} meta={meta} onRedirect={(to, original) => void navigate(redirectNavigation(to, original, view))} onDismiss={() => void navigate({to:'/', search: prev => ({...prev, from: undefined}), replace:true, resetScroll:false})} onCompare={value => void navigate({to:'/',search:prev => ({...prev,compare:value})})} />}</Suspense></ClientOnly> : part && !k ? <PartResults part={part} /> : comparing && k ? <ProductComparePage k={k} compare={rawCompare} meta={meta} onChange={others => void navigate({to:'/', search:prev => ({...prev, compare: others.join(',')}), replace:true, resetScroll:false})} onBack={() => void navigate({to:'/', search:prev => ({...prev, compare:undefined})})} /> : <ProductResult key={k} k={k ?? ''} notice={part && k ? <PartNote part={part} k={k} /> : undefined} compare={compare} view={view} meta={meta} onView={setView} onCompare={value => void navigate({to:'/', search:prev => ({...prev, compare:value})})} /> : null}
   </>;
 }

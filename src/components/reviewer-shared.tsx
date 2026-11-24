@@ -7,12 +7,12 @@ import { LoaderCircle, Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BrandMark } from './brand-mark';
 import { limitations, methodology } from '@/lib/predicate-chain';
-import { getMeta, searchDevices } from '@/lib/predicate-data';
+import { getMeta, searchDevices, searchParts, type PartMatch } from '@/lib/predicate-data';
 import { dateLabel, type Meta, type SearchResult } from '@/lib/predicate-chain';
 import { paymentLimitations } from '@/lib/vendor-data';
 import { decisionLimitations } from '@/lib/signals';
 import { recallLimitation } from '@/lib/recalls';
-import { ResearchSearch } from './research-search';
+import { ResearchSearch, type SearchLoad, type SearchOption } from './research-search';
 import { ModeTabs } from './benchmark-navigation';
 import { Toaster } from './ui/sonner';
 import { devicePathway, normalizeDeviceNumber } from '@/lib/fda-device';
@@ -27,9 +27,9 @@ export function ReviewerShell({ children }: { children: ReactNode }) {
   const [dark, setDark] = useState(false);
   const [about, setAbout] = useState(false);
   const { meta, error } = useRelease();
-  const search = useSearch({ strict: false }) as { k?: string; v?: string; mode?: string };
+  const search = useSearch({ strict: false }) as { k?: string; v?: string; mode?: string; part?: string };
   const navigate = useNavigate();
-  const selected = !!search.k || !!search.v;
+  const selected = !!search.k || !!search.v || !!search.part;
   const [scrolled, setScrolled] = useState(false);
   const [ready, setReady] = useState(false);
   const header = useRef<HTMLElement>(null);
@@ -59,11 +59,18 @@ export function ReviewerShell({ children }: { children: ReactNode }) {
   </div>;
 }
 const devices = new Map<string, SearchResult>();
-const loadDevices = async (q: string, signal: AbortSignal) => (await searchDevices(normalizeDeviceNumber(q) ?? q, signal)).map(row => { devices.set(row.knumber, row); return { id: row.knumber, name: shortDeviceName(row.device_name ?? row.knumber), detail: `${row.knumber} · ${row.applicant ?? 'NOT FOUND'}`, date: dateLabel(row.decision_date), extra: row.match === 'close spelling' ? 'close spelling' : undefined }; });
-export function DeviceSearch({ label = 'Identify an orthopedic device to benchmark', resetKey = '', initialValue, onSelect }: { label?: string; resetKey?: string; initialValue?: string; onSelect: (row: SearchResult) => void }) {
+const parts = new Map<string, PartMatch>();
+const loadDevices = async (q: string, signal: AbortSignal): Promise<SearchLoad> => {
+  const partRead = searchParts(q).catch(() => null);
+  const rows = (await searchDevices(normalizeDeviceNumber(q) ?? q, signal)).map((row): SearchOption => { devices.set(row.knumber, row); return { id: row.knumber, name: shortDeviceName(row.device_name ?? row.knumber), detail: `${row.knumber} · ${row.applicant ?? 'NOT FOUND'}`, date: dateLabel(row.decision_date), extra: row.match === 'close spelling' ? 'close spelling' : undefined }; });
+  const partResult = await partRead;
+  const partRows = (partResult?.results ?? []).map((p): SearchOption => { const id = `part:${p.number}|${p.part_number}`; parts.set(id, p); return { id, group: 'Part numbers', name: `${p.part_number}${p.brand ? ` · ${p.brand}` : ''}`, detail: `${p.number} · ${shortDeviceName(p.device_name ?? 'NOT FOUND')} · ${p.company ?? 'NOT FOUND'}`, tag: p.in_distribution === false ? 'Not in commercial distribution' : undefined }; });
+  return { rows: [...rows.map(r => partRows.length ? { ...r, group: 'Products' } : r), ...partRows], note: partResult?.note ?? null };
+};
+export function DeviceSearch({ label = 'Identify an orthopedic device to benchmark', resetKey = '', initialValue, onSelect }: { label?: string; resetKey?: string; initialValue?: string; onSelect: (row: SearchResult, part?: string) => void }) {
   const [name, setName] = useState(initialValue ?? resetKey);
   useEffect(() => { setName(initialValue ?? resetKey); const update = (event: Event) => { if (event instanceof CustomEvent && typeof event.detail === 'string') setName(event.detail); }; window.addEventListener('benchmark-name', update); return () => window.removeEventListener('benchmark-name', update); }, [initialValue, resetKey]);
-  return <ResearchSearch label={label} placeholder="e.g. an FDA number, product name, or company" initialValue={name} load={loadDevices} onSelect={id => { const row = devices.get(id); if (row) onSelect(row); }} />;
+  return <ResearchSearch label={label} placeholder="e.g. an FDA number, product name, company or part number" initialValue={name} load={loadDevices} onSelect={id => { const part = parts.get(id); if (part) { onSelect({ knumber: part.number } as SearchResult, part.part_number); return; } const row = devices.get(id); if (row) onSelect(row); }} />;
 }
 export function BriefLink({ k }: { k: string }) { return <Link to="/" search={{ k: normalizeDeviceNumber(k) ?? k }} className="brief-link font-mono">{k}</Link>; }
 export function PathwayTag({ number }: { number: string }) { return <span className="data-tag">{devicePathway(number)}</span>; }
