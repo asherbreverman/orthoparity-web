@@ -16,8 +16,13 @@ export const Route = createFileRoute('/sitemap.xml')({
             const included = sitemapPathForLocation(router, { pathname: path, publicHref: path }, '/procedures_/$familyId');
             if (included) entries.push({ path: included });
           }
+          const { readPublicDirectoryPaths } = await import('@/lib/page-data.server');
+          for (const path of await readPublicDirectoryPaths()) {
+            const included = sitemapPathForLocation(router, { pathname: path, publicHref: path }, '/browse_/$code');
+            if (included) entries.push({ path: included });
+          }
         } catch {
-          return new Response('The public procedure index is temporarily unavailable.', { status: 503, headers: { 'Cache-Control': 'no-store' } });
+          return new Response('The public procedure or category index is temporarily unavailable.', { status: 503, headers: { 'Cache-Control': 'no-store' } });
         }
         if (entries.length === 0) {
           return new Response('No pages are included in this sitemap.', {

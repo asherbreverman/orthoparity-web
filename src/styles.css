@@ -1627,3 +1627,18 @@ html { scroll-behavior: smooth; scroll-padding-top: 0; }
 .part-table { width:100%; border-collapse:collapse; font-size:.875rem; }
 .part-table th, .part-table td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--border); vertical-align:top; }
 .part-table-wrap { overflow-x:auto; }
+
+/* Category directory */
+.directory-stats { margin:24px 0 12px; }
+.directory-stats-3 { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.directory-stats-4 { grid-template-columns:repeat(4,minmax(0,1fr)); }
+.directory-stats strong { font-size:32px; line-height:1.15; font-weight:600; }
+.directory-stats p { font-size:14px; color:var(--muted-foreground); margin-top:6px; }
+.directory-sub { display:block; font-size:12px; color:var(--muted-foreground); margin-top:2px; }
+.directory-filter { display:block; max-width:420px; margin:20px 0 12px; }
+.directory-chip { text-decoration:none; }
+.directory-chip:hover,.directory-chip:focus-visible { text-decoration:underline; }
+.directory-records-head { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+.directory-pager { display:flex; align-items:center; gap:12px; margin:12px 0; font-size:13px; color:var(--muted-foreground); }
+.directory-source { margin-top:24px; }
+@media(max-width:760px) { .directory-stats-3,.directory-stats-4 { grid-template-columns:minmax(0,1fr); } }

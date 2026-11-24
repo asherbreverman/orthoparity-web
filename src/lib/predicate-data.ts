@@ -8,6 +8,7 @@ import type { DeviceRecalls, VendorRecalls } from './recalls';
 import type { DeviceMaude, VendorMaude } from './maude';
 import type { ProcedureList, ProcedureDetail, DeviceProcedures, VendorProcedures } from './procedure-data';
 import { vendorCoverage, type VendorCoverage } from './vendor-coverage';
+import type { DirectoryIndex, DirectoryDetail } from './directory';
 import { productPreview, vendorPreview, type PageSubject, type PagePreview } from './page-preview';
 import {
   cacheKey,
@@ -328,4 +329,27 @@ export function searchParts(q: string, lim = 25) {
   let pending = partSearches.get(key);
   if (!pending) { pending = partRead(q.trim(), lim); partSearches.set(key, pending); pending.catch(() => partSearches.delete(key)); }
   return pending;
+}
+
+// Category directory: two read-only RPCs, one promise per code for the browser session.
+const directoryReads = new Map<string, Promise<unknown>>();
+function cachedDirectoryRead<T>(key: string, read: () => Promise<T>): Promise<T> {
+  const existing = directoryReads.get(key);
+  if (existing) return existing as Promise<T>;
+  const pending = read();
+  directoryReads.set(key, pending);
+  pending.catch(() => directoryReads.delete(key));
+  return pending;
+}
+export function getDirectoryIndex() {
+  return cachedDirectoryRead('index', resilient(async (): Promise<DirectoryIndex> => { const {data, error} = await researchClient.rpc('pc_directory_index'); if (error) throw error; return data as DirectoryIndex; }));
+}
+export function getDirectory(code: string) {
+  const c = code.trim().toUpperCase();
+  return cachedDirectoryRead(`code:${c}`, resilient(async (): Promise<DirectoryDetail> => { const {data, error} = await researchClient.rpc('pc_directory', {code: c}); if (error) throw error; return data as DirectoryDetail; }));
+}
+export async function publicDirectoryIndex(client: SupabaseClient, signal: AbortSignal): Promise<DirectoryIndex> {
+  const { data, error } = await client.rpc('pc_directory_index').abortSignal(signal);
+  if (error) throw error;
+  return data as DirectoryIndex;
 }

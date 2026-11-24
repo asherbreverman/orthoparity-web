@@ -10,16 +10,23 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BrowseRouteImport } from './routes/browse'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProceduresRouteImport } from './routes/procedures'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as BrowseCodeRouteImport } from './routes/browse_.$code'
 import { Route as DeviceIdRouteImport } from './routes/device.$id'
 import { Route as ProceduresFamilyIdRouteImport } from './routes/procedures_.$familyId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BrowseRoute = BrowseRouteImport.update({
+  id: '/browse',
+  path: '/browse',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -42,6 +49,11 @@ const TermsRoute = TermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BrowseCodeRoute = BrowseCodeRouteImport.update({
+  id: '/browse_/$code',
+  path: '/browse/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DeviceIdRoute = DeviceIdRouteImport.update({
   id: '/device/$id',
   path: '/device/$id',
@@ -55,29 +67,35 @@ const ProceduresFamilyIdRoute = ProceduresFamilyIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/browse': typeof BrowseRoute
   '/privacy': typeof PrivacyRoute
   '/procedures': typeof ProceduresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/browse/$code': typeof BrowseCodeRoute
   '/device/$id': typeof DeviceIdRoute
   '/procedures/$familyId': typeof ProceduresFamilyIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/browse': typeof BrowseRoute
   '/privacy': typeof PrivacyRoute
   '/procedures': typeof ProceduresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/browse/$code': typeof BrowseCodeRoute
   '/device/$id': typeof DeviceIdRoute
   '/procedures/$familyId': typeof ProceduresFamilyIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/browse': typeof BrowseRoute
   '/privacy': typeof PrivacyRoute
   '/procedures': typeof ProceduresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/browse_/$code': typeof BrowseCodeRoute
   '/device/$id': typeof DeviceIdRoute
   '/procedures_/$familyId': typeof ProceduresFamilyIdRoute
 }
@@ -85,38 +103,46 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/browse'
     | '/privacy'
     | '/procedures'
     | '/sitemap.xml'
     | '/terms'
+    | '/browse/$code'
     | '/device/$id'
     | '/procedures/$familyId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/browse'
     | '/privacy'
     | '/procedures'
     | '/sitemap.xml'
     | '/terms'
+    | '/browse/$code'
     | '/device/$id'
     | '/procedures/$familyId'
   id:
     | '__root__'
     | '/'
+    | '/browse'
     | '/privacy'
     | '/procedures'
     | '/sitemap.xml'
     | '/terms'
+    | '/browse_/$code'
     | '/device/$id'
     | '/procedures_/$familyId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BrowseRoute: typeof BrowseRoute
   PrivacyRoute: typeof PrivacyRoute
   ProceduresRoute: typeof ProceduresRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
+  BrowseCodeRoute: typeof BrowseCodeRoute
   DeviceIdRoute: typeof DeviceIdRoute
   ProceduresFamilyIdRoute: typeof ProceduresFamilyIdRoute
 }
@@ -128,6 +154,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/browse': {
+      id: '/browse'
+      path: '/browse'
+      fullPath: '/browse'
+      preLoaderRoute: typeof BrowseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -158,6 +191,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/browse_/$code': {
+      id: '/browse_/$code'
+      path: '/browse/$code'
+      fullPath: '/browse/$code'
+      preLoaderRoute: typeof BrowseCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/device/$id': {
       id: '/device/$id'
       path: '/device/$id'
@@ -177,10 +217,12 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BrowseRoute: BrowseRoute,
   PrivacyRoute: PrivacyRoute,
   ProceduresRoute: ProceduresRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
+  BrowseCodeRoute: BrowseCodeRoute,
   DeviceIdRoute: DeviceIdRoute,
   ProceduresFamilyIdRoute: ProceduresFamilyIdRoute,
 }

@@ -57,3 +57,15 @@ export async function readPublicProcedurePaths(): Promise<string[]> {
     });
   } finally { clearTimeout(timer); }
 }
+export async function readPublicDirectoryPaths(): Promise<string[]> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 2000);
+  try {
+    const { publicDirectoryIndex } = await import('./predicate-data');
+    return await cachedPublicRead('directory-paths', controller.signal, async () => {
+      const index = await publicDirectoryIndex(publicClient(), controller.signal);
+      if (!Array.isArray(index.segments)) throw new Error('Directory index unavailable');
+      return index.segments.flatMap(s => s.codes.map(c => `/browse/${encodeURIComponent(c.product_code)}`));
+    });
+  } finally { clearTimeout(timer); }
+}

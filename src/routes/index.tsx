@@ -73,7 +73,7 @@ function DeviceBrief() {
       {search}
       <div className="try-examples"><span>Try:</span>{vendorMode ? vendorExamples.map(([label, id]) => <Button key={id} variant="secondary" size="sm" onClick={() => void navigate({to:'/',search:{v:id}})}>{label}</Button>) : productExamples.map(([label, id]) => <Button key={id} variant="secondary" size="sm" onClick={() => void navigate({to:'/',search:{k:id}})}>{label}</Button>)}</div>
       <p className="home-pill question-hue-5">Your pricing stays yours. OrthoParity never asks for it: no login, nothing to upload.</p>
-      <div className="mb-6"><Button asChild variant="link"><Link to="/procedures">Or browse Medicare payments by procedure</Link></Button></div>
+      <div className="mb-6"><Button asChild variant="link"><Link to="/procedures">Or browse Medicare payments by procedure</Link></Button><span aria-hidden="true"> · </span><Button asChild variant="link"><Link to="/browse">Browse by category</Link></Button></div>
       <div className="how-it-works">
         <p className="glance-caption">Five steps for every new product or vendor request</p>
         <div className="how-tiles">{howItWorks.map(s => <div key={s.label} className={`how-tile question-hue-${s.hue}`}><span className="glance-label">{s.label}</span><strong>{s.title}</strong><p>{s.body}</p></div>)}</div>
