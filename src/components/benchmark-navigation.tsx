@@ -4,17 +4,17 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { Lock, Search } from 'lucide-react';
 import { DeviceSearch } from './reviewer-shared';
 import { VendorSearch } from './vendor-search';
-import { searchParts } from '@/lib/predicate-data';
 import { batchAllowed, parseBatch } from '@/lib/reviewer-data';
 import { normalizeDeviceNumber } from '@/lib/fda-device';
-import { maxCompareProducts, runLimited } from '@/lib/product-comparison';
+import { maxCompareProducts } from '@/lib/product-comparison';
+import { parsePartList } from '@/lib/part-comparison';
+export { parsePartList } from '@/lib/part-comparison';
 import type { Meta } from '@/lib/predicate-chain';
 import type { VendorCoverage } from '@/lib/vendor-coverage';
 
 export type SearchLevel = 'part' | 'product' | 'company';
 const levels: SearchLevel[] = ['part', 'product', 'company'];
 export function searchLevel(value: string | undefined): SearchLevel { return value === 'part' || value === 'company' ? value : 'product'; }
-export function parsePartList(value: string) { return [...new Set(value.split(/[\n,;]+/).map(part => part.trim()).filter(Boolean))].slice(0, maxCompareProducts); }
 export function dataThroughDate(value: string | undefined) {
   if (!value) return '…';
   const date = new Date(`${value.slice(0, 10)}T00:00:00Z`);
@@ -64,7 +64,7 @@ function HomeSearch({ level, compare, initialQuery }: { level: SearchLevel; comp
     if (first) void navigate({ to: '/', search: { level: 'product', k: first, compare: others.join(',') } });
   }
 
-  async function submitParts(value: string) {
+  function submitParts(value: string) {
     setFormError('');
     const list = parsePartList(value);
     if (!compare) {
@@ -72,15 +72,7 @@ function HomeSearch({ level, compare, initialQuery }: { level: SearchLevel; comp
       return;
     }
     if (!list.length) { setFormError('Enter part numbers or choose a part from the search results.'); return; }
-    const found = new Map<string, string>();
-    await runLimited(list, 6, part => searchParts(part, 1), (part, result) => {
-      const number = result?.results[0]?.number;
-      if (number) found.set(part, number);
-    });
-    const numbers = [...new Set(list.map(part => found.get(part)).filter((number): number is string => !!number))];
-    if (!numbers.length) { setFormError('No matching part numbers found.'); return; }
-    const [first, ...others] = numbers;
-    if (first) void navigate({ to: '/', search: { level: 'part', k: first, compare: others.join(',') } });
+    void navigate({ to: '/', search: { level: 'part', part: list.join(','), compare: '' } });
   }
 
   function submitCompany(value: string) {
@@ -99,7 +91,7 @@ function HomeSearch({ level, compare, initialQuery }: { level: SearchLevel; comp
       <button type="button" className="op-chip" onClick={() => void navigate({ to: '/', search: { level: 'product', k: 'K171651', compare: 'K250477' } })}>K171651 + K250477</button>
       <button type="button" className="op-chip" onClick={() => void navigate({ to: '/', search: { level: 'product', k: 'K171651', compare: '' } })}>Paste a list of 50</button>
     </> : level === 'part' ? <button type="button" className="op-chip" onClick={() => void submitParts('213-65-05\n5251300')}>213-65-05 + 5251300</button>
-      : <button type="button" className="op-chip" onClick={() => void navigate({ to: '/', search: { level: 'company', v: 'globus_medical', compare: 'alphatec_spine' } })}>Globus Medical + Alphatec Spine</button>
+      : <button type="button" className="op-chip" onClick={() => void navigate({ to: '/', search: { level: 'company', v: 'globus', compare: 'alphatec' } })}>Globus Medical + Alphatec Spine</button>
     : level === 'product' ? <>
       <button type="button" className="op-chip" onClick={() => product('K140881')}>ATTUNE knee (K140881)</button>
       <button type="button" className="op-chip" onClick={() => product('K150862')}>ACTIS hip (K150862)</button>

@@ -9,7 +9,7 @@ import { ProcedureError, ProcedureNotFound } from '@/components/procedure-shared
 import { benchmarkOrigin } from '@/lib/benchmark-brand';
 import shareImage from '@/assets/orthoparity-share.png.asset.json';
 import { DeviceSearch, PublicRecordLoading, useRelease } from '@/components/reviewer-shared';
-import { PartNote, PartResults } from '@/components/part-results';
+import { PartComparePage, PartNote, PartResults } from '@/components/part-results';
 import { getVendorCoverage } from '@/lib/predicate-data';
 import { VendorSearch } from '@/components/vendor-search';
 import { ProductResult } from '@/components/product-result';
@@ -34,7 +34,7 @@ export const Route = createFileRoute('/')({
     const base = previewMetadata(match.loaderDeps, loaderData?.preview ?? null);
     const part = match.search.part && !match.search.k ? match.search.part : '';
     const { description, url } = base;
-    const title = part ? `Part number ${part} | OrthoParity` : base.title;
+    const title = part ? (match.search.compare !== undefined ? 'Compare parts | OrthoParity' : `Part number ${part} | OrthoParity`) : base.title;
     return { meta: [{ title }, { name: 'description', content: description }, { property: 'og:title', content: title }, { property: 'og:description', content: description }, { property: 'og:type', content: 'website' }, { property: 'og:url', content: url }, { property: 'og:image', content: new URL(shareImage.url, benchmarkOrigin).href }, { name: 'twitter:image', content: new URL(shareImage.url, benchmarkOrigin).href }, { name: 'twitter:title', content: title }, { name: 'twitter:description', content: description }, { name: 'twitter:card', content: 'summary_large_image' }], links: [{ rel: 'canonical', href: url }] };
   },
   component: DeviceBrief,
@@ -59,7 +59,7 @@ function DeviceBrief() {
 
   return <>
     {!selected && <HomeLanding level={level} compare={comparing} initialQuery={q ?? ''} coverage={coverage} meta={meta} />}
-    {selected ? vendorMode ? <ClientOnly fallback={<PublicRecordLoading />}><Suspense fallback={<PublicRecordLoading />}>{comparing && v ? <VendorComparePage v={v} compare={compare ?? ''} meta={meta} onCompare={value => void navigate({to:'/',search:prev => ({...prev,compare:value})})} onBack={() => void navigate({to:'/',search:prev => ({...prev,compare:undefined})})} /> : <VendorWorkspace v={v} compare={compare} view={view} onView={setView} from={from || undefined} meta={meta} onRedirect={(to, original) => void navigate(redirectNavigation(to, original, view))} onDismiss={() => void navigate({to:'/', search: prev => ({...prev, from: undefined}), replace:true, resetScroll:false})} onCompare={value => void navigate({to:'/',search:prev => ({...prev,compare:value})})} />}</Suspense></ClientOnly> : part && !k ? <PartResults part={part} /> : comparing && k ? <ProductComparePage k={k} compare={rawCompare} meta={meta} onChange={others => void navigate({to:'/', search:prev => ({...prev, compare: others.join(',')}), replace:true, resetScroll:false})} onBack={() => void navigate({to:'/', search:prev => ({...prev, compare:undefined})})} /> : <ProductResult key={k} k={k ?? ''} notice={part && k ? <PartNote part={part} k={k} /> : undefined} compare={compare} view={view} meta={meta} onView={setView} onCompare={value => void navigate({to:'/', search:prev => ({...prev, compare:value})})} /> : null}
+    {selected ? vendorMode ? <ClientOnly fallback={<PublicRecordLoading />}><Suspense fallback={<PublicRecordLoading />}>{comparing && v ? <VendorComparePage v={v} compare={compare ?? ''} meta={meta} onCompare={value => void navigate({to:'/',search:prev => ({...prev,compare:value})})} onBack={() => void navigate({to:'/',search:prev => ({...prev,compare:undefined})})} /> : <VendorWorkspace v={v} compare={compare} view={view} onView={setView} from={from || undefined} meta={meta} onRedirect={(to, original) => void navigate(redirectNavigation(to, original, view))} onDismiss={() => void navigate({to:'/', search: prev => ({...prev, from: undefined}), replace:true, resetScroll:false})} onCompare={value => void navigate({to:'/',search:prev => ({...prev,compare:value})})} />}</Suspense></ClientOnly> : part && !k ? comparing ? <PartComparePage part={part} onChange={parts => void navigate({ to: '/', search: prev => ({ ...prev, part: parts.join(','), compare: '' }), replace: true, resetScroll: false })} /> : <PartResults part={part} /> : comparing && k ? <ProductComparePage k={k} compare={rawCompare} meta={meta} onChange={others => void navigate({to:'/', search:prev => ({...prev, compare: others.join(',')}), replace:true, resetScroll:false})} onBack={() => void navigate({to:'/', search:prev => ({...prev, compare:undefined})})} /> : <ProductResult key={k} k={k ?? ''} notice={part && k ? <PartNote part={part} k={k} /> : undefined} compare={compare} view={view} meta={meta} onView={setView} onCompare={value => void navigate({to:'/', search:prev => ({...prev, compare:value})})} /> : null}
     {selected && <DockedSearch>{search}</DockedSearch>}
   </>;
 }

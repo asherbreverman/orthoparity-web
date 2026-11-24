@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { compareCsv, compareCsvName, compareHeading, noCodeNote, parseCompareList, runLimited } from '@/lib/product-comparison';
+import { compareCsv, compareCsvName, compareHeading, companyComparisonSummary, noCodeNote, parseCompareList, partitionCompareColumns, runLimited } from '@/lib/product-comparison';
 
 describe('compare list', () => {
   it('normalizes, drops duplicates and the main product', () => {
@@ -19,17 +19,32 @@ describe('compare heading', () => {
 
 describe('compare CSV', () => {
   it('starts with the disclaimer line and uses short labels', () => {
-    const csv = compareCsv([{ number: 'K1', product: 'Cage, lumbar', company: 'Globus', decision: 'Jan 1, 2024', code: 'MAX', badges: { recalls: 'None' } }], [{ key: 'recalls', label: 'Recalls' }], 'Nov 24, 2026');
+    const csv = compareCsv([{ number: 'K1', product: 'Cage, lumbar', price: '1250', company: 'Globus', decision: 'Jan 1, 2024', code: 'MAX', badges: { recalls: 'None' } }], [{ key: 'recalls', label: 'Recalls' }], 'Nov 24, 2026');
     const lines = csv.split('\n');
     expect(lines[0]).toBe('OrthoParity product comparison, generated Nov 24, 2026 from public FDA and CMS data. Badges are facts, not verdicts.');
-    expect(lines[1]).toBe('Number,Product,Company,FDA decision date,Product code,Recalls');
-    expect(lines[2]).toBe('K1,"Cage, lumbar",Globus,"Jan 1, 2024",MAX,None');
+    expect(lines[1]).toBe('Number,Product,Your price,Company,FDA decision date,Product code,Recalls');
+    expect(lines[2]).toBe('K1,"Cage, lumbar",1250,Globus,"Jan 1, 2024",MAX,None');
   });
   it('names the file by date', () => { expect(compareCsvName(new Date('2026-11-24T12:00:00Z'))).toBe('orthoparity-compare-2026-11-24.csv'); });
 });
 
 describe('no product code note', () => {
   it('uses the singular for one product', () => { expect(noCodeNote(1, 'Alphatec Spine')).toBe("1 Alphatec Spine product has no FDA product code on file, so it isn't in these lists."); });
+});
+
+describe('difference filtering', () => {
+  it('keeps only question columns whose values differ', () => {
+    const rows = [
+      { number: 'K1', product: 'A', price: '', company: '', decision: '', code: '', badges: { owner: 'Same company', recalls: '1 recall' } },
+      { number: 'K2', product: 'B', price: '', company: '', decision: '', code: '', badges: { owner: 'Same company', recalls: 'None' } },
+    ];
+    const columns = [{ key: 'owner', label: 'Owner' }, { key: 'recalls', label: 'Recalls' }];
+    expect(partitionCompareColumns(rows, columns)).toEqual({ differing: [columns[1]], identical: [columns[0]] });
+  });
+});
+
+describe('company summary', () => {
+  it('starts with FDA records, not sales', () => expect(companyComparisonSummary('They overlap in 24 product codes.')).toBe('By FDA records, not sales: they overlap in 24 product codes.'));
 });
 
 describe('request limit', () => {

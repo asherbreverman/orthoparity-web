@@ -1838,3 +1838,73 @@ html { scroll-behavior: smooth; scroll-padding-top: 0; }
   .one-page-summary .summary-limitations { font-size:8pt; line-height:1.35; }
   .one-page-summary footer { margin-top:5pt; padding-top:4pt; font-size:7.5pt; line-height:1.35; }
 }
+
+/* Part and comparison pages */
+.op-compare-page { display:block; max-width:none; margin:0; padding:0; }
+.op-compare-head .op-pagehead { padding-top:var(--op-space-36); padding-bottom:var(--op-space-36); }
+.compare-lead { max-width:900px; font-size:17px; }
+.compare-actions { align-items:center; gap:var(--op-space-8); }
+.op-compare-body { display:flex; flex-direction:column; gap:var(--op-space-16); padding-top:var(--op-space-36); padding-bottom:var(--op-space-48); }
+.op-compare-body > * { margin-top:0; margin-bottom:0; }
+.op-compare-body .op-note { margin:0; }
+.op-compare-controls { display:flex; align-items:center; gap:var(--op-space-16); flex-wrap:wrap; }
+.op-cols-2 { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.op-cols-3 { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.op-colcard header .op-row { justify-content:space-between; }
+.op-colcard header .op-link { font-size:14px; }
+.op-colcard dd .op-badge,.op-compare-table .op-badge { white-space:normal; }
+.op-price-row { min-height:76px; }
+.op-price input { width:100%; min-width:0; padding:0; border:0; outline:0; background:transparent; color:var(--op-ink); font:inherit; }
+.op-price input::placeholder { color:var(--op-placeholder); }
+.op-price:focus-within { border-color:var(--op-accent); box-shadow:0 0 0 2px var(--op-surface-accent); }
+.op-compare-table-wrap { width:100%; }
+.op-compare-table { min-width:1100px; }
+.op-compare-table tbody th.sticky { min-width:150px; max-width:190px; text-align:left; vertical-align:top; white-space:normal; }
+.op-compare-table tbody th.sticky .op-link { display:block; overflow-wrap:anywhere; }
+.op-compare-table td { min-width:120px; }
+.op-compare-table td.no-print { min-width:160px; }
+.op-compare-controls > .op-caption { flex:1; }
+.op-icon-btn { display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; padding:0; border:0; border-radius:var(--op-radius-md); background:transparent; color:var(--op-muted); cursor:pointer; }
+.op-icon-btn:hover { background:var(--op-surface-subtle); color:var(--op-ink); }
+.compare-picker { position:relative; width:280px; min-width:220px; }
+.compare-picker .op-search-row { flex-wrap:nowrap; }
+.compare-picker .op-input.lg { min-width:0; }
+.compare-picker .op-btn { padding-left:12px; padding-right:12px; }
+.op-paste-panel { display:flex; flex-direction:column; gap:var(--op-space-12); }
+.op-field { display:flex; flex-direction:column; gap:var(--op-space-8); color:var(--op-ink); font-weight:600; }
+.op-field small { color:var(--op-text-3); font-size:13px; font-weight:400; }
+.op-paste-input { display:block; width:100%; resize:vertical; }
+.compare-code-filter { max-width:420px; margin-bottom:var(--op-space-16); }
+.op-venn .op-card h3 { font-family:var(--op-font-display); font-size:20px; color:var(--op-ink); }
+.op-venn .op-card > .op-caption { margin-top:var(--op-space-16); }
+.op-venn li b .op-mono { margin-right:4px; }
+.op-compare-body .two-columns { margin-top:var(--op-space-8); }
+.op-part-table .op-table { min-width:1100px; }
+.op-part-table td:nth-child(4) { min-width:240px; }
+.op-part-tablebar { border:1px solid var(--op-border); border-radius:var(--op-radius-xl); background:var(--op-surface-card); margin-bottom:calc(-1 * var(--op-space-16)); }
+@media(max-width:760px) {
+  .op-cols-2,.op-cols-3 { grid-template-columns:minmax(0,1fr); }
+  .compare-actions { align-items:stretch; }
+  .compare-picker { width:100%; }
+  .op-compare-controls { align-items:flex-start; }
+  .op-compare-controls > .op-caption { flex-basis:100%; }
+}
+@media print {
+  .compare-print .op-cols { grid-template-columns:repeat(3,minmax(0,1fr)) !important; gap:6pt; }
+  .compare-print .op-colcard { break-inside:auto; font-size:7pt; }
+  .compare-print .op-colcard header { padding:5pt 6pt; gap:2pt; }
+  .compare-print .op-colcard dl div { padding:3pt 6pt; gap:1pt; }
+  .compare-print .op-colcard header b { font-size:9pt; }
+  .compare-print .op-colcard dt { font-size:7pt; }
+  .compare-print .op-colcard dd { font-size:8pt; }
+  .compare-print .op-compare-controls { margin:4pt 0; font-size:7pt; }
+  .compare-print .op-badge { padding:0; border:0; background:transparent; font-size:inherit; }
+  .compare-print .op-tablebar,.compare-print .compare-code-filter { display:none; }
+  .compare-print .op-compare-table { min-width:0; font-size:7pt; }
+  .compare-print .op-compare-table .sticky { position:static; box-shadow:none; }
+  .compare-print .op-venn { grid-template-columns:repeat(3,minmax(0,1fr)); gap:8pt; }
+  .compare-print .op-venn .op-card { padding:8pt; }
+}
+.compare-picker .op-search-row > .op-btn { display:none; }
+.compare-picker .op-input.lg { flex:1; }
+.op-input input:focus,.op-input input:focus-visible,.op-price input:focus,.op-price input:focus-visible { outline:none; box-shadow:none; }

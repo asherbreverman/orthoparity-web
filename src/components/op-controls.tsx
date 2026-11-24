@@ -15,6 +15,7 @@ export function CopyLink() {
 
   async function copy() {
     try {
+      window.dispatchEvent(new Event('op-flush-prices'));
       await navigator.clipboard.writeText(window.location.href);
       setCopied(true);
       if (timeout.current) clearTimeout(timeout.current);

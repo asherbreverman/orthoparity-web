@@ -41,11 +41,11 @@ export async function runLimited<T>(items: string[], limit: number, task: (item:
 }
 
 const csvCell = (value: string | number) => { const s = String(value); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
-export interface CompareCsvRow { number: string; product: string; company: string; decision: string; code: string; badges: Record<string, string> }
+export interface CompareCsvRow { number: string; product: string; price: string; company: string; decision: string; code: string; badges: Record<string, string> }
 export function compareCsv(rows: CompareCsvRow[], columns: { key: string; label: string }[], generated: string): string {
   const lines = [`OrthoParity product comparison, generated ${generated} from public FDA and CMS data. Badges are facts, not verdicts.`,
-    ['Number', 'Product', 'Company', 'FDA decision date', 'Product code', ...columns.map(c => c.label)].map(csvCell).join(','),
-    ...rows.map(r => [r.number, r.product, r.company, r.decision, r.code, ...columns.map(c => r.badges[c.key] ?? 'NOT FOUND')].map(csvCell).join(','))];
+    ['Number', 'Product', 'Your price', 'Company', 'FDA decision date', 'Product code', ...columns.map(c => c.label)].map(csvCell).join(','),
+    ...rows.map(r => [r.number, r.product, r.price, r.company, r.decision, r.code, ...columns.map(c => r.badges[c.key] ?? 'NOT FOUND')].map(csvCell).join(','))];
   return lines.join('\n') + '\n';
 }
 export function compareCsvName(date: Date) { return `orthoparity-compare-${date.toISOString().slice(0, 10)}.csv`; }
@@ -57,3 +57,14 @@ export function compareColumns(cardSets: DecisionCard[][]): { key: string; label
 }
 
 export function noCodeNote(count: number, company: string) { return `${count} ${company} ${count === 1 ? 'product has' : 'products have'} no FDA product code on file, so ${count === 1 ? "it isn't" : "they aren't"} in these lists.`; }
+
+export function partitionCompareColumns(rows: CompareCsvRow[], columns: { key: string; label: string }[]) {
+  const differing = columns.filter(column => new Set(rows.map(row => row.badges[column.key] ?? 'NOT FOUND')).size > 1);
+  const differingKeys = new Set(differing.map(column => column.key));
+  return { differing, identical: columns.filter(column => !differingKeys.has(column.key)) };
+}
+
+export function companyComparisonSummary(verdict: string) {
+  if (verdict.startsWith('By FDA records, not sales:')) return verdict;
+  return `By FDA records, not sales: ${verdict.charAt(0).toLowerCase()}${verdict.slice(1)}`;
+}

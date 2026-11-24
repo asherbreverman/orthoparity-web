@@ -179,3 +179,9 @@
 - [x] Add VAC summary copying, Top 5 vendor questions, payment and Medicare links, and glossary terms.
 - [x] Rebuild the one-page product print brief with six questions, committee notes, limitations and sources.
 - [x] Verify live 510(k), PMA and company pages in light, dark and 390px phone layouts; run print checks and all tests.
+
+# OrthoParity redesign, part 4
+- [x] Restyle part lookup, compare parts, compare products and compare companies with the supplied v2 classes.
+- [x] Add browser-only price inputs, fragment persistence, copied links and CSV columns without changing research requests.
+- [x] Add difference filtering, product layouts, part-list comparison and company overlap presentation.
+- [x] Verify live pages, price privacy, CSV downloads and 390px layouts; run all tests.
