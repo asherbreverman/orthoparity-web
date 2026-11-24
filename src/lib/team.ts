@@ -56,3 +56,11 @@ export function teamLedger(i: ClaimInputs, target: number | null, effect = 1): L
   const breakEven = effects === null ? null : -effects;
   return {implantDiff, losCost, hospital, readmit, postAcute, episode, episodePct, net, perYear, breakEven};
 }
+
+/** A two-letter query is a state: list every hospital CMS places in it. */
+export function isStateQuery(q: string) { return /^[A-Za-z]{2}$/.test(q.trim()); }
+/** Keeps only hospitals in the searched state; name matches like "CA" in "Castle" drop out. */
+export function stateHospitals(results: TeamHospital[], q: string) {
+  const st = q.trim().toUpperCase();
+  return [...results].filter(h => h.state?.toUpperCase() === st).sort((a, b) => a.hospital.localeCompare(b.hospital));
+}

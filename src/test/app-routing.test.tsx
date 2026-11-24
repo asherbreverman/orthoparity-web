@@ -30,7 +30,7 @@ describe("App routing", () => {
   it('includes the public home and procedure index in the sitemap with the www URL', () => {
     const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
     const paths = sitemapStaticPaths(router);
-    expect(paths).toEqual(['/', '/browse', '/corrections', '/for/asc', '/for/materials-management', '/for/supply-chain', '/for/value-analysis', '/glossary', '/packet-check', '/privacy', '/procedures', '/team', '/team/calculator', '/terms', '/updates']);
+    expect(paths).toEqual(['/', '/browse', '/corrections', '/for/materials-management', '/for/supply-chain', '/for/value-analysis', '/glossary', '/packet-check', '/privacy', '/procedures', '/team', '/team/calculator', '/terms', '/updates']);
     const xml = sitemapXML(benchmarkOrigin, paths.map(path => ({ path })));
     expect(xml).toContain('<loc>https://www.orthoparity.com/</loc>');
     expect(xml).toContain('<loc>https://www.orthoparity.com/procedures</loc>');

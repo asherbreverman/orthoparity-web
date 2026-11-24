@@ -26,6 +26,9 @@ function LegalContent() {
 <p className="section-lead">{"Lovable and Supabase receive page and public-data requests, which can include the selected device or company. Each provider handles connection information under its own privacy policy. The site has no sign-in, advertising pixels or embedded third-party media."}</p>
 <p className="section-lead">{"What you type in the search box (a 510(k) number, device or company name) is sent to our database host to load results, and like any web request it may appear in that host's standard request logs. Page addresses include the 510(k) or vendor you looked up, so the visit statistics described above record which pages were viewed, without identifying you. Prices you type in the procedure worksheet never leave your browser tab."}</p>
 </LegalSection>
+<LegalSection title="What happens to what you type">
+<p className="section-lead">{"Prices you enter in a compare or part list, and everything in packet check and the calculators, stay in your browser. Searches for FDA numbers, part numbers, companies, codes and hospitals go to OrthoParity's database to return results."}</p>
+</LegalSection>
 <LegalSection title="Stored on your device">
 <p className="section-lead">{"Your browser keeps a few settings on your own device, such as your light or dark theme choice and your scroll position. They aren't sent to us. You can clear them at any time in your browser settings."}</p>
 </LegalSection>

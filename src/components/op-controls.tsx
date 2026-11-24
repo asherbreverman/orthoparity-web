@@ -34,3 +34,14 @@ export function CopyLink() {
 export function ScopeLabel({ children }: { children: ReactNode }) {
   return <span className="op-scope">{children}</span>;
 }
+
+/** Shared page head: eyebrow names the section, then title, lead and any actions. */
+export function PageHead({ eyebrow, title, lead, crumb, children }: { eyebrow: string; title: ReactNode; lead?: ReactNode; crumb?: ReactNode; children?: ReactNode }) {
+  return <section className="op-band"><div className="op-wrap op-pagehead">
+    {crumb && <p className="op-pagecrumb">{crumb}</p>}
+    <p className="op-eyebrow">{eyebrow}</p>
+    <h1 className="op-title">{title}</h1>
+    {lead && <p className="op-lead op-prose">{lead}</p>}
+    {children}
+  </div></section>;
+}

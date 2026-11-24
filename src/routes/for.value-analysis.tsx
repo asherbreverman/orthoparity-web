@@ -8,11 +8,11 @@ export const Route = createFileRoute('/for/value-analysis')({
   component: Page,
 });
 function Page() {
-  return <AudiencePage title="For value analysis committees" lead="What OrthoParity can answer for a value analysis committee reviewing an orthopedic product request, from public FDA and CMS records." items={[
-    <>Open a product's 12-question brief with questions for the vendor: search an FDA number, for example <Link className="brief-link" to="/" search={{k: 'K241487'}}>K241487</Link>.</>,
-    <>Compare up to 50 products side by side and download a CSV: <Link className="brief-link" to="/" search={{k: 'K241487', compare: 'K181947'}}>compare two products</Link>.</>,
-    <>Set a vendor packet's claim next to the public record with a <Link className="brief-link" to="/packet-check">packet check</Link>.</>,
-    <>See every FDA record in a category: <Link className="brief-link" to="/browse">browse by category</Link>.</>,
-    <>Check whether a hospital is in Medicare's TEAM model and which codes start an episode: <Link className="brief-link" to="/team">TEAM lookup</Link>.</>,
+  return <AudiencePage current="/for/value-analysis" title="For value analysis committees" lead="What OrthoParity can answer for a value analysis committee reviewing an orthopedic product request, from public FDA and CMS records." cards={[
+    {tag: 'PRD', title: 'A 12-question product brief', text: 'Search an FDA number for the brief, with questions for the vendor. Try K241487.', link: <Link to="/" search={{k: 'K241487'}}>Open a product ›</Link>},
+    {tag: 'VS', title: 'Compare products', text: 'Up to 50 products side by side, with your own prices kept in your browser and a CSV download.', link: <Link to="/" search={{k: 'K241487', compare: 'K181947'}}>Compare two products ›</Link>},
+    {tag: 'PKT', title: 'Packet check', text: 'Set a vendor packet’s claims next to the FDA record and the trial registry.', link: <Link to="/packet-check">Check a packet ›</Link>},
+    {tag: 'CAT', title: 'Every record in a category', text: 'All FDA records in a product code, with companies and dates.', link: <Link to="/browse">Browse by category ›</Link>},
+    {tag: 'TM', title: 'Medicare TEAM', text: 'Whether a hospital is in TEAM and which codes start an episode.', link: <Link to="/team">TEAM lookup ›</Link>},
   ]} />;
 }

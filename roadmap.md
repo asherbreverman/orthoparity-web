@@ -185,3 +185,8 @@
 - [x] Add browser-only price inputs, fragment persistence, copied links and CSV columns without changing research requests.
 - [x] Add difference filtering, product layouts, part-list comparison and company overlap presentation.
 - [x] Verify live pages, price privacy, CSV downloads and 390px layouts; run all tests.
+
+# OrthoParity redesign, part 5
+- [x] Shared page head and tables on browse, category, procedure, TEAM, packet check, corrections, release notes, audience and legal pages.
+- [x] Browse sort/procedure filters, TEAM state lists and selected hospital, calculator fill note, packet claims in the link fragment, corrections filter, materials management page with /for/asc redirect, privacy section.
+- [x] Checked light, dark and 390px; all tests pass.

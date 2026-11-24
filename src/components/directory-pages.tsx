@@ -1,59 +1,79 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, getRouteApi } from '@tanstack/react-router';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { ArrowLeft, Download } from 'lucide-react';
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
+import { Download, Search } from 'lucide-react';
 import { directoryIndexOptions, directoryOptions } from '@/lib/directory-queries';
-import { deviceClassLabel, directoryCsv, directoryCsvName, distributionText, filterCodes, filterRows, ownerDiffers, pageOf, sortRows, type DirectoryCode, type DirectoryCompany, type DirectoryFound, type DirectoryProcedure, type DirectoryRow, type SortState } from '@/lib/directory';
+import { deviceClassLabel, directoryCsv, directoryCsvName, directoryProcedureOptions, distributionText, filterCodes, filterCodesByProcedure, filterRows, ownerDiffers, pageOf, sortCodes, sortRows, type CodeSort, type DirectoryCode, type DirectoryCompany, type DirectoryFound, type DirectoryProcedure, type DirectoryRow, type SortState } from '@/lib/directory';
 import { companyName, displayName } from '@/lib/format';
-import { longDate, questionHue } from '@/lib/signals';
+import { longDate } from '@/lib/signals';
+import { getVendorCoverage } from '@/lib/predicate-data';
 import { BriefLink, PathwayTag } from './reviewer-shared';
+import { PageHead, ScopeLabel } from './op-controls';
 import { Button } from './ui/button';
-import { Input } from './ui/input';
 
 const n = (v: number | null | undefined) => typeof v === 'number' ? v.toLocaleString('en-US') : 'NOT FOUND';
 const text = (v: string | null | undefined) => v && v.trim() ? v : 'NOT FOUND';
 const date = (v: string | null | undefined) => v ? longDate(v) : 'NOT FOUND';
+const LISTING_NOTE = 'A listing is an FDA record. It doesn’t show that a product is sold today, that parts fit together or that one product is better than another.';
 
 function useSort<K extends string>(initial: SortState<K>) {
   const [sort, setSort] = useState(initial);
-  const head = (col: K, label: string, numeric = false) => <th scope="col" key={col} aria-sort={sort.col === col ? (sort.dir === 1 ? 'ascending' : 'descending') : 'none'}><button type="button" className="sort-button" onClick={() => setSort(prev => ({ col, dir: prev.col === col ? (prev.dir === 1 ? -1 : 1) : numeric ? -1 : 1 }))}>{label}</button></th>;
+  const head = (col: K, label: string, numeric = false, className?: string) => <th scope="col" key={col} className={className} aria-sort={sort.col === col ? (sort.dir === 1 ? 'ascending' : 'descending') : 'none'}><button type="button" className="sort-button" onClick={() => setSort(prev => ({ col, dir: prev.col === col ? (prev.dir === 1 ? -1 : 1) : numeric ? -1 : 1 }))}>{label}</button></th>;
   return { sort, head };
 }
-function Tiles({ items }: { items: [number | null | undefined, string][] }) {
-  return <div className={`how-tiles directory-stats directory-stats-${items.length}`}>{items.map(([value, label], i) => <div key={label} className={`how-tile ${questionHue(i)}`}><strong>{n(value)}</strong><p>{label}</p></div>)}</div>;
-}
 function ProcedureLinks({ list }: { list: DirectoryProcedure[] | null | undefined }) {
-  if (!list?.length) return <span className="text-muted-foreground">None linked</span>;
-  return <>{list.map((p, i) => <span key={p.family_id}>{i > 0 && ', '}<Link className="brief-link" to="/procedures/$familyId" params={{ familyId: p.family_id }}>{p.name}</Link></span>)}</>;
+  if (!list?.length) return <span className="op-caption">None linked</span>;
+  return <>{list.map((p, i) => <span key={p.family_id}>{i > 0 && ', '}<Link to="/procedures/$familyId" params={{ familyId: p.family_id }}>{p.name}</Link></span>)}</>;
 }
 export function CodeChip({ code }: { code: string }) {
-  return <Link to="/browse/$code" params={{ code }} className="data-tag font-mono directory-chip" title={`Every FDA record in product code ${code}`}>{code}</Link>;
+  return <Link to="/browse/$code" params={{ code }} className="op-mono directory-code" title={`Every FDA record in product code ${code}`}>{code}</Link>;
 }
 
-type CodeCol = 'code' | 'name' | 'class' | 'records' | 'companies' | 'latest' | 'procedures';
-const codeValue = (c: DirectoryCode, col: CodeCol) => ({ code: c.product_code, name: c.plain_name ?? c.fda_name, class: c.device_class == null ? null : String(c.device_class), records: c.products, companies: c.companies, latest: c.latest, procedures: c.procedures?.map(p => p.name).join(', ') ?? null })[col];
-function SegmentTable({ codes }: { codes: DirectoryCode[] }) {
-  const { sort, head } = useSort<CodeCol>({ col: 'records', dir: -1 });
-  const rows = sortRows(codes, sort, codeValue);
-  return <div tabIndex={0} className="brief-table-scroll"><table className="brief-table directory-table"><thead><tr>{head('code', 'Code')}{head('name', 'Name')}{head('class', 'Class')}{head('records', 'Records', true)}{head('companies', 'Companies', true)}{head('latest', 'Latest', true)}{head('procedures', 'Procedures')}</tr></thead>
-    <tbody>{rows.map(c => <tr key={c.product_code}><td><CodeChip code={c.product_code} /></td><td>{c.plain_name ?? c.fda_name ?? 'NOT FOUND'}{c.fda_name && c.plain_name && <small className="directory-sub">{c.fda_name}</small>}</td><td>{c.device_class ?? 'NOT FOUND'}</td><td>{n(c.products)}</td><td>{n(c.companies)}</td><td>{date(c.latest)}</td><td><ProcedureLinks list={c.procedures} /></td></tr>)}</tbody></table></div>;
+function SegmentTable({ title, codes }: { title: string; codes: DirectoryCode[] }) {
+  return <div className="op-table-wrap">
+    <div className="op-tablebar"><b>{title}</b></div>
+    <table className="op-table directory-table"><thead><tr><th scope="col">Code</th><th scope="col">Name</th><th scope="col">Class</th><th scope="col" className="num">Records</th><th scope="col" className="num">Companies</th><th scope="col">Latest</th><th scope="col">Procedures</th></tr></thead>
+      <tbody>{codes.map(c => <tr key={c.product_code}><td><CodeChip code={c.product_code} /></td><td><b>{c.plain_name ?? c.fda_name ?? 'NOT FOUND'}</b>{c.fda_name && c.plain_name && <small>{c.fda_name}</small>}</td><td>{c.device_class ?? 'NOT FOUND'}</td><td className="num">{n(c.products)}</td><td className="num">{n(c.companies)}</td><td className="nw">{date(c.latest)}</td><td><ProcedureLinks list={c.procedures} /></td></tr>)}</tbody></table>
+  </div>;
 }
-function Page({ children }: { children: ReactNode }) { return <div className="compare-page directory-page">{children}</div>; }
 
 export function DirectoryIndexPage() {
   const { data } = useSuspenseQuery(directoryIndexOptions());
+  const coverage = useQuery({ queryKey: ['vendor-coverage'], queryFn: getVendorCoverage, staleTime: Infinity, retry: false }).data;
   const [query, setQuery] = useState('');
-  const segments = data.segments.map(s => ({ ...s, shown: filterCodes(s.codes, query) })).filter(s => s.shown.length);
-  return <Page>
-    <section className="result-header"><h1 className="result-title">Browse by category</h1><p className="section-lead">{data.note}</p>
-      <Tiles items={[[data.totals.products, 'orthopedic FDA records with a product code'], [data.totals.product_codes, 'FDA product codes'], [data.totals.companies, 'companies, counted by parent company']]} />
-      <p className="section-caption">{n(data.totals.no_product_code)} more records have no product code on file and stay searchable by name.</p>
-      <label className="directory-filter"><span className="sr-only">Filter categories</span><Input type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Filter by code or name" aria-label="Filter categories by code, plain name or FDA name" /></label>
-    </section>
-    {segments.map(s => <section key={s.segment} className="brief-section"><h2>{s.segment} · {n(s.product_codes)} codes · {n(s.products)} records</h2><SegmentTable codes={s.shown} /></section>)}
-    {!segments.length && <section className="brief-section"><p className="section-caption">No categories match “{query}”.</p></section>}
-    <p className="section-caption directory-source">{data.source}</p>
-  </Page>;
+  const [sort, setSort] = useState<CodeSort>('records');
+  const [procedure, setProcedure] = useState('');
+  const [segment, setSegment] = useState('');
+  const procedures = useMemo(() => directoryProcedureOptions(data.segments), [data.segments]);
+  const segments = data.segments
+    .filter(s => !segment || s.segment === segment)
+    .map(s => ({ ...s, shown: sortCodes(filterCodesByProcedure(filterCodes(s.codes, query), procedure), sort) }))
+    .filter(s => s.shown.length);
+  const filtered = !!query.trim() || !!procedure;
+  return <>
+    <PageHead eyebrow="Explore" title="Every orthopedic FDA record, by product code" lead={data.note} />
+    <div className="op-wrap op-section op-stack directory-body">
+      <div className="op-stats">
+        <div className="op-stat"><b>{n(data.totals.products)}</b><span>orthopedic FDA records with a product code</span></div>
+        <div className="op-stat"><b>{n(data.totals.product_codes)}</b><span>FDA product codes</span></div>
+        <div className="op-stat"><b>{n(data.totals.companies)}</b><span>companies, counted by parent company</span></div>
+      </div>
+      <p className="op-caption">Counts here cover records with a product code, so they run slightly below the site-wide totals ({coverage ? coverage.devices.toLocaleString('en-US') : '…'} records, {coverage ? coverage.count.toLocaleString('en-US') : '…'} companies). FDA records, not sales. {n(data.totals.no_product_code)} more records have no product code on file and stay searchable by name. Data current through {date(data.totals.data_end)}.</p>
+      <div className="op-row directory-controls">
+        <label className="op-input directory-filter"><Search size={18} aria-hidden="true" /><span className="op-sr">Filter categories</span><input type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Filter categories by name or code" aria-label="Filter categories by code, plain name or FDA name" /></label>
+        <label className="op-input op-select"><span className="op-sr">Sort</span><select value={sort} onChange={e => setSort(e.target.value as CodeSort)} aria-label="Sort categories"><option value="records">Sort: most records</option><option value="latest">Sort: latest record</option></select></label>
+        <label className="op-input op-select"><span className="op-sr">Procedure</span><select value={procedure} onChange={e => setProcedure(e.target.value)} aria-label="Filter by procedure"><option value="">Procedure: any</option>{procedures.map(p => <option key={p.family_id} value={p.family_id}>{p.name}</option>)}</select></label>
+      </div>
+      <div className="op-row directory-chips" role="group" aria-label="Segments">
+        {data.segments.map(s => <button key={s.segment} type="button" className="op-chip directory-segment" aria-pressed={segment === s.segment} onClick={() => setSegment(segment === s.segment ? '' : s.segment)}>{s.segment} <span className="op-caption">{n(s.product_codes)}</span></button>)}
+        {segment && <button type="button" className="op-copy" onClick={() => setSegment('')}>Show all segments</button>}
+      </div>
+      {segments.map(s => <SegmentTable key={s.segment} codes={s.shown} title={filtered ? `${s.segment} · ${n(s.shown.length)} of ${n(s.product_codes)} codes` : `${s.segment} · ${n(s.product_codes)} codes · ${n(s.products)} records`} />)}
+      {!segments.length && <div className="op-nf"><span className="op-mono">0 MATCHES</span>No categories match{query.trim() ? ` “${query.trim()}”` : ''}{procedure ? ` for ${procedures.find(p => p.family_id === procedure)?.name ?? 'that procedure'}` : ''}.</div>}
+      <div className="op-note">{LISTING_NOTE}</div>
+      <p className="op-caption">{data.source}</p>
+    </div>
+  </>;
 }
 
 const codeRoute = getRouteApi('/browse_/$code');
@@ -76,30 +96,39 @@ function CodeDetail({ d }: { d: DirectoryFound }) {
   const filtered = useMemo(() => sortRows(filterRows(d.rows, query), records.sort, rowValue), [d.rows, query, records.sort]);
   const shown = pageOf(filtered, page);
   const download = () => { const blob = new Blob([directoryCsv(code, plain, d.rows, longDate(new Date().toISOString()))], { type: 'text/csv' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = directoryCsvName(code, new Date()); a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); };
-  const pager = shown.pages > 1 && <nav className="directory-pager" aria-label="Record pages"><Button variant="secondary" size="sm" disabled={shown.current === 1} onClick={() => setPage(shown.current - 1)}>Previous</Button><span>Page {shown.current} of {shown.pages} · {n(filtered.length)} records</span><Button variant="secondary" size="sm" disabled={shown.current === shown.pages} onClick={() => setPage(shown.current + 1)}>Next</Button></nav>;
-  return <Page>
-    <section className="result-header"><p className="eyebrow">Browse by category</p><Link to="/browse" className="brief-link mb-6 inline-flex items-center gap-1"><ArrowLeft className="size-4" />All categories</Link>
-      <h1 className="result-title">{plain}</h1>
-      <p className="result-meta">FDA product code {code} · {text(pc.fda_name)} · {deviceClassLabel(pc.device_class)} · Regulation {text(pc.regulation_number)}</p>
-      {pc.plain_description && <p className="plain-description">{pc.plain_description}</p>}
-      <Tiles items={[[d.totals.products, 'FDA records'], [d.totals.companies, 'companies by parent'], [d.totals.companies_last5, 'with a record in the last five years'], [d.totals.listed_in_distribution, 'listed in distribution in GUDID']]} />
-      <p className="section-caption">{date(d.totals.first)} to {date(d.totals.latest)}. Data through {date(d.totals.data_end)}.</p>
-      {!!d.procedures?.length && <p className="section-caption">Procedures: <ProcedureLinks list={d.procedures} /></p>}
-    </section>
-    <section className="brief-section"><h2>Companies</h2><div tabIndex={0} className="brief-table-scroll"><table className="brief-table directory-table"><thead><tr>{companies.head('company', 'Company')}{companies.head('records', 'Records', true)}{companies.head('last5', 'Last five years', true)}{companies.head('listed', 'Listed in distribution', true)}{companies.head('first', 'First', true)}{companies.head('latest', 'Latest', true)}</tr></thead>
-      <tbody>{sortRows(d.companies, companies.sort, companyValue).map(c => <tr key={c.owner_id}><td><Link className="brief-link" to="/" search={{ v: c.owner_id }}>{companyName(c.owner_name)}</Link></td><td>{n(c.products)}</td><td>{n(c.last5)}</td><td>{n(c.listed_in_distribution)}</td><td>{date(c.first)}</td><td>{date(c.latest)}</td></tr>)}</tbody></table></div></section>
-    <section className="brief-section"><div className="directory-records-head"><h2>Every record</h2><Button variant="secondary" size="sm" onClick={download}><Download />Download CSV</Button></div>
-      <label className="directory-filter"><span className="sr-only">Filter records</span><Input type="search" value={query} onChange={e => { setQuery(e.target.value); setPage(1); }} placeholder="Filter by number, product, company or brand" aria-label="Filter records by number, product, company or brand" /></label>
+  const pager = shown.pages > 1 && <nav className="op-row directory-pager" aria-label="Record pages"><Button variant="secondary" size="sm" disabled={shown.current === 1} onClick={() => setPage(shown.current - 1)}>Previous</Button><span className="op-caption">Page {shown.current} of {shown.pages} · {n(filtered.length)} records</span><Button variant="secondary" size="sm" disabled={shown.current === shown.pages} onClick={() => setPage(shown.current + 1)}>Next</Button></nav>;
+  return <>
+    <PageHead eyebrow="Explore · category" title={plain} lead={pc.plain_description} crumb={<Link to="/browse" className="op-crumb">All categories</Link>}>
+      <p className="op-meta directory-meta"><span>FDA product code <span className="op-mono">{code}</span></span><span>{text(pc.fda_name)}</span><span>{deviceClassLabel(pc.device_class)}</span><span>Regulation {text(pc.regulation_number)}</span>{!!d.procedures?.length && <span>Procedures: <ProcedureLinks list={d.procedures} /></span>}</p>
+    </PageHead>
+    <div className="op-wrap op-section op-stack directory-body">
+      <div className="op-stats">
+        <div className="op-stat"><b>{n(d.totals.products)}</b><span>FDA records</span></div>
+        <div className="op-stat"><b>{n(d.totals.companies)}</b><span>companies by parent</span><ScopeLabel>FDA records, not sales</ScopeLabel></div>
+        <div className="op-stat"><b>{n(d.totals.companies_last5)}</b><span>with a record in the last five years</span></div>
+        <div className="op-stat"><b>{n(d.totals.listed_in_distribution)}</b><span>listed in distribution in GUDID</span></div>
+      </div>
+      <p className="op-caption">{date(d.totals.first)} to {date(d.totals.latest)}. Data current through {date(d.totals.data_end)}.</p>
+      <div className="op-table-wrap">
+        <div className="op-tablebar"><b>Companies, {n(d.companies.length)}</b></div>
+        <table className="op-table directory-table"><thead><tr>{companies.head('company', 'Company')}{companies.head('records', 'Records', true, 'num')}{companies.head('last5', 'Last five years', true, 'num')}{companies.head('listed', 'Listed in distribution', true, 'num')}{companies.head('first', 'First', true)}{companies.head('latest', 'Latest', true)}</tr></thead>
+          <tbody>{sortRows(d.companies, companies.sort, companyValue).map(c => <tr key={c.owner_id}><td><Link to="/" search={{ v: c.owner_id }}><b>{companyName(c.owner_name)}</b></Link></td><td className="num">{n(c.products)}</td><td className="num">{n(c.last5)}</td><td className="num">{n(c.listed_in_distribution)}</td><td className="nw">{date(c.first)}</td><td className="nw">{date(c.latest)}</td></tr>)}</tbody></table>
+      </div>
+      <div className="op-table-wrap">
+        <div className="op-tablebar directory-records-bar">
+          <div className="op-row"><b>Every record</b><label className="op-input directory-filter"><Search size={16} aria-hidden="true" /><span className="op-sr">Filter records</span><input type="search" value={query} onChange={e => { setQuery(e.target.value); setPage(1); }} placeholder="Filter records" aria-label="Filter records by number, product, company or brand" /></label></div>
+          <div className="op-row"><button type="button" className="op-btn-2" onClick={download}><Download size={16} aria-hidden="true" />Download CSV</button>{pager}</div>
+        </div>
+        <table className="op-table directory-table"><thead><tr>{records.head('number', 'FDA number')}{records.head('product', 'Product')}{records.head('filer', 'Filer')}{records.head('owner', 'Company today')}{records.head('date', 'Decision', true)}{records.head('brand', 'GUDID brand')}{records.head('dist', 'In distribution', true)}</tr></thead>
+          <tbody>{shown.rows.map(r => { const differs = ownerDiffers(r); const owner = r.owner_id ? <Link to="/" search={{ v: r.owner_id }}>{companyName(r.owner_name ?? r.owner_id)}</Link> : null; return <tr key={r.number}><td className="nw"><BriefLink k={r.number} /> <PathwayTag number={r.number} /></td><td title={r.device_name ?? undefined}><b>{displayName(r.product ?? r.device_name ?? 'NOT FOUND')}</b></td><td>{differs || !owner ? r.filer ?? 'NOT FOUND' : owner}</td><td>{differs ? owner : null}</td><td className="nw">{date(r.decision_date)}</td><td>{r.gudid_devices ? r.gudid_brand ?? 'NOT FOUND' : <span className="op-badge nf">No GUDID match</span>}</td><td className="nw">{distributionText(r)}</td></tr>; })}</tbody></table>
+      </div>
+      {!filtered.length && <div className="op-nf"><span className="op-mono">0 MATCHES</span>No records match “{query}”.</div>}
       {pager}
-      <div tabIndex={0} className="brief-table-scroll"><table className="brief-table directory-table"><thead><tr>{records.head('number', 'FDA number')}{records.head('product', 'Product')}{records.head('filer', 'Filed by')}{records.head('owner', 'Owner today')}{records.head('date', 'Decision date', true)}{records.head('brand', 'GUDID brand')}{records.head('dist', 'In distribution', true)}</tr></thead>
-        <tbody>{shown.rows.map(r => { const differs = ownerDiffers(r); const owner = r.owner_id ? <Link className="brief-link" to="/" search={{ v: r.owner_id }}>{companyName(r.owner_name ?? r.owner_id)}</Link> : null; return <tr key={r.number}><td><BriefLink k={r.number} /> <PathwayTag number={r.number} /></td><td title={r.device_name ?? undefined}>{displayName(r.product ?? r.device_name ?? 'NOT FOUND')}</td><td>{differs || !owner ? r.filer ?? 'NOT FOUND' : owner}</td><td>{differs ? owner : null}</td><td>{date(r.decision_date)}</td><td>{r.gudid_devices ? r.gudid_brand ?? 'NOT FOUND' : <span className="text-muted-foreground">Not in GUDID</span>}</td><td>{distributionText(r)}</td></tr>; })}</tbody></table></div>
-      {!filtered.length && <p className="section-caption">No records match “{query}”.</p>}
-      {pager}
-    </section>
-    <section className="brief-section"><h2>Notes</h2><ul>{(d.notes ?? []).map(t => <li key={t} className="section-caption">{t}</li>)}</ul><p className="section-caption">{d.source}</p></section>
-  </Page>;
+      <div className="op-note"><b>Notes</b><ul className="directory-notes">{(d.notes ?? []).map(t => <li key={t}>{t}</li>)}</ul><p className="op-caption">{d.source}</p></div>
+    </div>
+  </>;
 }
 
 export function DirectoryNotFound({ data }: { data?: unknown }) {
-  return <div className="flex min-h-[60vh] items-center justify-center px-4"><div className="max-w-md text-center"><h1 className="text-7xl font-bold text-foreground">404</h1><h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2><p className="mt-2 text-sm text-muted-foreground">{typeof data === 'string' && data ? data : "The page you're looking for doesn't exist or has been moved."}</p><div className="mt-6 flex justify-center gap-3"><Button asChild><Link to="/browse">All categories</Link></Button><Button asChild variant="secondary"><Link to="/">Go home</Link></Button></div></div></div>;
+  return <PageHead eyebrow="Explore · category" title="Category not found" lead={typeof data === 'string' && data ? data : "The page you're looking for doesn't exist or has been moved."}><div className="op-row directory-nf-actions"><Link className="op-btn" to="/browse">All categories</Link><Link className="op-btn-2" to="/">Go home</Link></div></PageHead>;
 }

@@ -8,6 +8,8 @@ import { pageTitle } from '@/lib/benchmark-brand';
 import { ProcedurePending, ProcedureError, ProcedureNotFound, ProcedurePayments, ProcedureSupplyRange } from '@/components/procedure-shared';
 import { ProcedureWorksheet } from '@/components/procedure-worksheet';
 import { ProcedureEvidence } from '@/components/procedure-evidence';
+import { PageHead } from '@/components/op-controls';
+import { procedureNumber } from '@/lib/procedure-data';
 import { useEvidence } from '@/components/decision-shared';
 
 const evidenceIds = ['drgs', 'team', 'outpatient', 'devices', 'evidence', 'notes'];
@@ -34,9 +36,14 @@ function ProcedurePage() {
   const {data: team} = useQuery(teamFamilyOptions(familyId));
   const ev = useEvidence('brief', {opened, onToggle: toggle});
   return <>
-    <section className="result-header"><Link to="/procedures" className="brief-link mb-6">Medicare payments by procedure</Link><h1 className="result-title">{detail.family.name}</h1><p className="plain-description">{detail.family.description}</p><p className="result-meta">DRGs {detail.family.drgs.join(', ')} · Original Medicare inpatient, {detail.family.data_year}</p><div className="mt-8"><ProcedurePayments detail={detail} /></div>{team?.is_team && <div className="category-metrics procedure-payments mt-4"><TeamFigure team={team} /></div>}</section>
-    <ProcedureSupplyRange detail={detail} />
-    <ProcedureWorksheet key={familyId} detail={detail} />
-    <ProcedureEvidence detail={detail} vendor={hl} isOpen={ev.isOpen} toggle={ev.toggle} team={<TeamEvidence team={team} open={ev.isOpen('team')} onToggle={() => ev.toggle('team')} />} />
+    <PageHead eyebrow="Explore · procedure" title={detail.family.name} lead={detail.family.description} crumb={<Link to="/procedures" className="op-crumb">All procedures</Link>}>
+      <p className="op-meta"><span>MS-DRGs <span className="op-mono">{detail.family.drgs.join(', ')}</span></span><span>Original Medicare inpatient, {detail.family.data_year}</span><span>{procedureNumber(detail.family.hospitals)} hospitals · {procedureNumber(detail.family.discharges)} discharges</span></p>
+    </PageHead>
+    <div className="op-wrap op-section op-stack procedure-body">
+      <ProcedurePayments detail={detail} extra={team?.is_team ? <TeamFigure team={team} /> : null} />
+      <ProcedureSupplyRange detail={detail} />
+      <ProcedureWorksheet key={familyId} detail={detail} />
+      <ProcedureEvidence detail={detail} vendor={hl} isOpen={ev.isOpen} toggle={ev.toggle} team={<TeamEvidence team={team} open={ev.isOpen('team')} onToggle={() => ev.toggle('team')} />} />
+    </div>
   </>;
 }

@@ -1,7 +1,8 @@
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronDown, Printer } from 'lucide-react';
+import { ChevronDown, Printer, Search } from 'lucide-react';
+import { PageHead, ScopeLabel } from './op-controls';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { BrandMark } from './brand-mark';
@@ -9,7 +10,7 @@ import { Status } from './reviewer-shared';
 import { EvidenceSection } from './decision-shared';
 import { ProcedureSource } from './procedure-shared';
 import { getProcedureList, getTeamCode, getTeamFamily, getTeamHospitals, getTeamNotes } from '@/lib/predicate-data';
-import { lowerFirst, parseInput, teamDate, teamDollars, teamFamilies, teamLedger, type ClaimInputs, type TeamFamily, type TeamHospital, type TeamPrice } from '@/lib/team';
+import { isStateQuery, stateHospitals, lowerFirst, parseInput, teamDate, teamDollars, teamFamilies, teamLedger, type ClaimInputs, type TeamFamily, type TeamHospital, type TeamPrice } from '@/lib/team';
 import { benchmarkOrigin } from '@/lib/benchmark-brand';
 import { printBrief } from '@/lib/brief-print';
 
@@ -36,7 +37,7 @@ function range(prices: TeamPrice[] | undefined) {
 /** Figure tile for the procedure page; renders only for TEAM families. */
 export function TeamFigure({team}: {team: TeamFamily | undefined}) {
   if (!team?.is_team) return null;
-  return <div className="metric"><h2 className="metric-label">TEAM episode</h2><div className="metric-value">{teamDollars(team.range_2027?.min)} to {teamDollars(team.range_2027?.max)}</div><p className="section-caption mt-3">TEAM 2027 target prices</p></div>;
+  return <div className="op-card op-stat procedure-pay"><small>TEAM episode · <Link to="/team">lookup</Link></small><b>{teamDollars(team.range_2027?.min)} to {teamDollars(team.range_2027?.max)}</b><span>TEAM 2027 preliminary target prices, all regions</span></div>;
 }
 
 export function TeamEvidence({team, open, onToggle}: {team: TeamFamily | undefined; open: boolean; onToggle: () => void}) {
@@ -63,39 +64,54 @@ function useDebounced(value: string, ms = 300) {
 }
 function useHospitalSearch(q: string) {
   const d = useDebounced(q.trim());
-  return useQuery({queryKey: ['team-hospital', d.toLowerCase()], queryFn: () => getTeamHospitals(d), enabled: d.length >= 2, staleTime: Infinity, retry: false});
+  const state = isStateQuery(d);
+  return useQuery({queryKey: ['team-hospital', d.toLowerCase(), state], queryFn: () => getTeamHospitals(d, state ? 1000 : 50), enabled: d.length >= 2, staleTime: Infinity, retry: false});
 }
-function HospitalRow({h, pricesNote}: {h: TeamHospital; pricesNote: string | null}) {
-  const [open, setOpen] = useState(false);
-  const id = `team-prices-${h.ccn}`;
+function HospitalCard({h, pricesNote}: {h: TeamHospital; pricesNote: string | null}) {
   const groups = [...new Set(h.prices_2027.map(p => p.category))];
-  return <><tr><td>{h.hospital}</td><td className="font-mono">{h.ccn}</td><td>{h.participation ?? 'NOT FOUND'}</td><td>{h.cbsa_name ?? 'NOT FOUND'}</td><td>{teamDate(h.start_date)}</td><td>{h.region_name ?? 'NOT FOUND'}</td><td><Toggle open={open} onClick={() => setOpen(!open)} controls={id}>2027 prices</Toggle></td></tr>
-    {open && <tr id={id}><td colSpan={7}>{groups.map(g => <Fragment key={g}><h3 className="mt-3">{g}</h3><table className="brief-table"><thead><tr><th>MS-DRG</th><th>Target price</th></tr></thead><tbody>{h.prices_2027.filter(p => p.category === g).map(p => <tr key={p.drg}><td className="font-mono">{p.drg}</td><td>{teamDollars(p.target_price)}</td></tr>)}</tbody></table></Fragment>)}{pricesNote && <p className="section-caption">{pricesNote}</p>}</td></tr>}</>;
+  return <section className="op-card op-stack team-selected" aria-label="Selected hospital">
+    <div className="team-selected-head"><div><p className="op-eyebrow">Selected</p><h2 className="op-h3">{h.hospital}<ScopeLabel>As listed by CMS</ScopeLabel></h2>
+      <p className="op-meta"><span>CCN <span className="op-mono">{h.ccn}</span></span><span>{h.cbsa_name ?? h.state ?? 'NOT FOUND'}</span><span>Census division {h.region ?? 'NOT FOUND'}{h.region_name ? `, ${h.region_name}` : ''}</span><span>In TEAM {teamDate(h.start_date)} to {teamDate(h.end_date)}</span></p></div>
+      <span className="op-badge">{h.participation ?? 'In TEAM'}</span></div>
+    {h.track && <div className="op-nf">{/^NOT FOUND:?\s*/.test(h.track) ? <><span className="op-mono">NOT FOUND</span>Participation track. {h.track.replace(/^NOT FOUND:?\s*/, '')}</> : h.track}</div>}
+    {h.prices_2027.length > 0 && <div className="op-table-wrap"><table className="op-table"><thead><tr><th scope="col">MS-DRG</th><th scope="col">Episode category</th><th scope="col" className="num">2027 target price</th></tr></thead><tbody>{groups.flatMap(g => h.prices_2027.filter(p => p.category === g).map(p => <tr key={`${g}-${p.drg}`}><td className="op-mono">{p.drg}</td><td>{g}</td><td className="num">{teamDollars(p.target_price)}</td></tr>))}</tbody></table></div>}
+    {pricesNote && <p className="op-caption">{pricesNote}</p>}
+  </section>;
 }
 function HospitalBox() {
   const [q, setQ] = useState('');
+  const [picked, setPicked] = useState<string | null>(null);
   const {data, isFetching, isError} = useHospitalSearch(q);
-  const track = data?.results.find(r => r.track)?.track;
-  return <section className="brief-section"><h2>Is a hospital in TEAM?</h2>
-    <Input type="search" value={q} onChange={e => setQ(e.target.value)} placeholder="Hospital name, city, state (AZ) or 6-digit CCN" aria-label="Find a hospital" className="max-w-xl" />
-    {isFetching && <p className="section-caption mt-4">…</p>}
-    {isError && <p className="notice mt-4" role="alert">Could not load the hospital list. Try again.</p>}
-    {data && q.trim().length >= 2 && <div className="mt-6">
-      {data.note && <p>{data.note}</p>}
-      {track && <p className="section-caption">{track}</p>}
-      {data.results.length > 0 && <div tabIndex={0} className="brief-table-scroll"><table className="brief-table"><thead><tr>{['Hospital', 'CCN', 'Participation', 'Area', 'Start', 'Region', '2027 prices'].map(h => <th key={h}>{h}</th>)}</tr></thead><tbody>{data.results.map(h => <HospitalRow key={h.ccn} h={h} pricesNote={data.prices_note} />)}</tbody></table></div>}
-      <p className="section-caption mt-4">{data.source_url ? <ProcedureSource url={data.source_url}>CMS participant list as of {teamDate(data.as_of)}, {data.total?.toLocaleString('en-US') ?? 'NOT FOUND'} hospitals</ProcedureSource> : <>CMS participant list as of {teamDate(data.as_of)}, {data.total?.toLocaleString('en-US') ?? 'NOT FOUND'} hospitals</>}</p>
-      {data.prices_note && <p className="section-caption">{data.prices_note}</p>}
-    </div>}
-  </section>;
+  const term = q.trim();
+  const state = isStateQuery(term);
+  const results = data ? (state ? stateHospitals(data.results, term) : data.results) : [];
+  const selected = results.find(h => h.ccn === picked) ?? (results.length === 1 ? results[0] : undefined);
+  const listed = data ? <>CMS participant list as of {teamDate(data.as_of)}, {data.total?.toLocaleString('en-US') ?? 'NOT FOUND'} hospitals. CMS updates it quarterly.</> : null;
+  return <>
+    <div className="op-stack">
+      <label className="op-field"><span className="op-sr">Find a hospital</span><span className="op-input lg"><Search size={18} aria-hidden="true" /><input type="search" value={q} onChange={e => { setQ(e.target.value); setPicked(null); }} placeholder="Hospital name, city, state or CCN" aria-label="Find a hospital" /></span></label>
+      <p className="op-caption">Search by hospital name, metro area, state or CCN. {data?.source_url ? <ProcedureSource url={data.source_url}>{listed}</ProcedureSource> : listed}</p>
+    </div>
+    {isFetching && <p className="op-caption">…</p>}
+    {isError && <div className="op-nf" role="alert">Could not load the hospital list. Try again.</div>}
+    {data && term.length >= 2 && !isFetching && <>
+      {results.length === 0 && <div className="op-nf"><span className="op-mono">0 MATCHES</span>{data.note ?? `No TEAM hospital matches “${term}”.`}</div>}
+      {results.length > 0 && <div className="op-table-wrap">
+        <div className="op-tablebar"><b>{state ? `All ${results.length.toLocaleString('en-US')} TEAM ${results.length === 1 ? 'hospital' : 'hospitals'} in ${term.toUpperCase()}` : `${results.length.toLocaleString('en-US')} ${results.length === 1 ? 'match' : 'matches'}`}</b>{data.note && <span className="op-caption">{data.note}</span>}</div>
+        <table className="op-table"><thead><tr><th scope="col">Hospital (as listed by CMS)</th><th scope="col">Area</th><th scope="col">CCN</th><th scope="col"><span className="op-sr">Prices</span></th></tr></thead>
+          <tbody>{results.map(h => <tr key={h.ccn} aria-selected={selected?.ccn === h.ccn}><td><b>{h.hospital}</b></td><td className="nw">{h.cbsa_name ?? h.state ?? 'NOT FOUND'}</td><td className="op-mono">{h.ccn}</td><td className="nw"><button type="button" className="op-copy" aria-pressed={selected?.ccn === h.ccn} onClick={() => setPicked(h.ccn)}>2027 prices ›</button></td></tr>)}</tbody></table>
+      </div>}
+      {selected && <HospitalCard h={selected} pricesNote={data.prices_note} />}
+    </>}
+  </>;
 }
 function CodeBox() {
   const [q, setQ] = useState('');
   const d = useDebounced(q.trim());
   const {data, isFetching, isError} = useQuery({queryKey: ['team-code', d.toUpperCase()], queryFn: () => getTeamCode(d), enabled: d.length >= 3, staleTime: Infinity, retry: false});
   const price = data?.found ? data.prices_2027?.filter(p => p.drg === data.price_drg) ?? [] : [];
-  return <section className="brief-section"><h2>Does a code start a TEAM episode?</h2>
-    <Input type="search" value={q} onChange={e => setQ(e.target.value)} placeholder="MS-DRG or HCPCS code, e.g. 470 or 27447" aria-label="MS-DRG or HCPCS code" className="max-w-xl" />
+  return <section className="op-stack">
+    <label className="op-field"><span className="op-sr">MS-DRG or HCPCS code</span><span className="op-input lg"><Search size={18} aria-hidden="true" /><input type="search" value={q} onChange={e => setQ(e.target.value)} placeholder="MS-DRG or HCPCS code, e.g. 470 or 27447" aria-label="MS-DRG or HCPCS code" /></span></label>
     {isFetching && <p className="section-caption mt-4">…</p>}
     {isError && <p className="notice mt-4" role="alert">Could not check that code. Try again.</p>}
     {data && d.length >= 3 && <div className="mt-6">{data.found ? <>
@@ -111,12 +127,19 @@ function CodeBox() {
 }
 export function TeamLookupPage() {
   const {data: notes, isError} = useQuery({queryKey: ['team-notes'], queryFn: getTeamNotes, staleTime: Infinity, retry: false});
+  const [tab, setTab] = useState<'hospital' | 'code'>('hospital');
   return <>
-    <section className="result-header"><h1 className="result-title">Medicare TEAM lookup</h1>{notes ? <p className="section-lead">{notes[0]}</p> : isError ? <p className="notice" role="alert">Could not load the TEAM notes.</p> : <Status busy />}
-      <Button asChild variant="link" className="px-0"><Link to="/team/calculator">Work through a claimed benefit</Link></Button></section>
-    <HospitalBox />
-    <CodeBox />
-    {notes && notes.length > 1 && <section className="brief-section"><h2>What TEAM does and doesn't change</h2><ul className="list-disc pl-5 space-y-3">{notes.slice(1).map((n, i) => <li key={i}>{n}</li>)}</ul></section>}
+    <PageHead eyebrow="Tools · TEAM" title="Medicare TEAM lookup" lead={notes ? notes[0] : isError ? undefined : '…'}>
+      {isError && <div className="op-nf" role="alert">Could not load the TEAM notes.</div>}
+      <div className="op-row team-head-actions"><Link className="op-btn-2" to="/team/calculator">Work through a claimed benefit ›</Link></div>
+    </PageHead>
+    <div className="op-wrap op-section op-stack">
+      <div className="op-search team-search">
+        <div className="op-search-top"><div className="op-tabs" role="tablist" aria-label="TEAM lookup"><button type="button" role="tab" className="op-tab" aria-selected={tab === 'hospital'} onClick={() => setTab('hospital')}>Is a hospital in TEAM?</button><button type="button" role="tab" className="op-tab" aria-selected={tab === 'code'} onClick={() => setTab('code')}>Does a code start a TEAM episode?</button></div></div>
+        <div className="team-search-body op-stack">{tab === 'hospital' ? <HospitalBox /> : <CodeBox />}</div>
+      </div>
+      {notes && notes.length > 1 && <div className="op-note"><b>What TEAM does and doesn't change</b><ul className="team-notes">{notes.slice(1).map((n, i) => <li key={i}>{n}</li>)}</ul></div>}
+    </div>
   </>;
 }
 
@@ -152,6 +175,7 @@ export function TeamCalculatorPage() {
   const [region, setRegion] = useState('');
   const [hq, setHq] = useState('');
   const [hospital, setHospital] = useState<string | null>(null);
+  const [filled, setFilled] = useState<string | null>(null);
   const [raw, setRaw] = useState<Raw>(blank);
   const hospitals = useHospitalSearch(hq);
   const family = fams?.[teamFamilies.indexOf(fam as typeof teamFamilies[number])];
@@ -203,18 +227,20 @@ export function TeamCalculatorPage() {
   useEffect(() => { setUrl(`${benchmarkOrigin}/team/calculator`); setGenerated(new Date().toLocaleDateString('en-US', {month: 'long', day: 'numeric', year: 'numeric'})); }, []);
 
   return <>
-    <section className="result-header"><Link to="/team" className="brief-link mb-6">Medicare TEAM lookup</Link><h1 className="result-title">TEAM arithmetic for a device claim</h1>
-      <p className="section-lead">Everything on this page runs in your browser. Nothing you type is sent or stored.</p>
-      <Button onClick={() => void printBrief()}><Printer />Print</Button></section>
+    <PageHead eyebrow="Tools · TEAM" title="TEAM arithmetic for a device claim" lead="Everything on this page runs in your browser. Nothing you type is sent or stored." crumb={<Link to="/team" className="op-crumb">Medicare TEAM lookup</Link>}>
+      <div className="op-row team-head-actions"><button type="button" className="op-btn-2" onClick={() => void printBrief()}><Printer size={16} aria-hidden="true" />Print</button></div>
+    </PageHead>
+    <div className="op-wrap op-section op-stack team-calc">
     <section className="brief-section"><h2>Step 1. The episode</h2>
       {error && <p className="notice" role="alert">Could not load TEAM prices. Try again.</p>}
       {!fams && !error && <Status busy />}
       {fams && <div className="team-form">
         <label>Procedure<select className="team-select" value={fam} onChange={e => { setFam(e.target.value); setDrg(''); }}><option value="">Choose a procedure</option>{teamFamilies.map((f, i) => <option key={f} value={f}>{famLabel(f, i)}</option>)}</select></label>
         <label>MS-DRG<select className="team-select" value={drg} disabled={!family} onChange={e => setDrg(e.target.value)}><option value="">Choose an MS-DRG</option>{(family?.prices_2027 ?? []).map(p => <option key={p.drg} value={p.drg}>{p.drg}{p.title ? ` ${p.title}` : ''}</option>)}</select></label>
-        <label>Census division<select className="team-select" value={region} disabled={!regions.length} onChange={e => { setRegion(e.target.value); setHospital(null); }}><option value="">Choose a census division</option>{regions.map(r => <option key={r.region} value={r.region}>{r.region_name}</option>)}</select></label>
-        <label>Or find a hospital<Input type="search" value={hq} onChange={e => setHq(e.target.value)} placeholder="Hospital name, city, state (AZ) or 6-digit CCN" /></label>
-        {hospitals.data && hq.trim().length >= 2 && <div className="team-hospitals">{hospitals.data.note && <p className="section-caption">{hospitals.data.note}</p>}{hospitals.data.results.slice(0, 12).map(h => <Button key={h.ccn} variant="link" className="px-0 h-auto whitespace-normal text-left" onClick={() => { if (h.region) setRegion(h.region); setHospital(h.hospital); setHq(''); }}>{h.hospital}, {h.cbsa_name ?? h.state} · {h.region_name}</Button>)}</div>}
+        <label>Census division<select className="team-select" value={region} disabled={!regions.length} onChange={e => { setRegion(e.target.value); setHospital(null); setFilled(null); }}><option value="">Choose a census division</option>{regions.map(r => <option key={r.region} value={r.region}>{r.region_name}</option>)}</select></label>
+        <label>Or find a hospital<Input type="search" value={hq} onChange={e => setHq(e.target.value)} placeholder="Hospital name, city, state or CCN" /></label>
+        {filled && hospital && <p className="op-caption team-filled" role="status">Filled census division {filled} from the hospital</p>}
+        {hospitals.data && hq.trim().length >= 2 && <div className="team-hospitals">{hospitals.data.note && <p className="section-caption">{hospitals.data.note}</p>}{hospitals.data.results.slice(0, 12).map(h => <Button key={h.ccn} variant="link" className="px-0 h-auto whitespace-normal text-left" onClick={() => { if (h.region) setRegion(h.region); setHospital(h.hospital); setFilled(h.region); setHq(''); }}>{h.hospital}, {h.cbsa_name ?? h.state} · {h.region_name}</Button>)}</div>}
       </div>}
       <div className="mt-6">{episode}</div>
     </section>
@@ -222,6 +248,7 @@ export function TeamCalculatorPage() {
       <div className="team-form">{fields.map(f => <label key={f.key}>{f.label}<Input inputMode="decimal" value={raw[f.key]} onChange={e => setRaw({...raw, [f.key]: e.target.value})} /></label>)}</div>
     </section>
     <section className="brief-section"><h2>Step 3. The arithmetic</h2>{ledger}</section>
+    </div>
     <div className="print-brief decision-print compare-print" aria-hidden="true">
       <div className="print-brand-bar"><div className="print-brand-lockup"><BrandMark /><span className="print-wordmark"><strong>Ortho</strong><span>Parity</span></span><span className="print-tagline">Orthopedic device and vendor benchmarks</span></div><p className="print-generated">Brief generated {generated}</p></div>
       <p className="print-sub">Medicare TEAM</p><h1>TEAM arithmetic for a device claim</h1>

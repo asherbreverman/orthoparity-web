@@ -60,3 +60,21 @@ export function directoryCsvName(code: string, date: Date) { return `orthoparity
 export function directoryTitle(detail: DirectoryDetail | undefined, code: string) {
   return detail?.found ? `${detail.product_code.plain_name ?? detail.product_code.fda_name ?? code} (${detail.product_code.product_code}): every FDA record` : 'Category not found';
 }
+
+export type CodeSort = 'records' | 'latest';
+/** Client-side ordering of already-loaded codes: most records first, or the newest record first. */
+export function sortCodes(codes: DirectoryCode[], by: CodeSort): DirectoryCode[] {
+  return by === 'latest'
+    ? sortRows(codes, { col: 'latest', dir: -1 }, (c: DirectoryCode) => c.latest)
+    : sortRows(codes, { col: 'records', dir: -1 }, (c: DirectoryCode) => c.products);
+}
+/** Keeps codes linked to one procedure family; an empty id keeps every code. */
+export function filterCodesByProcedure(codes: DirectoryCode[], familyId: string) {
+  return familyId ? codes.filter(c => c.procedures?.some(p => p.family_id === familyId)) : codes;
+}
+/** Every procedure family linked from any loaded code, by name. */
+export function directoryProcedureOptions(segments: DirectorySegment[]): DirectoryProcedure[] {
+  const seen = new Map<string, DirectoryProcedure>();
+  for (const s of segments) for (const c of s.codes) for (const p of c.procedures ?? []) if (!seen.has(p.family_id)) seen.set(p.family_id, { family_id: p.family_id, name: p.name });
+  return [...seen.values()].sort((a, b) => a.name.localeCompare(b.name));
+}

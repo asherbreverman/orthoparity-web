@@ -3,6 +3,7 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { procedureListOptions, procedureHead } from '@/lib/procedure-queries';
 import { pageTitle } from '@/lib/benchmark-brand';
 import { flagshipFirst, procedureDollars, procedureNumber } from '@/lib/procedure-data';
+import { PageHead } from '@/components/op-controls';
 import { ProcedurePending, ProcedureError, ProcedureNotFound, ProcedureNotesBlock } from '@/components/procedure-shared';
 
 export const Route = createFileRoute('/procedures')({
@@ -17,5 +18,17 @@ export const Route = createFileRoute('/procedures')({
 });
 function ProcedureIndex() {
   const {data} = useSuspenseQuery(procedureListOptions());
-  return <><section className="result-header"><h1 className="result-title">Medicare payments by procedure</h1><p className="section-lead">The most common orthopedic inpatient procedures in Original Medicare inpatient, {data.procedures[0]?.data_year}. Pick one to see what Medicare pays for inpatient stays, which device categories a case uses, and which companies are active in each.</p><div tabIndex={0} className="brief-table-scroll"><table className="brief-table"><thead><tr>{['Procedure', 'DRGs', 'Discharges', 'Hospitals', 'Medicare pays · inpatient', 'Patient and other payers', 'Total payment', 'Device categories'].map(h => <th key={h}>{h}</th>)}</tr></thead><tbody>{flagshipFirst(data.procedures).map(p => <tr key={p.family_id}><td><Link className="brief-link" to="/procedures/$familyId" params={{familyId: p.family_id}}>{p.name}</Link>{p.flagship && <div className="mt-2"><span className="data-tag">Most common</span></div>}</td><td className="font-mono">{p.drgs.join(', ')}</td><td>{procedureNumber(p.discharges)}</td><td>{procedureNumber(p.hospitals)}</td><td>{procedureDollars(p.medicare_pays)}</td><td>{procedureDollars(p.patient_other_pays)}</td><td>{procedureDollars(p.total_payment)}</td><td>{p.device_categories === 0 ? 'None linked' : procedureNumber(p.device_categories)}</td></tr>)}</tbody></table></div><p className="section-caption">Inpatient hospital payments only. ASC and hospital outpatient payments are not shown yet.</p></section><section className="brief-section"><h2>Definitions and limitations</h2><ProcedureNotesBlock notes={data.notes} /></section></>;
+  const year = data.procedures[0]?.data_year;
+  return <>
+    <PageHead eyebrow="Explore" title="Medicare payments by procedure" lead={<>The most common orthopedic inpatient procedures in Original Medicare inpatient, {year}. Pick one to see what Medicare pays for inpatient stays, which device categories a case uses, and which companies are active in each.</>} />
+    <div className="op-wrap op-section op-stack">
+      <div className="op-table-wrap">
+        <div className="op-tablebar"><span className="op-small">{data.procedures.length} procedure families · Original Medicare inpatient, {year}</span></div>
+        <table className="op-table"><thead><tr><th scope="col">Procedure</th><th scope="col">MS-DRGs</th>{['Discharges', 'Hospitals', 'Medicare pays · inpatient', 'Patient and other payers', 'Total payment', 'Device categories'].map(h => <th key={h} scope="col" className="num">{h}</th>)}</tr></thead>
+          <tbody>{flagshipFirst(data.procedures).map(p => <tr key={p.family_id}><td><Link to="/procedures/$familyId" params={{familyId: p.family_id}}><b>{p.name}</b></Link>{p.flagship && <small>Most common</small>}</td><td className="op-mono">{p.drgs.join(', ')}</td><td className="num">{procedureNumber(p.discharges)}</td><td className="num">{procedureNumber(p.hospitals)}</td><td className="num">{procedureDollars(p.medicare_pays)}</td><td className="num">{procedureDollars(p.patient_other_pays)}</td><td className="num">{procedureDollars(p.total_payment)}</td><td className="num">{p.device_categories === 0 ? 'None linked' : procedureNumber(p.device_categories)}</td></tr>)}</tbody></table>
+      </div>
+      <div className="op-note">Inpatient hospital payments only. ASC and hospital outpatient payments are not shown yet. Inpatient figures are averages weighted by volume across hospitals.</div>
+      <section className="op-card procedure-notes"><h2 className="op-h3">Definitions and limitations</h2><ProcedureNotesBlock notes={data.notes} /></section>
+    </div>
+  </>;
 }
