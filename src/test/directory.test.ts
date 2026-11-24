@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { directoryCsv, directoryCsvName, distributionText, filterRows, ownerDiffers, pageOf, sortRows, type DirectoryRow } from '@/lib/directory';
+import { deviceClassLabel, directoryCsv, directoryCsvName, distributionText, filterRows, ownerDiffers, pageOf, sortRows, type DirectoryRow } from '@/lib/directory';
 
 const row = (over: Partial<DirectoryRow>): DirectoryRow => ({ number: 'K1', pathway: '510(k)', product: 'A', device_name: 'A full', filer: 'Zimmer', owner_id: 'zimmer_biomet', owner_name: 'Zimmer Biomet', decision_date: '2024-01-01', gudid_brand: null, gudid_devices: 0, gudid_in_distribution: 0, ...over });
 
@@ -23,6 +23,13 @@ describe('category directory rules', () => {
   it('writes distribution counts', () => {
     expect(distributionText(row({ gudid_devices: 12, gudid_in_distribution: 12 }))).toBe('12 of 12 device IDs');
     expect(distributionText(row({}))).toBe('None listed');
+  });
+  it('labels device class only when FDA prints a number', () => {
+    expect(deviceClassLabel(2)).toBe('Class 2');
+    expect(deviceClassLabel('3')).toBe('Class 3');
+    expect(deviceClassLabel('HDE')).toBe('HDE');
+    expect(deviceClassLabel('Unclassified')).toBe('Unclassified');
+    expect(deviceClassLabel(null)).toBe('NOT FOUND');
   });
   it('writes the CSV header, columns and file name', () => {
     const csv = directoryCsv('PHX', 'Shoulder', [row({})], 'Nov 24, 2026').split('\n');

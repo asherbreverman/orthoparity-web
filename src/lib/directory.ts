@@ -7,7 +7,7 @@ export interface DirectorySegment { segment: string; product_codes: number; prod
 export interface DirectoryIndex { segments: DirectorySegment[]; totals: { products: number; product_codes: number; companies: number; data_end: string; no_product_code: number }; note: string; source: string }
 export interface DirectoryCompany { owner_id: string; owner_name: string; products: number; last5: number; listed_in_distribution: number; first: string | null; latest: string | null }
 export interface DirectoryRow { number: string; pathway: string; product: string | null; device_name: string | null; filer: string | null; owner_id: string | null; owner_name: string | null; decision_date: string | null; gudid_brand: string | null; gudid_devices: number; gudid_in_distribution: number }
-export interface DirectoryFound { found: true; product_code: { product_code: string; fda_name: string | null; regulation_number: string | null; device_class: string | number | null; fda_definition: string | null; plain_name: string | null; plain_description: string | null; anatomy: string | null; procedures: unknown; kind: string | null; segment: string | null }; procedures: DirectoryProcedure[] | null; totals: { products: number; clearances: number; approvals: number; companies: number; companies_last5: number; listed_in_distribution: number; no_gudid: number; first: string | null; latest: string | null; data_end: string | null }; companies: DirectoryCompany[]; rows: DirectoryRow[]; notes: string[] | null; source: string }
+export interface DirectoryFound { found: true; product_code: { product_code: string; fda_name: string | null; regulation_number: string | null; device_class: string | number | null; device_class_code: string | number | null; fda_definition: string | null; plain_name: string | null; plain_description: string | null; anatomy: string | null; procedures: unknown; kind: string | null; segment: string | null }; procedures: DirectoryProcedure[] | null; totals: { products: number; clearances: number; approvals: number; companies: number; companies_last5: number; listed_in_distribution: number; no_gudid: number; first: string | null; latest: string | null; data_end: string | null }; companies: DirectoryCompany[]; rows: DirectoryRow[]; notes: string[] | null; source: string }
 export type DirectoryDetail = DirectoryFound | { found: false; note: string };
 
 export const DIRECTORY_PAGE_SIZE = 100;
@@ -23,6 +23,12 @@ export function sortRows<T, K extends string>(rows: T[], sort: SortState<K>, val
     return c * sort.dir;
   });
 }
+/** FDA prints device_class as 1, 2 or 3 for regulated classes and as a word otherwise ("HDE", "Unclassified"). */
+export function deviceClassLabel(device_class: string | number | null | undefined): string {
+  const value = device_class == null ? '' : String(device_class).trim();
+  return value === '1' || value === '2' || value === '3' ? `Class ${value}` : value || 'NOT FOUND';
+}
+
 const has = (q: string, ...values: (string | null | undefined)[]) => values.some(v => v?.toLowerCase().includes(q));
 export function filterCodes(codes: DirectoryCode[], query: string) {
   const q = query.trim().toLowerCase();

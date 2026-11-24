@@ -3,7 +3,7 @@ import { Link, getRouteApi } from '@tanstack/react-router';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { ArrowLeft, Download } from 'lucide-react';
 import { directoryIndexOptions, directoryOptions } from '@/lib/directory-queries';
-import { directoryCsv, directoryCsvName, distributionText, filterCodes, filterRows, ownerDiffers, pageOf, sortRows, type DirectoryCode, type DirectoryCompany, type DirectoryFound, type DirectoryProcedure, type DirectoryRow, type SortState } from '@/lib/directory';
+import { deviceClassLabel, directoryCsv, directoryCsvName, distributionText, filterCodes, filterRows, ownerDiffers, pageOf, sortRows, type DirectoryCode, type DirectoryCompany, type DirectoryFound, type DirectoryProcedure, type DirectoryRow, type SortState } from '@/lib/directory';
 import { companyName, displayName } from '@/lib/format';
 import { longDate, questionHue } from '@/lib/signals';
 import { BriefLink, PathwayTag } from './reviewer-shared';
@@ -11,6 +11,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 
 const n = (v: number | null | undefined) => typeof v === 'number' ? v.toLocaleString('en-US') : 'NOT FOUND';
+const text = (v: string | null | undefined) => v && v.trim() ? v : 'NOT FOUND';
 const date = (v: string | null | undefined) => v ? longDate(v) : 'NOT FOUND';
 
 function useSort<K extends string>(initial: SortState<K>) {
@@ -79,7 +80,7 @@ function CodeDetail({ d }: { d: DirectoryFound }) {
   return <Page>
     <section className="result-header"><p className="eyebrow">Browse by category</p><Link to="/browse" className="brief-link mb-6 inline-flex items-center gap-1"><ArrowLeft className="size-4" />All categories</Link>
       <h1 className="result-title">{plain}</h1>
-      <p className="result-meta">FDA product code {code} · {pc.fda_name ?? 'NOT FOUND'} · Class {pc.device_class ?? 'NOT FOUND'} · Regulation {pc.regulation_number ?? 'NOT FOUND'}</p>
+      <p className="result-meta">FDA product code {code} · {text(pc.fda_name)} · {deviceClassLabel(pc.device_class)} · Regulation {text(pc.regulation_number)}</p>
       {pc.plain_description && <p className="plain-description">{pc.plain_description}</p>}
       <Tiles items={[[d.totals.products, 'FDA records'], [d.totals.companies, 'companies by parent'], [d.totals.companies_last5, 'with a record in the last five years'], [d.totals.listed_in_distribution, 'listed in distribution in GUDID']]} />
       <p className="section-caption">{date(d.totals.first)} to {date(d.totals.latest)}. Data through {date(d.totals.data_end)}.</p>
