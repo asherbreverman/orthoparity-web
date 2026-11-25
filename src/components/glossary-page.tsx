@@ -1,7 +1,14 @@
+import { useEffect } from 'react';
 import { Link } from '@tanstack/react-router';
 import { glossaryTerms } from '@/lib/glossary';
 
 export function GlossaryPage() {
+  useEffect(() => {
+    const id = decodeURIComponent(window.location.hash.slice(1));
+    if (!id) return;
+    const timer = setTimeout(() => document.getElementById(id)?.scrollIntoView({ block: 'start', behavior: 'instant' }), 100);
+    return () => clearTimeout(timer);
+  }, []);
   return <>
     <section className="op-band">
       <div className="op-wrap op-pagehead">

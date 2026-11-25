@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import { routeTree } from "@/routeTree.gen";
 import { benchmarkOrigin, pageTitle, benchmarkTitle } from '@/lib/benchmark-brand';
 import { pageHead } from '@/components/reviewer-shared';
+import { Route as IndexRoute } from '@/routes/index';
 import { Route as ProceduresIndex } from '@/routes/procedures';
 import { Route as ProcedureDetail } from '@/routes/procedures_.$familyId';
 import { sitemapStaticPaths, sitemapXML, sitemapPathForLocation } from '@/lib/sitemap';
@@ -21,6 +22,14 @@ describe("App routing", () => {
     const matches = router.matchRoutes("/");
 
     expect(matches.at(-1)?.routeId).not.toBe(rootRouteId);
+  });
+
+  it('titles a missing product with its requested FDA number', () => {
+    const title = titleOf(IndexRoute.options.head, {
+      loaderData: { preview: null },
+      match: { search: { k: 'K193210', compare: undefined }, loaderDeps: { k: 'K193210', v: '' } },
+    });
+    expect(title).toBe('K193210: not in OrthoParity | OrthoParity');
   });
 
   it('uses the www public origin', () => {

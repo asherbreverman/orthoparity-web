@@ -1695,6 +1695,9 @@ html { scroll-behavior: smooth; scroll-padding-top: 0; }
 .op-not-found .op-title { margin:var(--op-space-20) 0 var(--op-space-16); }
 .op-not-found .op-lead { margin-bottom:var(--op-space-36); }
 .op-not-found-links { justify-content:center; margin-top:var(--op-space-24); }
+.op-missing-reasons { padding-left:var(--op-space-20); list-style:disc; }
+.op-missing-reasons li { padding-left:4px; list-style:disc; }
+.op-missing-reasons li + li { margin-top:var(--op-space-8); }
 @media (max-width:1000px) {
   .op-tool-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .op-home-steps { grid-template-columns:repeat(3,minmax(0,1fr)); }
@@ -1735,7 +1738,14 @@ html { scroll-behavior: smooth; scroll-padding-top: 0; }
 .op-record-page .op-top-questions .op-qlist li > span { min-width:0; }
 .op-record-page .op-rail { top:var(--record-header-height,72px); padding:0; background:var(--op-surface-card); backdrop-filter:none; }
 .op-record-page .op-rail .local-bar-inner { display:flex; align-items:center; gap:var(--op-space-8); max-width:var(--op-width-content); padding:var(--op-space-8) var(--op-space-24); overflow:visible; }
-.op-record-page .rail-links { flex:1; flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; }
+.op-record-page .rail-links-wrap { position:relative; flex:1; min-width:0; }
+.op-record-page .rail-links-wrap.has-more::after { content:''; position:absolute; inset:0 0 0 auto; width:40px; pointer-events:none; background:linear-gradient(90deg,transparent,var(--op-surface-card)); }
+.op-record-page .rail-links { flex:1; width:100%; flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; }
+.op-more-menu .op-more-rail-link { display:none; }
+@media (max-width:1099px) {
+  .op-record-page .rail-links .op-rail-medicare,.op-record-page .rail-links .op-rail-addon { display:none; }
+  .op-more-menu .op-more-rail-link { display:block; }
+}
 .op-record-page .rail-links a { flex:none; border-radius:var(--op-radius-md); color:var(--op-text-2); }
 .op-record-page .rail-links a:hover { background:var(--op-surface-subtle); color:var(--op-ink); }
 .op-record-page .rail-links a[aria-current="location"] { background:var(--op-surface-accent); color:var(--op-ink); }

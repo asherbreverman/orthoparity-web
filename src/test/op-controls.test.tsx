@@ -1,11 +1,18 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { CopyLink, ScopeLabel } from '@/components/op-controls';
+import { CopyLink, ScopeLabel, Term } from '@/components/op-controls';
 import { glossaryEntry, glossaryTerms } from '@/lib/glossary';
 
 afterEach(() => { vi.restoreAllMocks(); vi.useRealTimers(); });
 
 describe('shared v2 controls', () => {
+  it('keeps glossary tooltips and native slug links together', () => {
+    render(<><Term term="Predicate">Predicate</Term><Term term="510(k)">510(k)</Term><Term term="MAUDE">MAUDE</Term></>);
+    expect(screen.getByTitle(glossaryEntry('Predicate')?.definition ?? '').querySelector('a')).toHaveAttribute('href', '/glossary#predicate');
+    expect(screen.getByTitle(glossaryEntry('510(k)')?.definition ?? '').querySelector('a')).toHaveAttribute('href', '/glossary#510k');
+    expect(screen.getByTitle(glossaryEntry('MAUDE')?.definition ?? '').querySelector('a')).toHaveAttribute('href', '/glossary#maude');
+  });
+
   it('copies the current URL and restores the label after two seconds', async () => {
     vi.useFakeTimers();
     const writeText = vi.fn().mockResolvedValue(undefined);

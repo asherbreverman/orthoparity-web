@@ -29,7 +29,7 @@ const Reach=lazy(()=>import('./payment-charts').then(m=>({default:m.ReachChart})
 const Research=lazy(()=>import('./payment-charts').then(m=>({default:m.ResearchYears})));
 function Chart({children}:{children:React.ReactNode}){return <ClientOnly><Suspense fallback={<div className="payment-chart skeleton"/>}>{children}</Suspense></ClientOnly>;}
 const mode:OwnershipMode='current';
-export function VendorWorkspace({v,from,compare,meta,view,onView,onRedirect,onDismiss,onCompare}:{v?:string | undefined;from?:string | undefined;compare?:string | undefined;meta:Meta;view:View;onView:(v:View)=>void;onRedirect:(to:string,original:string)=>void;onDismiss:()=>void;onCompare:(v:string)=>void}) {
+export function VendorWorkspace({v,from,compare,meta,dataThrough,view,onView,onRedirect,onDismiss,onCompare}:{v?:string | undefined;from?:string | undefined;compare?:string | undefined;meta:Meta;dataThrough:string;view:View;onView:(v:View)=>void;onRedirect:(to:string,original:string)=>void;onDismiss:()=>void;onCompare:(v:string)=>void}) {
  const [note,setNote]=useState<VendorResolve|null>(null);
  useEffect(()=>{let active=true;setNote(null);if(!from)return;resolveVendor(from).then(r=>{if(active)setNote(r);}).catch(e=>console.error('Ownership note unavailable.',e));return()=>{active=false;};},[from]);
  const [brief,setBrief]=useState<VendorBrief|null>(null);const [signals,setSignals]=useState<VendorSignals|null>(null);const [busy,setBusy]=useState(false);const [error,setError]=useState('');const [allRows,setAllRows]=useState(false);const [allStudies,setAllStudies]=useState(false);const ref=useRef<HTMLDivElement>(null);const navigate=useNavigate();const ev=useEvidence(view);const reload=useRefetch();
@@ -56,7 +56,6 @@ export function VendorWorkspace({v,from,compare,meta,view,onView,onRedirect,onDi
  const card=(k:string)=>cards.find(c=>c.key===k);
  const countLine=approvals===null?'…':portfolioCountLine(brief.portfolio.clearances,approvals,brief.portfolio.product_codes);
  const paidLine=brief.payments.profile_latest&&p.total>0?`${money(p.total)} in payments in ${latest}`:`No reported payments in ${latest}`;
- const dataThrough=meta.exported_utc?longDate(meta.exported_utc.slice(0,10)):'NOT FOUND';
  const countParts=countLine.split(/(510\(k\)s?)/);
  const catName=(c:CompetitionRow)=>c.plain_name??c.fda_name??c.product_code;
  const optional=(items:[string,string|number|null|undefined][])=>items.filter(([,x])=>x!==null&&x!==undefined&&x!==''&&x!=='None'&&x!=='0.0%'&&x!==0) as [string,string|number][];
@@ -77,7 +76,7 @@ export function VendorWorkspace({v,from,compare,meta,view,onView,onRedirect,onDi
  );
  return <div className="op-record-page">
  <Status error={error}/>
- <PrintBrief evidence={addOn?.v===v?<><h2>Medicare add-on payments</h2><VendorAddOnContent data={addOn.data}/></>:null} meta={meta} title={companyName(brief.vendor.display_name)} tableEvidence="competition" subtitle={vendorSubtitle(brief.vendor)} details={`${countLine} · ${paidLine}`} scope="Parent company, including every company it owns" bottomLine={s?.bottom_line??''} cards={cards} table={{caption:'Where they compete',head:['Category','Code','Clearances','Last five years','Share','Rank','Position'],rows:comp.map(c=>[catName(c),c.product_code,c.clearances,c.last5,`${c.share_last5_pct}%`,c.rank_last5??'NOT FOUND',c.position])}} questions={asks} notes={s?.notes??[]}/>
+ <PrintBrief dataThrough={dataThrough} evidence={addOn?.v===v?<><h2>Medicare add-on payments</h2><VendorAddOnContent data={addOn.data}/></>:null} meta={meta} title={companyName(brief.vendor.display_name)} tableEvidence="competition" subtitle={vendorSubtitle(brief.vendor)} details={`${countLine} · ${paidLine}`} scope="Parent company, including every company it owns" bottomLine={s?.bottom_line??''} cards={cards} table={{caption:'Where they compete',head:['Category','Code','Clearances','Last five years','Share','Rank','Position'],rows:comp.map(c=>[catName(c),c.product_code,c.clearances,c.last5,`${c.share_last5_pct}%`,c.rank_last5??'NOT FOUND',c.position])}} questions={asks} notes={s?.notes??[]}/>
  <section ref={ref} className="result-header op-band op-pagehead" aria-label="Vendor"><div className="op-wrap">
   <div className="op-eyebrow">Company · counted by parent</div><h1 className="op-title">{companyName(brief.vendor.display_name)}</h1><p className="op-owner">{vendorSubtitle(brief.vendor)}</p>
   <div className="op-meta"><span>{countParts.map((part,i)=>/^510\(k\)s?$/.test(part)?<Term key={i} term="510(k)">{part}</Term>:part)}<ScopeLabel>FDA records, not sales</ScopeLabel></span><span>{paidLine}</span><span>Data current through {dataThrough}</span></div>

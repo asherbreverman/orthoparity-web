@@ -27,7 +27,7 @@ function ProcedureIndex() {
         <table className="op-table"><thead><tr><th scope="col">Procedure</th><th scope="col">MS-DRGs</th>{['Discharges', 'Hospitals', 'Medicare pays · inpatient', 'Patient and other payers', 'Total payment', 'Device categories'].map(h => <th key={h} scope="col" className="num">{h}</th>)}</tr></thead>
           <tbody>{flagshipFirst(data.procedures).map(p => <tr key={p.family_id}><td><Link to="/procedures/$familyId" params={{familyId: p.family_id}}><b>{p.name}</b></Link>{p.flagship && <small>Most common</small>}</td><td className="op-mono">{p.drgs.join(', ')}</td><td className="num">{procedureNumber(p.discharges)}</td><td className="num">{procedureNumber(p.hospitals)}</td><td className="num">{procedureDollars(p.medicare_pays)}</td><td className="num">{procedureDollars(p.patient_other_pays)}</td><td className="num">{procedureDollars(p.total_payment)}</td><td className="num">{p.device_categories === 0 ? 'None linked' : procedureNumber(p.device_categories)}</td></tr>)}</tbody></table>
       </div>
-      <div className="op-note">Inpatient hospital payments only. ASC and hospital outpatient payments are not shown yet. Inpatient figures are averages weighted by volume across hospitals.</div>
+      <div className="op-note">Inpatient payments here. CY 2027 ASC rates appear on product pages for 12 procedure codes; hospital outpatient payments are not shown yet. Inpatient figures are averages weighted by volume across hospitals.</div>
       <section className="op-card procedure-notes"><h2 className="op-h3">Definitions and limitations</h2><ProcedureNotesBlock notes={data.notes} /></section>
     </div>
   </>;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { compareCsv, compareCsvName, compareHeading, companyComparisonSummary, noCodeNote, parseCompareList, partitionCompareColumns, runLimited } from '@/lib/product-comparison';
+import { compareCsv, compareCsvName, compareHeading, compareTabTitle, companyComparisonSummary, identicalAcross, noCodeNote, parseCompareList, partitionCompareColumns, runLimited } from '@/lib/product-comparison';
 
 describe('compare list', () => {
   it('normalizes, drops duplicates and the main product', () => {
@@ -15,6 +15,11 @@ describe('compare list', () => {
 describe('compare heading', () => {
   it('names the first three then "and N more"', () => { expect(compareHeading(['A', 'B', 'C', 'D', 'E'])).toBe('A, B, C and 2 more'); });
   it('joins two names', () => { expect(compareHeading(['A', 'B'])).toBe('A and B'); });
+  it('prefixes browser titles and uses both for exactly two products', () => {
+    expect(compareTabTitle(['First product', 'Second product', 'Third product', 'Fourth product'])).toBe('Compare: First product, Second product, Third product and 1 more | OrthoParity');
+    expect(identicalAcross(2)).toBe('identical across both');
+    expect(identicalAcross(3)).toBe('identical across all 3');
+  });
 });
 
 describe('compare CSV', () => {

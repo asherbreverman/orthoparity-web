@@ -1,21 +1,21 @@
 import type { DeviceOwner } from '@/lib/vendor-data';
-import { ClientOnly, Link } from '@tanstack/react-router';
+import { ClientOnly, Link, useNavigate } from '@tanstack/react-router';
 import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Copy, Check, Download, FileSpreadsheet, ChevronDown, Info, ExternalLink } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { BriefLink, PdfLink, PublicRecordLoading, Status, useRefetch } from './reviewer-shared';
+import { BriefLink, DeviceSearch, PdfLink, PublicRecordLoading, Status, useRefetch } from './reviewer-shared';
 import { ApprovalContent, ApprovalEvidence } from './approval-evidence';
 import { decisionDateLabel, devicePathway, hasPredicateChain , fdaRecordNote } from '@/lib/fda-device';
 import { Metrics, Studies } from './payment-shared';
 import { ProductRecallEvidence } from './recall-evidence';
 import { ProductMaudeSection } from './maude-evidence';
 import { ProductAddOnSection, ProductAddOnPrint } from './add-on-evidence';
-import { ProductProceduresSection } from './benchmark-procedures';
+import { ProductProcedureWorksheetLink, ProductProceduresSection } from './benchmark-procedures';
 import { ProductIndicationsEvidence, ProductOwnerEvidence } from './product-context-evidence';
 import { ProductSupplierSection } from './supplier-evidence';
 import { BottomLine, GlanceTiles, DecisionCards, EvidenceSection, Notes, PrintBrief, TopVendorQuestions, useEvidence } from './decision-shared';
-import { ScopeLabel, Term } from './op-controls';
+import { PageHead, ScopeLabel, Term } from './op-controls';
 import { vacSummaryText } from '@/lib/vac-summary';
 import { getBrief, getFamily, lookupChain, getProductPayments, getSignals, getDeviceOwner } from '@/lib/predicate-data';
 import { ownerLine, withPaymentQuestions, money, dollars, type ProductPayments } from '@/lib/vendor-data';
@@ -28,11 +28,31 @@ import { toast } from 'sonner';
 import { dateLabel, type Meta } from '@/lib/predicate-chain';
 import { filterPeers, lineageSentence, patternExplanation, unreviewedLow, questionGroups, questionsText, type Brief, type QuestionGroup } from '@/lib/reviewer-data';
 import { askLines, longDate, type Signals, type View } from '@/lib/signals';
+import type { VendorCoverage } from '@/lib/vendor-coverage';
 const CategoryChart = lazy(() => import('./category-chart'));
 const PaymentYears = lazy(() => import('./payment-charts').then(m => ({ default: m.PaymentYears })));
 const Evidence = lazy(() => import('./predicate-evidence').then(m => ({ default: m.PredicateEvidence })));
 
-export function ProductResult({ k, compare, view, meta, onView, onCompare, notice }: { notice?: ReactNode; k: string; compare?: string | undefined; view: View; meta: Meta; onView: (v: View) => void; onCompare: (k: string) => void }) {
+export function ProductMissing({ number, coverage, dataThrough }: { number: string; coverage: VendorCoverage | null; dataThrough: string }) {
+  const navigate = useNavigate();
+  useEffect(() => { document.title = `${number}: not in OrthoParity | OrthoParity`; }, [number]);
+  return <div className="op-record-page">
+    <PageHead eyebrow="Product" title={number} lead="We searched every orthopedic 510(k), De Novo, PMA and HDE in OrthoParity." />
+    <div className="op-wrap op-section op-stack">
+      <div className="op-nf"><span className="op-mono">NOT FOUND</span><span>{number} isn't in this database. OrthoParity holds {coverage?.devices.toLocaleString('en-US') ?? '…'} orthopedic FDA records through {dataThrough}.</span></div>
+      <section className="op-card compact"><h2 className="op-h3">Why a number can be missing</h2><ul className="op-missing-reasons">
+        <li>It belongs to a device outside orthopedics. OrthoParity covers FDA's orthopedic review panel plus orthopedic codes reviewed in other panels.</li>
+        <li>FDA cleared it after our data ends on {dataThrough}. New records arrive with the next release.</li>
+        <li>It has a typo. 510(k) numbers are K plus six digits, De Novo is DEN plus six, PMA is P plus six, HDE is H plus six.</li>
+      </ul></section>
+      <section className="op-card compact"><h2 className="op-h3">Try another search</h2><DeviceSearch onSelect={row => void navigate({ to: '/', search: { k: row.knumber } })} />
+        {/^K\d{6}$/.test(number) && <p className="section-caption">Or open <a className="brief-link" href={`https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpmn/pmn.cfm?ID=${number}`} target="_blank" rel="noopener noreferrer">FDA's database</a> to see the record at the source.</p>}
+      </section>
+    </div>
+  </div>;
+}
+
+export function ProductResult({ k, compare, view, meta, coverage, dataThrough, onView, onCompare, notice }: { notice?: ReactNode; k: string; compare?: string | undefined; view: View; meta: Meta; coverage: VendorCoverage | null; dataThrough: string; onView: (v: View) => void; onCompare: (k: string) => void }) {
   const [showFullName, setShowFullName] = useState(false);
   const [brief, setBrief] = useState<Brief | null>(null);
   const [signals, setSignals] = useState<Signals | null>(null);
@@ -68,7 +88,7 @@ export function ProductResult({ k, compare, view, meta, onView, onCompare, notic
 
   if (!brief) return <PublicRecordLoading error={error} />;
   const device = brief.device;
-  if (!brief.found || !device) return <div className="notice">{k}: Not in this database (orthopedic clearances only)</div>;
+  if (!brief.found || !device) return <ProductMissing number={k} coverage={coverage} dataThrough={dataThrough} />;
   const s = signals?.found ? signals : null;
   const h = s?.header;
   const pathway = devicePathway(device.knumber, s?.pathway ?? brief.pathway);
@@ -91,16 +111,16 @@ export function ProductResult({ k, compare, view, meta, onView, onCompare, notic
   const filer = owner?.filer ?? h?.company ?? device.applicant ?? 'NOT FOUND';
   const ownerNow = !!ownerLine(owner) || (!!owner?.found && headerOwnerChanged(filer, owner.owner_name ?? ''));
   const ownerText = `${companyName(filer)}${ownerNow ? `, now part of ${companyName(owner?.owner_name ?? 'NOT FOUND')}` : ''}`;
+  const currentOwnerText = companyName(owner?.owner_name ?? filer);
   const fullName = h?.device_name ?? device.device_name ?? device.knumber;
   const name = productDisplayTitle(fullName);
   const plain = h?.plain_name ?? brief.product_code?.plain_name ?? h?.fda_name ?? brief.product_code?.fda_name ?? 'Category unavailable';
   const code = h?.product_code ?? device.product_code ?? 'NOT FOUND';
   const kind = h?.kind?.trim().replace(/_/g, ' ').toLowerCase() ?? '';
   const kindLabel = kind && kind !== 'implant' ? kind.charAt(0).toUpperCase() + kind.slice(1) : '';
-  const dataThrough = meta.exported_utc ? longDate(meta.exported_utc.slice(0, 10)) : 'NOT FOUND';
   async function copyVacSummary() {
     if (!device) return;
-    try { await navigator.clipboard.writeText(vacSummaryText({ name, number: device.knumber, owner: ownerText, decisionDate: approvalDateText(h?.cleared ?? device.decision_date), bottomLine: s?.bottom_line ?? '', cards, dataThrough, url: window.location.href })); setCopied('summary'); toast.success('Summary copied'); } catch { setError('Copy was unavailable. Select the summary text to copy it.'); }
+    try { await navigator.clipboard.writeText(vacSummaryText({ name, number: device.knumber, owner: currentOwnerText, decisionDate: approvalDateText(h?.cleared ?? device.decision_date), bottomLine: s?.bottom_line ?? '', cards, dataThrough, url: window.location.href })); setCopied('summary'); toast.success('Summary copied'); } catch { setError('Copy was unavailable. Select the summary text to copy it.'); }
   }
   async function copy(which: 'all' | 'selected' | 'asks') {
     try { await navigator.clipboard.writeText(which === 'asks' ? asks.map((q, i) => `${i + 1}. ${q}`).join('\n') : questionsText(groups, which === 'selected' ? selected : undefined)); setCopied(which); toast.success('Questions copied'); } catch { setError('Copy was unavailable. Select the questions to copy them.'); }
@@ -175,7 +195,7 @@ export function ProductResult({ k, compare, view, meta, onView, onCompare, notic
   );
   return <div className="op-record-page">
     <Status error={error} />
-    <PrintBrief printEyebrow={`Product · ${pathway} · ${device.knumber}`} recordNote={fdaRecordNote(pathway)} evidence={<ProductAddOnPrint k={k} />} approvalEvidence={approval ? <><h2>Approval and supplements</h2><ApprovalContent approval={approval} /></> : undefined} meta={meta} title={displayName(shortDeviceName(fullName, 120))} fullDeviceName={fullName} knumber={device.knumber} tableEvidence="alternatives" kindLabel={kindLabel} subtitle={`${companyName(filer)}${ownerNow ? `, now part of ${companyName(owner?.owner_name ?? 'NOT FOUND')}` : ''}`} description={`Product code ${code} covers: ${productSentence(brief.product_code?.plain_description ?? `${dateLabelText} by FDA as ${plain}`, h?.procedures ?? brief.product_code?.procedures)}`} details={`${device.knumber} · ${pathway} · ${plain} (${code}) · ${approvalDateText(h?.cleared ?? device.decision_date)}${pathway === 'HDE' ? '' : ` · Class ${h?.device_class ?? device.device_class ?? 'NOT FOUND'}`}`} bottomLine={s?.bottom_line ?? ''} newClearanceNote={newClearanceNote} cards={cards} table={{ caption: `Alternatives in product code ${code} · ${s?.alternatives.window ?? ''}`, head: ['Company', 'Clearances', 'Latest device', 'Latest FDA number', 'Latest date'], rows: altRows.map(r => [displayName(r.company), r.clearances, r.latest_device ? displayName(shortDeviceName(r.latest_device, 60)) : 'NOT FOUND', r.latest_knumber ?? 'NOT FOUND', longDate(r.latest_date)]) }} questions={asks} notes={s?.notes ?? []} />
+    <PrintBrief dataThrough={dataThrough} printEyebrow={`Product · ${pathway} · ${device.knumber}`} recordNote={fdaRecordNote(pathway)} evidence={<ProductAddOnPrint k={k} />} approvalEvidence={approval ? <><h2>Approval and supplements</h2><ApprovalContent approval={approval} /></> : undefined} meta={meta} title={displayName(shortDeviceName(fullName, 120))} fullDeviceName={fullName} knumber={device.knumber} tableEvidence="alternatives" kindLabel={kindLabel} subtitle={`${companyName(filer)}${ownerNow ? `, now part of ${companyName(owner?.owner_name ?? 'NOT FOUND')}` : ''}`} description={`Product code ${code} covers: ${productSentence(brief.product_code?.plain_description ?? `${dateLabelText} by FDA as ${plain}`, h?.procedures ?? brief.product_code?.procedures)}`} details={`${device.knumber} · ${pathway} · ${plain} (${code}) · ${approvalDateText(h?.cleared ?? device.decision_date)}${pathway === 'HDE' ? '' : ` · Class ${h?.device_class ?? device.device_class ?? 'NOT FOUND'}`}`} bottomLine={s?.bottom_line ?? ''} newClearanceNote={newClearanceNote} cards={cards} table={{ caption: `Alternatives in product code ${code} · ${s?.alternatives.window ?? ''}`, head: ['Company', 'Clearances', 'Latest device', 'Latest FDA number', 'Latest date'], rows: altRows.map(r => [displayName(r.company), r.clearances, r.latest_device ? displayName(shortDeviceName(r.latest_device, 60)) : 'NOT FOUND', r.latest_knumber ?? 'NOT FOUND', longDate(r.latest_date)]) }} questions={asks} notes={s?.notes ?? []} />
     <section ref={top} className="result-header op-band op-pagehead" aria-label="Device"><div className="op-wrap">{notice}
       <div className="op-eyebrow">Product · {pathway === '510(k)' ? <Term term="510(k)">{pathway}</Term> : pathway}{pathway === 'PMA' ? ' · Class III' : ''}<ScopeLabel>Name as filed with FDA</ScopeLabel></div>
       <h1 className="op-title" title={fullName}>{name}</h1>
@@ -187,7 +207,7 @@ export function ProductResult({ k, compare, view, meta, onView, onCompare, notic
     <div className="op-wrap op-record-intro">{s && <BottomLine text={s.bottom_line} />}{newClearanceNote && <p className="section-caption new-clearance-note">{newClearanceNote}</p>}{s && <GlanceTiles cards={cards} onEvidence={ev.reveal} />}{s && <TopVendorQuestions cards={cards} />}</div>
     <LocalBar name={name} cards={cards} ancestry={predicatesVisible} view={view} onView={onView} onOpen={ev.reveal} />
     {!s && <Status busy={!signals && !error} error={signals && !signals.found ? 'Decision signals are unavailable for this clearance.' : undefined} />}
-    {s && <DecisionCards recordNote={fdaRecordNote(pathway)} cards={cards} isOpen={ev.isOpen} onToggle={ev.toggle} evidence={evidenceSections} />}
+    {s && <DecisionCards recordNote={fdaRecordNote(pathway)} cards={cards} isOpen={ev.isOpen} onToggle={ev.toggle} evidence={evidenceSections} action={c => c.key === 'medicare' ? <ProductProcedureWorksheetLink k={k} /> : null} />}
     <section id="all-questions" className="brief-section question-section op-card op-record-questions"><div className="section-heading op-record-card-heading"><h2 className="op-h3">Questions for the vendor</h2><div className="question-actions op-row no-print"><button type="button" className="op-btn-2" onClick={() => void copy('all')}>{copied === 'all' ? <Check size={15} /> : <Copy size={15} />}Copy all</button>{selected.size > 0 && <button type="button" className="op-btn-2" onClick={() => void copy('selected')}>{copied === 'selected' ? <Check size={15} /> : <Copy size={15} />}Copy selected</button>}<ProductDownloadMenu /></div></div>
       {groups[0] && qList(groups[0].items)}
       <EvidenceSection id="checklist" title="Full value analysis checklist" summary={`${checklistCount} questions`} open={checklist} onToggle={() => setChecklist(!checklist)}>{groups.slice(1).map((g, i) => <div className="question-group" key={i}><h3>{g.topic}</h3>{qList(g.items)}</div>)}</EvidenceSection>

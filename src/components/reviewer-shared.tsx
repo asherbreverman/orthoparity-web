@@ -6,8 +6,9 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { limitations, methodology } from '@/lib/predicate-chain';
-import { getMeta, searchDevices, searchParts, type PartMatch } from '@/lib/predicate-data';
+import { getDataEnd, getMeta, searchDevices, searchParts, type PartMatch } from '@/lib/predicate-data';
 import { dateLabel, type Meta, type SearchResult } from '@/lib/predicate-chain';
+import type { VendorCoverage } from '@/lib/vendor-coverage';
 import { paymentLimitations } from '@/lib/vendor-data';
 import { decisionLimitations } from '@/lib/signals';
 import { recallLimitation } from '@/lib/recalls';
@@ -21,6 +22,18 @@ export function useRelease(initial?: Meta) {
   const [error, setError] = useState('');
   useEffect(() => { if (initial) return; getMeta().then(setMeta).catch(e => setError(e.message)); }, [initial]);
   return { meta: initial ?? meta, error };
+}
+
+export function useDataEnd(coverage: VendorCoverage | null) {
+  const covered = coverage?.data_end ?? null;
+  const [fallback, setFallback] = useState<string | null>(covered);
+  useEffect(() => {
+    let active = true;
+    setFallback(covered);
+    if (!covered) getDataEnd().then(value => { if (active) setFallback(value); }).catch(() => {});
+    return () => { active = false; };
+  }, [covered]);
+  return covered ?? fallback;
 }
 
 export function ReviewerShell({ children }: { children: ReactNode }) {

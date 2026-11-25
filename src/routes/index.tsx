@@ -8,14 +8,14 @@ import { pageSubject, previewMetadata } from '@/lib/page-preview';
 import { ProcedureError, ProcedureNotFound } from '@/components/procedure-shared';
 import { benchmarkOrigin } from '@/lib/benchmark-brand';
 import shareImage from '@/assets/orthoparity-share.png.asset.json';
-import { DeviceSearch, PublicRecordLoading, useRelease } from '@/components/reviewer-shared';
+import { DeviceSearch, PublicRecordLoading, useDataEnd, useRelease } from '@/components/reviewer-shared';
 import { PartComparePage, PartNote, PartResults } from '@/components/part-results';
 import { getVendorCoverage } from '@/lib/predicate-data';
 import { VendorSearch } from '@/components/vendor-search';
 import { ProductResult } from '@/components/product-result';
 import { ProductComparePage, VendorComparePage } from '@/components/compare-pages';
 import type { VendorCoverage } from '@/lib/vendor-coverage';
-import type { View } from '@/lib/signals';
+import { longDate, type View } from '@/lib/signals';
 import { redirectNavigation } from '@/lib/vendor-data';
 import { DockedSearch, HomeLanding, searchLevel } from '@/components/benchmark-navigation';
 import { normalizeDeviceNumber } from '@/lib/fda-device';
@@ -34,7 +34,8 @@ export const Route = createFileRoute('/')({
     const base = previewMetadata(match.loaderDeps, loaderData?.preview ?? null);
     const part = match.search.part && !match.search.k ? match.search.part : '';
     const { description, url } = base;
-    const title = part ? (match.search.compare !== undefined ? 'Compare parts | OrthoParity' : `Part number ${part} | OrthoParity`) : base.title;
+    const missingProduct = match.search.k && match.search.compare === undefined && !loaderData?.preview;
+    const title = part ? (match.search.compare !== undefined ? 'Compare parts | OrthoParity' : `Part number ${part} | OrthoParity`) : missingProduct ? `${match.search.k}: not in OrthoParity | OrthoParity` : base.title;
     return { meta: [{ title }, { name: 'description', content: description }, { property: 'og:title', content: title }, { property: 'og:description', content: description }, { property: 'og:type', content: 'website' }, { property: 'og:url', content: url }, { property: 'og:image', content: new URL(shareImage.url, benchmarkOrigin).href }, { name: 'twitter:image', content: new URL(shareImage.url, benchmarkOrigin).href }, { name: 'twitter:title', content: title }, { name: 'twitter:description', content: description }, { name: 'twitter:card', content: 'summary_large_image' }], links: [{ rel: 'canonical', href: url }] };
   },
   component: DeviceBrief,
@@ -53,13 +54,15 @@ function DeviceBrief() {
   const navigate = useNavigate();
   const { meta } = useRelease(initial.meta ?? undefined);
   const [coverage, setCoverage] = useState<VendorCoverage | null>(initial.coverage);
+  const dataEnd = useDataEnd(coverage);
+  const dataThrough = dataEnd ? longDate(dataEnd) : '…';
   useEffect(() => { if (initial.coverage) { setCoverage(initial.coverage); return; } let active = true; getVendorCoverage().then(data => { if (active) setCoverage(data); }).catch(() => {}); return () => { active = false; }; }, [initial.coverage]);
   const setView = (next: View) => void navigate({ to: '/', search: prev => ({ ...prev, view: next === 'analyst' ? 'analyst' : undefined }), replace: true, resetScroll: false });
   const search = vendorMode ? <VendorSearch key={v ?? 'vendor'} initialValue={v ?? ''} onSelect={row => void navigate({to:'/',search:{v:row.vendor_id, from: row.via_vendor_id ?? undefined, view: view === 'analyst' ? 'analyst' : undefined}, viewTransition: !window.matchMedia('(prefers-reduced-motion: reduce)').matches})} /> : <DeviceSearch resetKey={k ?? ''} onSelect={(row, partNumber) => void navigate({ to: '/', search: { k: row.knumber, part: partNumber, view: view === 'analyst' ? 'analyst' : undefined }, viewTransition: !window.matchMedia('(prefers-reduced-motion: reduce)').matches })} />;
 
   return <>
-    {!selected && <HomeLanding level={level} compare={comparing} initialQuery={q ?? ''} coverage={coverage} meta={meta} />}
-    {selected ? vendorMode ? <ClientOnly fallback={<PublicRecordLoading />}><Suspense fallback={<PublicRecordLoading />}>{comparing && v ? <VendorComparePage v={v} compare={compare ?? ''} meta={meta} onCompare={value => void navigate({to:'/',search:prev => ({...prev,compare:value})})} onBack={() => void navigate({to:'/',search:prev => ({...prev,compare:undefined})})} /> : <VendorWorkspace v={v} compare={compare} view={view} onView={setView} from={from || undefined} meta={meta} onRedirect={(to, original) => void navigate(redirectNavigation(to, original, view))} onDismiss={() => void navigate({to:'/', search: prev => ({...prev, from: undefined}), replace:true, resetScroll:false})} onCompare={value => void navigate({to:'/',search:prev => ({...prev,compare:value})})} />}</Suspense></ClientOnly> : part && !k ? comparing ? <PartComparePage part={part} onChange={parts => void navigate({ to: '/', search: prev => ({ ...prev, part: parts.join(','), compare: '' }), replace: true, resetScroll: false })} /> : <PartResults part={part} /> : comparing && k ? <ProductComparePage k={k} compare={rawCompare} meta={meta} onChange={others => void navigate({to:'/', search:prev => ({...prev, compare: others.join(',')}), replace:true, resetScroll:false})} onBack={() => void navigate({to:'/', search:prev => ({...prev, compare:undefined})})} /> : <ProductResult key={k} k={k ?? ''} notice={part && k ? <PartNote part={part} k={k} /> : undefined} compare={compare} view={view} meta={meta} onView={setView} onCompare={value => void navigate({to:'/', search:prev => ({...prev, compare:value})})} /> : null}
+    {!selected && <HomeLanding level={level} compare={comparing} initialQuery={q ?? ''} coverage={coverage} meta={meta} dataEnd={dataEnd} />}
+    {selected ? vendorMode ? <ClientOnly fallback={<PublicRecordLoading />}><Suspense fallback={<PublicRecordLoading />}>{comparing && v ? <VendorComparePage v={v} compare={compare ?? ''} meta={meta} dataThrough={dataThrough} onCompare={value => void navigate({to:'/',search:prev => ({...prev,compare:value})})} onBack={() => void navigate({to:'/',search:prev => ({...prev,compare:undefined})})} /> : <VendorWorkspace v={v} compare={compare} meta={meta} dataThrough={dataThrough} view={view} onView={setView} from={from || undefined} onRedirect={(to, original) => void navigate(redirectNavigation(to, original, view))} onDismiss={() => void navigate({to:'/', search: prev => ({...prev, from: undefined}), replace:true, resetScroll:false})} onCompare={value => void navigate({to:'/',search:prev => ({...prev,compare:value})})} />}</Suspense></ClientOnly> : part && !k ? comparing ? <PartComparePage part={part} onChange={parts => void navigate({ to: '/', search: prev => ({ ...prev, part: parts.join(','), compare: '' }), replace: true, resetScroll: false })} /> : <PartResults part={part} /> : comparing && k ? <ProductComparePage k={k} compare={rawCompare} meta={meta} dataThrough={dataThrough} onChange={others => void navigate({to:'/', search:prev => ({...prev, compare: others.join(',')}), replace:true, resetScroll:false})} onBack={() => void navigate({to:'/', search:prev => ({...prev, compare:undefined})})} /> : <ProductResult key={k} k={k ?? ''} coverage={coverage} dataThrough={dataThrough} notice={part && k ? <PartNote part={part} k={k} /> : undefined} compare={compare} view={view} meta={meta} onView={setView} onCompare={value => void navigate({to:'/', search:prev => ({...prev, compare:value})})} /> : null}
     {selected && <DockedSearch>{search}</DockedSearch>}
   </>;
 }

@@ -24,7 +24,7 @@ export function ProcedurePayments({detail, extra}: {detail: ProcedureDetail; ext
     {card('Patient and other payers', procedureDollars(p.patient_other_pays), `Deductible, coinsurance and secondary insurance (${(p.patient_other_share * 100).toFixed(1)}% of the total)`)}
     {card('Total payment', procedureDollars(p.total_payment), 'Everything the hospital is owed per stay')}
     {extra}
-  </div><div className="op-note">Averages across {procedureNumber(detail.family.hospitals)} hospitals and {procedureNumber(detail.family.discharges)} discharges, weighted by volume. Patient and other payers shows what the hospital bills. Collections can run lower. Inpatient hospital payments only. ASC and hospital outpatient payments are not shown yet.</div></div>;
+  </div><div className="op-note">Averages across {procedureNumber(detail.family.hospitals)} hospitals and {procedureNumber(detail.family.discharges)} discharges, weighted by volume. Patient and other payers shows what the hospital bills. Collections can run lower. Inpatient payments here. CY 2027 ASC rates appear on product pages for 12 procedure codes; hospital outpatient payments are not shown yet.</div></div>;
 }
 export function ProcedureSource({url, children}: {url: string; children: React.ReactNode}) {
   return /^https:\/\//.test(url) ? <a className="brief-link" href={url} target="_blank" rel="noopener noreferrer">{children}</a> : <span>{children}</span>;

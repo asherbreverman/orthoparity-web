@@ -75,7 +75,7 @@ function PaymentPrivacyNote() {
   return <p className="op-payment-privacy">Recipient names are public on CMS Open Payments; OrthoParity doesn't show them. <a href="https://openpaymentsdata.cms.gov/" target="_blank" rel="noopener noreferrer">Search CMS Open Payments</a></p>;
 }
 
-export function DecisionCards({ cards, evidence, recordNote, isOpen, onToggle }: { cards: DecisionCard[]; isOpen: (id: string) => boolean; onToggle: (id: string) => void; evidence?: ReactNode; recordNote?: string }) {
+export function DecisionCards({ cards, evidence, recordNote, isOpen, onToggle, action }: { cards: DecisionCard[]; isOpen: (id: string) => boolean; onToggle: (id: string) => void; evidence?: ReactNode; recordNote?: string; action?: (card: DecisionCard) => ReactNode }) {
   const sections = evidenceItems(evidence);
   return <section className="decision-grid story-chapters" aria-label="Decision cards">{cards.map((c, index) => {
     const open = isOpen(c.evidence);
@@ -83,7 +83,7 @@ export function DecisionCards({ cards, evidence, recordNote, isOpen, onToggle }:
     const asks = (c.asks?.length ? c.asks : [c.ask]).filter(Boolean);
     return <article id={`chapter-${c.key}`} data-evidence={c.evidence} className={`op-record-card ${cardHue(c, index)}`} key={c.key}>{open ? <div id={`card-body-${c.key}`} className="op-ev" aria-labelledby={`card-trigger-${c.key}`}>
       <div className="op-ev-head"><button id={`card-trigger-${c.key}`} type="button" className="op-ev-toggle" aria-expanded="true" aria-controls={`card-body-${c.key}`} onClick={() => onToggle(c.evidence)}><span className="op-h3">{c.question}</span></button><AnswerBadge>{c.badge}</AnswerBadge></div>
-      <div className="op-ev-main"><p className="decision-finding">{c.finding}</p>{recordNote && c.key === 'novelty' && <p className="section-caption fda-record-note">{recordNote}</p>}
+      <div className="op-ev-main"><p className="decision-finding">{c.finding}</p>{recordNote && c.key === 'novelty' && <p className="section-caption fda-record-note">{recordNote}</p>}{action?.(c)}
         {!!c.figs?.length && <div className="op-stats sm">{c.figs.map((fig, i) => <div className="op-stat" key={i}><b className={/^[^\d$]*[a-zA-Z].*\s/.test(String(fig.value)) ? 'stat-text' : undefined}>{fig.value}</b><span>{fig.label}</span></div>)}</div>}
         {c.evidence === 'payments' && <PaymentPrivacyNote />}
         <div className="op-why"><b>Why it matters</b><p>{c.why}</p></div>
@@ -118,8 +118,8 @@ export function Notes({ notes }: { notes: string[] }) {
 }
 
 /** Print-only brief; screen CSS hides it and print CSS hides everything else. */
-export function PrintBrief({ title, subtitle, description, kindLabel, details, scope, knumber, fullDeviceName, tableEvidence, bottomLine, newClearanceNote, recordNote, cards, table, questions, notes, meta, evidence, approvalEvidence, printEyebrow }: {
-  evidence?: ReactNode; approvalEvidence?: ReactNode; title: string; subtitle: string; description?: string; kindLabel?: string; details?: string; scope?: string; knumber?: string; fullDeviceName?: string; printEyebrow?: string;
+export function PrintBrief({ title, subtitle, description, kindLabel, details, scope, knumber, fullDeviceName, tableEvidence, bottomLine, newClearanceNote, recordNote, cards, table, questions, notes, meta, dataThrough, evidence, approvalEvidence, printEyebrow }: {
+  evidence?: ReactNode; approvalEvidence?: ReactNode; title: string; subtitle: string; description?: string; kindLabel?: string; details?: string; scope?: string; knumber?: string; fullDeviceName?: string; printEyebrow?: string; dataThrough: string;
   tableEvidence: 'alternatives' | 'competition'; bottomLine: string; newClearanceNote?: string; recordNote?: string; cards: DecisionCard[];
   table: { caption: string; head: string[]; rows: (string | number)[][] }; questions: string[]; notes: string[]; meta: Meta;
 }) {
@@ -138,10 +138,10 @@ export function PrintBrief({ title, subtitle, description, kindLabel, details, s
   }, [title, knumber]);
   const questionGroups = printQuestionGroups(cards, questions);
   const summary = summaryQuestionSet(cards, questions);
-  const releaseDate = meta.exported_utc ? longDate(meta.exported_utc.slice(0, 10)) : 'NOT FOUND';
+  const releaseDate = dataThrough;
   return <><div className="print-brief decision-print" aria-hidden="true">
     <section className="print-summary">
-      <div className="print-brand-bar"><div className="print-brand-lockup"><BrandMark /><span className="print-wordmark"><strong>Ortho</strong><span>Parity</span></span><span className="print-tagline">Orthopedic device and vendor benchmarks</span></div><p className="print-generated">Brief generated {generated} · FDA data as of {meta.exported_utc ?? 'NOT FOUND'}</p></div>
+      <div className="print-brand-bar"><div className="print-brand-lockup"><BrandMark /><span className="print-wordmark"><strong>Ortho</strong><span>Parity</span></span><span className="print-tagline">Orthopedic device and vendor benchmarks</span></div><p className="print-generated">Brief generated {generated} · Data current through {dataThrough}</p></div>
       <h1>{title}</h1><p className="print-sub">{subtitle}</p>
       {description && <p className="print-description">{description}</p>}
       {kindLabel && <p className="section-caption">{kindLabel}</p>}
@@ -166,7 +166,7 @@ export function PrintBrief({ title, subtitle, description, kindLabel, details, s
     <section className="print-worksheet"><h2>Questions for the vendor</h2><p className="print-worksheet-caption">{title} · {questions.length} questions generated by fixed rules from public FDA and CMS data.</p>
       {questionGroups.map(group => <div className={`print-question-group q${group.index % 6 + 1}`} key={group.index}><h3>{group.label}</h3><ol start={group.start}>{group.questions.map((q, i) => <li key={i}><div className="print-question-line"><span className="print-checkbox" /><span>{group.start + i}. {q}</span></div><div className="print-answer-lines"><span /><span /></div></li>)}</ol></div>)}
       {notes.length > 0 && <ul className="print-notes">{notes.map(n => <li key={n}>{n}</li>)}</ul>}
-      <footer>{fullDeviceName && <p className="break-words"><strong>Full FDA device name:</strong> {fullDeviceName}</p>}<p>{url}</p><p>FDA data as of {meta.exported_utc ?? 'NOT FOUND'} · Parser {meta.parser_version ?? 'NOT FOUND'}</p><p>Generated by OrthoParity from public FDA and CMS data. Not regulatory or compliance advice.</p><p>Terms and privacy: orthoparity.com/terms · orthoparity.com/privacy</p></footer>
+      <footer>{fullDeviceName && <p className="break-words"><strong>Full FDA device name:</strong> {fullDeviceName}</p>}<p>{url}</p><p>Data current through {dataThrough} · Parser {meta.parser_version ?? 'NOT FOUND'}</p><p>Generated by OrthoParity from public FDA and CMS data. Not regulatory or compliance advice.</p><p>Terms and privacy: orthoparity.com/terms · orthoparity.com/privacy</p></footer>
     </section>
   </div>
   {knumber && <div className="print-brief decision-print one-page-summary" aria-hidden="true">

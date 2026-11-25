@@ -36,7 +36,7 @@ export function publicPageReads(client: SupabaseClient, subject: PageSubject, si
     coverage: async (): Promise<VendorCoverage> => {
       const { data, error } = await client.rpc('pc_vendor_coverage').abortSignal(signal);
       if (error) throw error;
-      return vendorCoverage(data?.parent_companies ?? null, data?.devices, data?.first_year, data?.last_year);
+      return vendorCoverage(data?.parent_companies ?? null, data?.devices, data?.first_year, data?.last_year, data?.data_end, data?.with_product_code);
     },
     preview: async (): Promise<PagePreview | null> => {
       if (subject.k) {
@@ -101,10 +101,21 @@ export function getVendorCoverage() {
   coverage ??= resilient(async () => {
     const {data, error} = await researchClient.rpc('pc_vendor_coverage');
     if (error) throw error;
-    return vendorCoverage(data?.parent_companies ?? null, data?.devices, data?.first_year, data?.last_year);
+    return vendorCoverage(data?.parent_companies ?? null, data?.devices, data?.first_year, data?.last_year, data?.data_end, data?.with_product_code);
   })();
   coverage.catch(() => { coverage = undefined; });
   return coverage;
+}
+let dataEnd: Promise<string | null> | undefined;
+/** Fallback for record pages whose bounded coverage read did not finish. */
+export function getDataEnd() {
+  dataEnd ??= resilient(async () => {
+    const { data, error } = await researchClient.rpc('pc_data_end');
+    if (error) throw error;
+    return typeof data === 'string' && /^\d{4}-\d{2}-\d{2}/.test(data) ? data.slice(0, 10) : null;
+  })();
+  dataEnd.catch(() => { dataEnd = undefined; });
+  return dataEnd;
 }
 async function getSignalsRaw(k: string): Promise<Signals> {
   const { data, error } = await researchClient.rpc('pc_signals', { k }); if (error) throw error;

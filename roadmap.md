@@ -190,3 +190,9 @@
 - [x] Shared page head and tables on browse, category, procedure, TEAM, packet check, corrections, release notes, audience and legal pages.
 - [x] Browse sort/procedure filters, TEAM state lists and selected hospital, calculator fill note, packet claims in the link fragment, corrections filter, materials management page with /for/asc redirect, privacy section.
 - [x] Checked light, dark and 390px; all tests pass.
+
+# Live review fixes
+- [x] Use FDA record end dates and product-code counts from coverage data.
+- [x] Improve empty part and missing-product pages, procedure notes and product Medicare links.
+- [x] Correct section rails, sticky laptop layout, navigation state, glossary anchors and comparison wording/titles.
+- [x] Verify all requested live flows, 1024px layout and full tests.

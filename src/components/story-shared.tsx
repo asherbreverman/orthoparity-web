@@ -20,18 +20,42 @@ function railLabel(card: DecisionCard): ReactNode {
   return card.short ?? card.question;
 }
 
+export function chapterBeforeOffset(sections: { id: string; top: number }[], offset: number) {
+  let next = '';
+  for (const section of sections) if (section.top <= offset) next = section.id;
+  return next;
+}
+
 export function LocalBar({name,cards,vendor=false,ancestry=true,view,onView,onOpen}: {name:string;cards:DecisionCard[];vendor?:boolean;ancestry?:boolean;view:View;onView:(view:View)=>void;onOpen?:(id:string)=>void}) {
   const [active,setActive]=useState('');
+  const [fade,setFade]=useState(false);
   const rail=useRef<HTMLElement>(null);
+  const links=useRef<HTMLDivElement>(null);
+  const pending=useRef('');
+  const pendingTimer=useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const mark=(id:string,evidence?:string)=>{pending.current=id;setActive(id);if(pendingTimer.current)clearTimeout(pendingTimer.current);pendingTimer.current=setTimeout(()=>{pending.current='';},1500);onOpen&&evidence&&onOpen(evidence);};
   useEffect(()=>{
-    const element=rail.current;
-    if(!element)return;
-    const measure=()=>document.documentElement.style.setProperty('--record-rail-height',`${element.getBoundingClientRect().height}px`);
+    const element=rail.current,list=links.current;
+    if(!element||!list)return;
+    const measure=()=>{document.documentElement.style.setProperty('--record-rail-height',`${element.getBoundingClientRect().height}px`);setFade(list.scrollWidth>list.clientWidth+1&&list.scrollLeft+list.clientWidth<list.scrollWidth-2);};
     measure();
     const observer=new ResizeObserver(measure);
-    observer.observe(element);
-    return()=>{observer.disconnect();document.documentElement.style.removeProperty('--record-rail-height');};
-  },[]);
-  useEffect(()=>{const ids=[...cards.map(c=>`chapter-${c.key}`),'all-questions',...(!vendor&&ancestry?['ancestry']:[])];const update=()=>{let next='';for(const id of ids){const node=document.getElementById(id);if(node&&node.getBoundingClientRect().top<=220)next=id;}setActive(next);};update();window.addEventListener('scroll',update,{passive:true});return()=>window.removeEventListener('scroll',update);},[cards,vendor,ancestry]);
-  return <nav ref={rail} className="op-rail local-bar no-print" aria-label={`Chapters for ${name}`}><div className="op-wrap local-bar-inner"><div className="rail-links">{cards.map(c=><a aria-current={active===`chapter-${c.key}`?'location':undefined} key={c.key} href={`#chapter-${c.key}`} onClick={()=>onOpen?.(c.evidence)}>{railLabel(c)}</a>)}</div><details className="op-more"><summary>More<ChevronDown size={14} /></summary><div className="op-more-menu"><a href="#all-questions" aria-current={active==='all-questions'?'location':undefined}>All questions</a>{!vendor&&ancestry&&<a href="#ancestry" aria-current={active==='ancestry'?'location':undefined}>Ancestry</a>}<button type="button" role="switch" aria-checked={view==='analyst'} onClick={()=>onView(view==='analyst'?'brief':'analyst')}>Analyst detail</button></div></details></div></nav>;
+    observer.observe(element);observer.observe(list);
+    list.addEventListener('scroll',measure,{passive:true});window.addEventListener('resize',measure);
+    return()=>{observer.disconnect();list.removeEventListener('scroll',measure);window.removeEventListener('resize',measure);document.documentElement.style.removeProperty('--record-rail-height');};
+  },[cards]);
+  useEffect(()=>{
+    const ids=[...cards.map(c=>`chapter-${c.key}`),'all-questions',...(!vendor&&ancestry?['ancestry']:[])];
+    const update=()=>{
+      const header=document.querySelector<HTMLElement>('.op-header')?.getBoundingClientRect().height??0;
+      const railHeight=rail.current?.getBoundingClientRect().height??0;
+      const offset=header+railHeight+12;
+      if(pending.current){const target=document.getElementById(pending.current);if(target&&target.getBoundingClientRect().top>offset+2){setActive(pending.current);return;}pending.current='';}
+      setActive(chapterBeforeOffset(ids.flatMap(id=>{const node=document.getElementById(id);return node?[{id,top:node.getBoundingClientRect().top}]:[];}),offset));
+    };
+    update();window.addEventListener('scroll',update,{passive:true});window.addEventListener('resize',update);
+    return()=>{window.removeEventListener('scroll',update);window.removeEventListener('resize',update);if(pendingTimer.current)clearTimeout(pendingTimer.current);};
+  },[cards,vendor,ancestry]);
+  const railLink=(c:DecisionCard,extra='')=><a className={extra} aria-current={active===`chapter-${c.key}`?'location':undefined} key={`${extra}-${c.key}`} href={`#chapter-${c.key}`} onClick={()=>mark(`chapter-${c.key}`,c.evidence)}>{railLabel(c)}</a>;
+  return <nav ref={rail} className="op-rail local-bar no-print" aria-label={`Chapters for ${name}`}><div className="op-wrap local-bar-inner"><div className={`rail-links-wrap${fade?' has-more':''}`}><div ref={links} className="rail-links">{cards.map(c=>railLink(c,c.evidence==='procedures'?'op-rail-medicare':c.evidence==='addon'?'op-rail-addon':''))}</div></div><details className="op-more"><summary>More<ChevronDown size={14} /></summary><div className="op-more-menu">{cards.filter(c=>c.evidence==='procedures'||c.evidence==='addon').map(c=>railLink(c,'op-more-rail-link'))}<a href="#all-questions" onClick={()=>mark('all-questions')} aria-current={active==='all-questions'?'location':undefined}>All questions</a>{!vendor&&ancestry&&<a href="#ancestry" onClick={()=>mark('ancestry')} aria-current={active==='ancestry'?'location':undefined}>Ancestry</a>}<button type="button" role="switch" aria-checked={view==='analyst'} onClick={()=>onView(view==='analyst'?'brief':'analyst')}>Analyst detail</button></div></details></div></nav>;
 }

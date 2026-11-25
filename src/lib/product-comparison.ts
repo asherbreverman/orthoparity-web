@@ -32,6 +32,8 @@ export function compareHeading(names: string[]): string {
   if (names.length <= 3) return names.length < 3 ? names.join(' and ') : `${names[0]}, ${names[1]} and ${names[2]}`;
   return `${names.slice(0, 3).join(', ')} and ${names.length - 3} more`;
 }
+export function compareTabTitle(names: string[]) { return `Compare: ${compareHeading(names)} | OrthoParity`; }
+export function identicalAcross(count: number) { return count === 2 ? 'identical across both' : `identical across all ${count}`; }
 
 /** Run tasks with at most `limit` in flight, reporting each settled result. */
 export async function runLimited<T>(items: string[], limit: number, task: (item: string) => Promise<T>, onSettled: (item: string, result: T | null) => void): Promise<void> {

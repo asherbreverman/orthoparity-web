@@ -98,7 +98,7 @@ export function SiteHeader() {
   function current(section: Section) {
     if (section === 'categories') return location.pathname.startsWith('/browse');
     if (section === 'procedures') return location.pathname.startsWith('/procedures');
-    if (location.pathname !== '/') return false;
+    if (location.pathname !== '/' || !selected || search.compare !== undefined) return false;
     if (search.part && !search.k) return section === 'part';
     if (search.v || search.mode === 'vendor' || search.level === 'company') return section === 'company';
     if (search.level === 'part') return section === 'part';
@@ -131,9 +131,9 @@ export function SiteHeader() {
     }
   }
 
-  const toolActive = ['/team', '/packet-check', '/corrections', '/updates', '/glossary'].some(path => location.pathname.startsWith(path)) || (location.pathname === '/' && search.compare !== undefined);
+  const toolActive = ['/team', '/packet-check', '/corrections', '/updates', '/glossary'].some(path => location.pathname.startsWith(path)) || (selected && location.pathname === '/' && search.compare !== undefined);
 
-  return <header ref={header} className="op-header no-print">
+  return <><header ref={header} className="op-header no-print">
     <div className="op-wrap op-header-main">
       <Link to="/" search={{}} className="op-logo" aria-label="OrthoParity home" onClick={() => { window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' }); }}>
         <BrandMark />
@@ -159,8 +159,7 @@ export function SiteHeader() {
       </div>
     </div>
     {mobileOpen && <div id="mobile-navigation" className="op-mobile-menu"><div className="op-wrap"><MobileLinks current={current} onNavigate={() => setMobileOpen(false)} /></div></div>}
-    {selected && <div className="op-header-search"><div className="op-wrap"><div id="docked-search" className="docked-search" /></div></div>}
-  </header>;
+  </header>{selected && <div className="op-header-search no-print"><div className="op-wrap"><div id="docked-search" className="docked-search" /></div></div>}</>;
 }
 
 export function SiteFooter({ onMethodology, methodologyOpen }: { onMethodology: () => void; methodologyOpen: boolean }) {

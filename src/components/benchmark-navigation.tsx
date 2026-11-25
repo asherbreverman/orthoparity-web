@@ -15,7 +15,7 @@ import type { VendorCoverage } from '@/lib/vendor-coverage';
 export type SearchLevel = 'part' | 'product' | 'company';
 const levels: SearchLevel[] = ['part', 'product', 'company'];
 export function searchLevel(value: string | undefined): SearchLevel { return value === 'part' || value === 'company' ? value : 'product'; }
-export function dataThroughDate(value: string | undefined) {
+export function dataThroughDate(value: string | null | undefined) {
   if (!value) return '…';
   const date = new Date(`${value.slice(0, 10)}T00:00:00Z`);
   return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
@@ -151,8 +151,7 @@ const steps = [
 ];
 const sources = ['FDA 510(k)s', 'FDA approvals (PMA, HDE)', 'GUDID', 'Recalls', 'Adverse events (MAUDE)', 'Establishment registrations', 'Inspections and warning letters', 'CMS Open Payments', 'Medicare hospital payments', 'Medicare add-on payments', 'Medicare ASC rates', 'CMS TEAM model', 'ClinicalTrials.gov'];
 
-export function HomeLanding({ level, compare, initialQuery, coverage, meta }: { level: SearchLevel; compare: boolean; initialQuery: string; coverage: VendorCoverage | null; meta: Meta }) {
-  const productCodeCount = Number(meta.starting_set_clearances);
+export function HomeLanding({ level, compare, initialQuery, coverage, dataEnd }: { level: SearchLevel; compare: boolean; initialQuery: string; coverage: VendorCoverage | null; meta: Meta; dataEnd: string | null }) {
   return <>
     <section className="op-band op-home-hero-band">
       <div className="op-wrap op-home-hero">
@@ -197,10 +196,10 @@ export function HomeLanding({ level, compare, initialQuery, coverage, meta }: { 
       <h2 className="op-h2">Every answer traces to a public record</h2>
       <div className="op-card op-home-record">
         <div className="op-stats">
-          <div className="op-stat"><b>{coverage?.devices.toLocaleString('en-US') ?? '…'}</b><span>orthopedic FDA records, {coverage?.first ?? '…'} to {coverage?.last ?? '…'}<br />({Number.isFinite(productCodeCount) && productCodeCount > 0 ? productCodeCount.toLocaleString('en-US') : '…'} with a product code)</span></div>
+          <div className="op-stat"><b>{coverage?.devices.toLocaleString('en-US') ?? '…'}</b><span>orthopedic FDA records, {coverage?.first ?? '…'} to {coverage?.last ?? '…'}<br />({coverage?.with_product_code.toLocaleString('en-US') ?? '…'} with a product code)</span></div>
           <div className="op-stat"><b>{coverage?.count.toLocaleString('en-US') ?? '…'}</b><span>orthopedic companies, counted by parent company</span></div>
           <div className="op-stat"><b>13</b><span>public FDA, CMS and NLM sources</span></div>
-          <div className="op-stat"><b>{dataThroughDate(meta.exported_utc)}</b><span>data current through</span></div>
+          <div className="op-stat"><b>{dataThroughDate(coverage?.data_end ?? dataEnd)}</b><span>data current through</span></div>
         </div>
         <div className="op-row op-home-sources">{sources.map(source => <span className="op-source" key={source}>{source}</span>)}</div>
         <div className="op-row op-home-record-links"><Link className="op-link" to="/corrections">Corrections</Link><Link className="op-link" to="/updates">Release notes</Link><button type="button" className="op-text-link" onClick={() => window.dispatchEvent(new Event('op-methodology'))}>Methodology and limitations</button><a className="op-link" href="https://github.com/asherbreverman/orthoparity-data" target="_blank" rel="noopener noreferrer">Download the data</a></div>
