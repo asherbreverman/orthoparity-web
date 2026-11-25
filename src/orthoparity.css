@@ -1,4 +1,4 @@
-/* OrthoParity design system v2 for orthoparity-web. Every token is prefixed --op- so it never collides with the site's own variables. Source: OrthoParity_Design_System (tokens.py, op.css). */
+/* OrthoParity design system v2.1 for orthoparity-web. Every token is prefixed --op- so it never collides with the site's own variables. Source: OrthoParity_Design_System (tokens.py, op.css). v2.1: eyebrows in normal case so 510(k) keeps its lowercase k. */
 :root,[data-theme="light"]{--op-surface-page:#f8f9fb;--op-surface-card:#ffffff;--op-surface-subtle:#f1f4f8;--op-surface-segment:#eef1f5;--op-surface-accent:#eaf1fb;--op-border:#e3e7ec;--op-border-chip:#e0e5eb;--op-border-strong:#d5dbe2;--op-border-input:#848f9d;--op-ink:#16283d;--op-text:#26303b;--op-text-2:#3d4957;--op-text-3:#4a5868;--op-muted:#5b6673;--op-placeholder:#6b7480;--op-accent:#1f63c6;--op-accent-hover:#174a96;--op-accent-fill:#1f63c6;--op-on-accent:#ffffff;--op-focus:#1f63c6;--op-footer-bg:#16283d;--op-footer-heading:#ffffff;--op-footer-text:#c9d3de;--op-footer-muted:#a9b6c4;--op-footer-rule:#2c4058;--op-q-1:#6f8fb8;--op-q-2:#5f9c9a;--op-q-3:#9a7aa8;--op-q-4:#b39257;--op-q-5:#7f9a6a;--op-q-6:#b07a86;--op-shadow-raised:0 8px 28px rgba(22,40,61,0.08);--op-shadow-pill:0 1px 3px rgba(22,40,61,0.15)}
 .dark,[data-theme="dark"]{--op-surface-page:#0f1823;--op-surface-card:#16212e;--op-surface-subtle:#1c2836;--op-surface-segment:#1c2836;--op-surface-accent:#1a2d47;--op-border:#2a3745;--op-border-chip:#2f3d4c;--op-border-strong:#3a4858;--op-border-input:#6a7a8b;--op-ink:#eef2f6;--op-text:#d9e0e7;--op-text-2:#bcc6d0;--op-text-3:#a9b5c1;--op-muted:#97a4b1;--op-placeholder:#8794a1;--op-accent:#6ea8ff;--op-accent-hover:#9cc3ff;--op-accent-fill:#2f6fd1;--op-on-accent:#ffffff;--op-focus:#9cc3ff;--op-footer-bg:#0a121b;--op-footer-heading:#ffffff;--op-footer-text:#c9d3de;--op-footer-muted:#a9b6c4;--op-footer-rule:#22303f;--op-q-1:#7f9dc4;--op-q-2:#6fb0ad;--op-q-3:#ad90ba;--op-q-4:#c4a46a;--op-q-5:#93ad7e;--op-q-6:#c28f9a;--op-shadow-raised:0 8px 28px rgba(0,0,0,0.45);--op-shadow-pill:0 1px 3px rgba(0,0,0,0.5);color-scheme:dark}
 :root{--op-space-4:4px;--op-space-8:8px;--op-space-12:12px;--op-space-16:16px;--op-space-20:20px;--op-space-24:24px;--op-space-28:28px;--op-space-36:36px;--op-space-48:48px;--op-space-56:56px;--op-space-64:64px;--op-space-72:72px;--op-radius-sm:6px;--op-radius-md:8px;--op-radius-lg:10px;--op-radius-xl:12px;--op-radius-2xl:14px;--op-radius-pill:999px;--op-width-content:1200px;--op-width-hero:960px;--op-width-prose:720px;--op-height-control:52px;--op-height-control-sm:40px;--op-font-display:Archivo, "IBM Plex Sans", system-ui, sans-serif;--op-font-sans:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;--op-font-mono:"IBM Plex Mono", ui-monospace, Consolas, monospace}
@@ -35,7 +35,7 @@
 .op-small{font-size:14px;line-height:1.45;color:var(--op-text-3)}
 .op-caption{font-size:13px;line-height:1.5;color:var(--op-muted)}
 .op-mono{font-family:var(--op-font-mono);font-size:13px;font-weight:500}
-.op-eyebrow{font-family:var(--op-font-mono);font-size:13px;font-weight:500;color:var(--op-muted);letter-spacing:.4px;text-transform:uppercase}
+.op-eyebrow{font-family:var(--op-font-mono);font-size:13px;font-weight:500;color:var(--op-muted);letter-spacing:0;text-transform:none}
 .op-meta{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px;color:var(--op-text-3)}
 .op-meta .op-mono{color:var(--op-ink)}
 
@@ -163,7 +163,7 @@
 .op-why{font-size:14px;color:var(--op-text-2);border-top:1px solid var(--op-border);padding-top:14px;margin-top:20px}
 .op-why b{display:block;color:var(--op-ink);margin-bottom:4px}
 .op-ask{background:var(--op-surface-page);border:1px solid var(--op-border);border-radius:var(--op-radius-xl);padding:var(--op-space-20);display:flex;flex-direction:column;gap:14px;align-self:start}
-.op-ask > b{font-family:var(--op-font-mono);font-size:13px;font-weight:500;color:var(--op-muted);text-transform:uppercase;letter-spacing:.4px}
+.op-ask > b{font-family:var(--op-font-mono);font-size:13px;font-weight:500;color:var(--op-muted);letter-spacing:0}
 .op-ask p{font-size:15px;line-height:1.5;color:var(--op-ink)}
 .op-collapsed{display:flex;justify-content:space-between;align-items:center;gap:16px;background:var(--op-surface-card);border:1px solid var(--op-border);border-radius:var(--op-radius-xl);padding:16px 20px}
 .op-collapsed .op-h3{font-size:17px;display:flex;gap:10px;align-items:center}
