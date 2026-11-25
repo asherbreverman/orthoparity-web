@@ -6,7 +6,7 @@ import { directoryIndexOptions, directoryOptions } from '@/lib/directory-queries
 import { deviceClassLabel, directoryCsv, directoryCsvName, directoryProcedureOptions, distributionText, filterCodes, filterCodesByProcedure, filterRows, ownerDiffers, pageOf, sortCodes, sortRows, type CodeSort, type DirectoryCode, type DirectoryCompany, type DirectoryFound, type DirectoryProcedure, type DirectoryRow, type SortState } from '@/lib/directory';
 import { companyName, displayName } from '@/lib/format';
 import { longDate } from '@/lib/signals';
-import { getVendorCoverage } from '@/lib/predicate-data';
+import { getCodeSites, getVendorCoverage } from '@/lib/predicate-data';
 import { BriefLink, PathwayTag } from './reviewer-shared';
 import { PageHead, ScopeLabel } from './op-controls';
 import { Button } from './ui/button';
@@ -114,6 +114,7 @@ function CodeDetail({ d }: { d: DirectoryFound }) {
         <table className="op-table directory-table"><thead><tr>{companies.head('company', 'Company')}{companies.head('records', 'Records', true, 'num')}{companies.head('last5', 'Last five years', true, 'num')}{companies.head('listed', 'Listed in distribution', true, 'num')}{companies.head('first', 'First', true)}{companies.head('latest', 'Latest', true)}</tr></thead>
           <tbody>{sortRows(d.companies, companies.sort, companyValue).map(c => <tr key={c.owner_id}><td><Link to="/" search={{ v: c.owner_id }}><b>{companyName(c.owner_name)}</b></Link></td><td className="num">{n(c.products)}</td><td className="num">{n(c.last5)}</td><td className="num">{n(c.listed_in_distribution)}</td><td className="nw">{date(c.first)}</td><td className="nw">{date(c.latest)}</td></tr>)}</tbody></table>
       </div>
+      <WhereMade code={code} />
       <div className="op-table-wrap">
         <div className="op-tablebar directory-records-bar">
           <div className="op-row"><b>Every record</b><label className="op-input directory-filter"><Search size={16} aria-hidden="true" /><span className="op-sr">Filter records</span><input type="search" value={query} onChange={e => { setQuery(e.target.value); setPage(1); }} placeholder="Filter records" aria-label="Filter records by number, product, company or brand" /></label></div>
@@ -131,4 +132,24 @@ function CodeDetail({ d }: { d: DirectoryFound }) {
 
 export function DirectoryNotFound({ data }: { data?: unknown }) {
   return <PageHead eyebrow="Explore · category" title="Category not found" lead={typeof data === 'string' && data ? data : "The page you're looking for doesn't exist or has been moved."}><div className="op-row directory-nf-actions"><Link className="op-btn" to="/browse">All categories</Link><Link className="op-btn-2" to="/">Go home</Link></div></PageHead>;
+}
+
+function WhereMade({ code }: { code: string }) {
+  const { data, isError } = useQuery({ queryKey: ['code-sites', code], queryFn: () => getCodeSites(code), staleTime: Infinity, retry: false });
+  const [all, setAll] = useState(false);
+  if (isError) return <p className="op-caption">Where it's made: NOT FOUND</p>;
+  if (!data) return <p className="op-caption" role="status">Where it's made: …</p>;
+  if (!data.sites) return <p className="op-caption">No current FDA establishment registration lists a {code} record.</p>;
+  const rows = all ? data.by_country : data.by_country.slice(0, 10);
+  const more = data.notes.slice(1, 3);
+  return <section className="op-stack where-made" aria-label="Where it's made">
+    <div className="op-table-wrap">
+      <div className="op-tablebar"><b>Where it's made: {n(data.sites)} sites in {n(data.countries)} countries, {n(data.making_sites)} make or sterilize</b></div>
+      <table className="op-table"><thead><tr><th scope="col">Country</th><th scope="col" className="num">Sites listing a {code} record</th><th scope="col" className="num">Make or sterilize</th></tr></thead>
+        <tbody>{rows.map(r => <tr key={r.country_code || r.country}><td>{r.country}</td><td className="num">{n(r.sites)}</td><td className="num">{n(r.making_sites)}</td></tr>)}</tbody></table>
+    </div>
+    {data.by_country.length > 10 && !all && <div><button type="button" className="op-btn-2" onClick={() => setAll(true)}>Show all {data.by_country.length}</button></div>}
+    {data.notes[0] && <p className="op-caption">{data.notes[0]}</p>}
+    {more.length > 0 && <details className="op-caption"><summary>How this is counted</summary>{more.map(t => <p key={t}>{t}</p>)}</details>}
+  </section>;
 }

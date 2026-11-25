@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link } from '@tanstack/react-router';
 import { ChevronLeft, ChevronRight, Download, Search, X } from 'lucide-react';
-import { getSignals, getVendorComparison, resolveVendor } from '@/lib/predicate-data';
+import { getSignals, getVendorCompareMany, getVendorComparison, resolveVendor } from '@/lib/predicate-data';
+import { filterHeld, maxExtraCompanies, parseCompareIds, vendorCompareCsv, type HeldFilter, type VendorCompareMany } from '@/lib/research-groups';
+import { dollars, money } from '@/lib/vendor-data';
 import { companyName, displayName, shortDeviceName } from '@/lib/format';
 import { compareColumns, compareCsv, compareCsvName, compareHeading, compareTabTitle, companyComparisonSummary, identicalAcross, maxCompareProducts, noCodeNote, parseCompareList, partitionCompareColumns, runLimited, type CompareCsvRow } from '@/lib/product-comparison';
 import { askLines, longDate, type Signals } from '@/lib/signals';
@@ -161,7 +163,57 @@ export function ProductComparePage({ k, compare, meta, dataThrough, onChange, on
   </>;
 }
 
-export function VendorComparePage({ v, compare, meta, dataThrough, onCompare, onBack }: { v: string; compare: string; meta: Meta; dataThrough: string; onCompare: (v: string) => void; onBack: () => void }) {
+export function VendorComparePage(props: { v: string; compare: string; meta: Meta; dataThrough: string; onCompare: (v: string) => void; onBack: () => void }) {
+  const ids = parseCompareIds(props.compare, props.v);
+  if (ids.length >= 2) return <VendorCompareManyPage {...props} ids={ids} />;
+  return <VendorComparePair {...props} compare={ids[0] ?? ''} ids={ids} />;
+}
+
+function CompanyChips({ v, ids, names, onCompare }: { v: string; ids: string[]; names: Record<string, string>; onCompare: (v: string) => void }) {
+  return <>{[v, ...ids].map((id, i) => <span key={id} className="op-chip">{names[id] ?? id}{i > 0 && <button type="button" className="op-chip-x" aria-label={`Remove ${names[id] ?? id}`} onClick={() => onCompare(ids.filter(x => x !== id).join(','))}><X size={13} aria-hidden="true" /></button>}</span>)}
+    {ids.length < maxExtraCompanies && <div className="compare-picker"><VendorSearch variant="op" label="Add a company (up to 5)" placeholder="Add a company (up to 5)" submitLabel="Add" onSelect={r => { if (r.vendor_id !== v && !ids.includes(r.vendor_id)) onCompare([...ids, r.vendor_id].join(',')); }} /></div>}</>;
+}
+
+const nn = (x: number | null | undefined) => typeof x === 'number' ? x.toLocaleString('en-US') : 'NOT FOUND';
+function VendorCompareManyPage({ v, ids, meta, dataThrough, onCompare, onBack }: { v: string; ids: string[]; meta: Meta; dataThrough: string; onCompare: (v: string) => void; onBack: () => void }) {
+  const [result, setResult] = useState<VendorCompareMany | null>(null); const [error, setError] = useState(''); const [held, setHeld] = useState<HeldFilter>('all');
+  const reload = useRefetch();
+  const key = [v, ...ids].join(',');
+  useEffect(() => { let active = true; setResult(null); setError(''); getVendorCompareMany([v, ...ids]).then(r => { if (active) setResult(r); }).catch(e => { if (active) setError(e.message); }); return () => { active = false; }; // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key, reload]);
+  const names: Record<string, string> = Object.fromEntries((result?.vendors ?? []).map(x => [x.vendor_id, companyName(x.display_name)]));
+  const tabTitle = result?.found ? compareTabTitle(result.vendors.map(x => companyName(x.display_name))) : 'Compare companies | OrthoParity';
+  useEffect(() => { document.title = tabTitle; }, [tabTitle]);
+  const chips = <CompanyChips v={v} ids={ids} names={names} onCompare={onCompare} />;
+  if (!result) return <div className="compare-page op-compare-page"><CompareTop eyebrow="Compare companies" title="Compare companies" back="the company page" onBack={onBack} actions={<><CopyLink />{chips}</>} /><div className="op-wrap op-section"><PublicRecordLoading error={error} /></div></div>;
+  if (!result.found) return <div className="compare-page op-compare-page"><CompareTop eyebrow="Compare companies" title="Compare companies" back="the company page" onBack={onBack} actions={<><CopyLink />{chips}</>} /><div className="op-wrap op-section"><p className="op-note">{result.note ?? 'Comparison unavailable.'}</p></div></div>;
+  const vendors = result.vendors;
+  const count = vendors.length;
+  const codes = filterHeld(result.codes, held, count);
+  const title = vendors.map(x => companyName(x.display_name)).join(', ');
+  const csv = () => downloadCsvText(vendorCompareCsv(codes, vendors, longDate(new Date().toISOString())), `orthoparity-companies-${new Date().toISOString().slice(0, 10)}.csv`);
+  const filters: [HeldFilter, string, number | null][] = [['all', 'All codes', result.codes.length], ['every', 'Held by all', result.codes_held_by_all], ['some', 'Held by some', result.codes_held_by_some], ['one', 'Held by one', result.codes_held_by_one]];
+  const body = <>
+    <div className="op-row no-print" role="group" aria-label="Filter product codes">{filters.map(([f, label, n]) => <button key={f} type="button" className="op-chip" aria-pressed={held === f} onClick={() => setHeld(f)}>{label} ({nn(n)})</button>)}</div>
+    <div className="op-table-wrap op-sticky-first" tabIndex={0}><table className="op-table"><thead><tr><th scope="col">Product code</th>{vendors.map(x => <th key={x.vendor_id} scope="col" className="num">{companyName(x.display_name)}</th>)}<th scope="col" className="num">Held by</th></tr></thead>
+      <tbody>{codes.map(c => <tr key={c.product_code}><td><Link to="/browse/$code" params={{ code: c.product_code }} className="op-mono">{c.product_code}</Link> {c.plain_name ?? c.fda_name ?? ''}</td>{vendors.map(x => <td key={x.vendor_id} className="num">{c.counts[x.vendor_id] ? nn(c.counts[x.vendor_id]) : ''}</td>)}<td className="num">{c.held_by}</td></tr>)}</tbody></table></div>
+    <h2 className="op-h2">Payments, {result.payments_year ?? 'NOT FOUND'}</h2>
+    <div className="op-table-wrap op-sticky-first" tabIndex={0}><table className="op-table"><thead><tr>{['Company', 'Total', 'Recipients', 'Physicians', 'Median per recipient', 'Royalty recipients', 'Consulting recipients'].map((h, i) => <th key={h} scope="col" className={i ? 'num' : undefined}>{h}</th>)}</tr></thead>
+      <tbody>{vendors.map(x => { const p = x.payments; return <tr key={x.vendor_id}><td><Link to="/" search={{ v: x.vendor_id }}><b>{companyName(x.display_name)}</b></Link></td><td className="num" title={p?.total != null ? dollars(p.total) : undefined}>{p?.total != null ? money(p.total) : 'NOT FOUND'}</td><td className="num">{nn(p?.recipients)}</td><td className="num">{nn(p?.physicians)}</td><td className="num">{p?.median_per_recipient != null ? dollars(p.median_per_recipient) : 'NOT FOUND'}</td><td className="num">{nn(p?.royalty_r)}</td><td className="num">{nn(p?.consulting_r)}</td></tr>; })}</tbody></table></div>
+    {result.payments_note && <p className="op-caption">{result.payments_note}</p>}
+    {result.shared_recipients && <><h2 className="op-h2">Shared professional relationships</h2><p className="section-lead">{nn(result.shared_recipients.all_years)} recipients</p><p className="op-caption">{result.shared_recipients.definition}</p></>}
+    {result.notes.map(n => <p key={n} className="op-note">{n}</p>)}
+  </>;
+  return <>
+    <div className="compare-page op-compare-page">
+      <CompareTop eyebrow="Compare companies" title={title} {...(result.summary ? { lead: result.summary } : {})} back={names[v] ?? 'the company page'} onBack={onBack} actions={<><button type="button" className="op-btn" onClick={csv}><Download size={16} />Download CSV</button><button type="button" className="op-btn-2" onClick={() => void printBrief()}>Download brief</button><CopyLink />{chips}</>} />
+      <div className="op-wrap op-section op-compare-body">{body}<Status error={error} /></div>
+    </div>
+    <ComparePrint eyebrow="Compare companies" title={title} bottomLine={result.summary ?? ''} meta={meta} dataThrough={dataThrough} questions={[]}>{body}</ComparePrint>
+  </>;
+}
+
+function VendorComparePair({ v, compare, ids, meta, dataThrough, onCompare, onBack }: { v: string; compare: string; ids: string[]; meta: Meta; dataThrough: string; onCompare: (v: string) => void; onBack: () => void }) {
   const [result, setResult] = useState<VendorComparison | null>(null); const [error, setError] = useState(''); const [event, setEvent] = useState<string | null>(null); const [filter, setFilter] = useState('');
   const reload = useRefetch();
   useEffect(() => { let active = true; setResult(null); setError(''); setEvent(null); if (!compare) return; resolveVendor(compare).then(r => { if (active && r.redirected) setEvent(r.event); return getVendorComparison(v, r.found && r.vendor_id ? r.vendor_id : compare, 'current'); }).then(r => { if (active) setResult(r); }).catch(e => { if (active) setError(e.message); }); return () => { active = false; }; }, [v, compare, reload]);
@@ -189,7 +241,7 @@ export function VendorComparePage({ v, compare, meta, dataThrough, onCompare, on
   </>;
   return <>
     <div className="compare-page op-compare-page">
-      <CompareTop eyebrow="Compare companies" title={title} lead={summary} back={a} onBack={onBack} actions={<><button type="button" className="op-btn" onClick={() => void printBrief()}><Download size={16} />Download brief</button><CopyLink /><span className="op-chip">{a}</span><span className="op-chip">{b}</span><div className="compare-picker"><VendorSearch variant="op" label="Choose the other company" placeholder="Choose the other company" submitLabel="Compare" onSelect={r => onCompare(r.vendor_id)} /></div></>} />
+      <CompareTop eyebrow="Compare companies" title={title} lead={summary} back={a} onBack={onBack} actions={<><button type="button" className="op-btn" onClick={() => void printBrief()}><Download size={16} />Download brief</button><CopyLink /><span className="op-chip">{a}</span><span className="op-chip">{b}</span><div className="compare-picker"><VendorSearch variant="op" label="Choose the other company" placeholder="Choose the other company" submitLabel="Compare" onSelect={r => onCompare(r.vendor_id)} /></div><div className="compare-picker"><VendorSearch variant="op" label="Add a company (up to 5)" placeholder="Add a company (up to 5)" submitLabel="Add" onSelect={r => { if (r.vendor_id !== v && !ids.includes(r.vendor_id)) onCompare([...ids, r.vendor_id].join(',')); }} /></div></>} />
       <div className="op-wrap op-section op-compare-body">
         {event && <p className="op-note">{event}</p>}
         {body}

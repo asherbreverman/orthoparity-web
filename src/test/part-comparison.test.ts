@@ -20,7 +20,7 @@ describe('part comparison', () => {
   it('adds a row-specific Your price column to CSV', () => {
     const item = row('213-65-05', 'K011976', 'Advita');
     const csv = partCsv([item], { [partPriceKey(item)]: '1250.50' }, 'Nov 24, 2026');
-    expect(csv.split('\n')[1]).toBe('Part number,Match,FDA number,Product,Company,Brand,In distribution,Your price');
-    expect(csv.split('\n')[2]).toBe('213-65-05,exact,K011976,Tibial insert,Advita,NOT FOUND,Yes,1250.50');
+    expect(csv.split('\n')[1]).toBe('Part number,Match,FDA number,Product,Company,Brand,In distribution,Your price,on_site,fda_number_note,product_code,product_code_name,device_ids,units_per_package,sterile,mri_safety');
+    expect(csv.split('\n')[2]?.startsWith('213-65-05,exact,K011976,Tibial insert,Advita,NOT FOUND,Yes,1250.50,')).toBe(true);
   });
 });

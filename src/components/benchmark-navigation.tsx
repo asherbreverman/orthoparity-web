@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { Lock, Search } from 'lucide-react';
 import { DeviceSearch } from './reviewer-shared';
+import { SearchGroupsSection } from './search-groups';
 import { VendorSearch } from './vendor-search';
 import { batchAllowed, parseBatch } from '@/lib/reviewer-data';
 import { normalizeDeviceNumber } from '@/lib/fda-device';
@@ -55,7 +56,8 @@ function HomeSearch({ level, compare, initialQuery }: { level: SearchLevel; comp
     if (!compare) {
       const number = normalizeDeviceNumber(value);
       if (number) product(number);
-      else setFormError('Choose a product from the search results.');
+      else if (value.trim()) void navigate({ to: '/', search: { q: value.trim(), level: 'product' } });
+      else setFormError('Enter a product name or FDA number.');
       return;
     }
     const numbers = parseBatch(value);
@@ -161,6 +163,7 @@ export function HomeLanding({ level, compare, initialQuery, coverage, dataEnd }:
         <HomeSearch level={level} compare={compare} initialQuery={initialQuery} />
       </div>
     </section>
+    {level === 'product' && !compare && initialQuery.trim() && !normalizeDeviceNumber(initialQuery) && <SearchGroupsSection q={initialQuery} />}
 
     <section className="op-wrap op-section">
       <h2 className="op-h2">Built for the people who decide what goes on the shelf</h2>

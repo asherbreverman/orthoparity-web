@@ -196,3 +196,12 @@
 - [x] Improve empty part and missing-product pages, procedure notes and product Medicare links.
 - [x] Correct section rails, sticky laptop layout, navigation state, glossary anchors and comparison wording/titles.
 - [x] Verify all requested live flows, 1024px layout and full tests.
+
+## Phase 9
+- [x] Part pages scope all + new columns/CSV/footnote
+- [x] Product search grouped results (/?q=)
+- [x] Browse category "Where it's made"
+- [x] Procedures ASC column
+- [x] Compare up to 5 companies
+- [x] Privacy page wording
+- [x] Tests + full suite

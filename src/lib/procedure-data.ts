@@ -1,8 +1,8 @@
 export type ProcedureValue = number | string | null;
 export interface ProcedureNotes { source: string; definitions: {term: string; text: string}[]; limitations: string[] }
 export interface ProcedureFamily { family_id: string; name: string; description: string; drgs: string[]; flagship: boolean; data_year: number; discharges: number; hospitals: number }
-export interface ProcedureSummary extends ProcedureFamily { medicare_pays: ProcedureValue; patient_other_pays: ProcedureValue; total_payment: ProcedureValue; device_categories: number }
-export interface ProcedureList { procedures: ProcedureSummary[]; notes: ProcedureNotes }
+export interface ProcedureSummary extends ProcedureFamily { medicare_pays: ProcedureValue; patient_other_pays: ProcedureValue; total_payment: ProcedureValue; device_categories: number; asc?: ProcedureAsc | null }
+export interface ProcedureList { procedures: ProcedureSummary[]; notes: ProcedureNotes; asc_note?: string | null }
 export interface ProcedureVendor { vendor_id: string; name: string; clearances: number; latest: string | null }
 export interface ProcedureDevice { role: string; product_code: string; plain_name: string | null; fda_name: string; clearances_all: number; clearances_recent: number; active_vendors: number; status: string; vendors: ProcedureVendor[] }
 export interface DeviceProcedures { knumber: string; product_code: string | null; procedures: {family_id: string; name: string; role: string; flagship: boolean; status: string}[] }
@@ -47,4 +47,15 @@ export function sharePosition(share: number | null) {
   if (share < .5) return 'between 40% and 50%';
   return share === .5 ? 'at 50%' : 'more than 50%';
 }
-export function procedureVendorName(name: string) { return /hospital|surgeon/i.test(name) ? 'Vendor' : name; }
+export function procedureVendorName(name: string) { return /hospital|surgeon/i.test(name) ? 'Vendor' : name; }export interface AscCode { cpt: string; procedure: string; asc_rate: number; device_portion: number | null; status: string }
+export interface ProcedureAsc { low: number; high: number; year: number; codes: AscCode[] }
+const wholeDollars = (v: number) => v.toLocaleString('en-US', {style: 'currency', currency: 'USD', maximumFractionDigits: 0});
+/** "$9,753 to $10,049", one figure when equal, null when ASC rates aren't loaded. */
+export function ascRangeText(asc: ProcedureAsc | null | undefined): string | null {
+  if (!asc) return null;
+  const low = wholeDollars(asc.low), high = wholeDollars(asc.high);
+  return low === high ? low : `${low} to ${high}`;
+}
+export function ascTooltip(asc: ProcedureAsc | null | undefined) {
+  return (asc?.codes ?? []).map(c => `${c.cpt} ${c.procedure} ${wholeDollars(c.asc_rate)}${c.device_portion != null ? ` (device portion ${wholeDollars(c.device_portion)})` : ''}`).join('\n');
+}

@@ -8,6 +8,7 @@ import type { DeviceRecalls, VendorRecalls } from './recalls';
 import type { DeviceMaude, VendorMaude } from './maude';
 import type { ProcedureList, ProcedureDetail, DeviceProcedures, VendorProcedures } from './procedure-data';
 import { vendorCoverage, type VendorCoverage } from './vendor-coverage';
+import type { SearchGroups, CodeSites, VendorCompareMany } from './research-groups';
 import type { DirectoryIndex, DirectoryDetail } from './directory';
 import { productPreview, vendorPreview, type PageSubject, type PagePreview } from './page-preview';
 import {
@@ -325,14 +326,15 @@ const vendorProceduresRead = resilient(async (v: string, m: OwnershipMode): Prom
 export function getDeviceProcedures(k: string) { return cachedProcedureRead(JSON.stringify(['device-procedures', k]), () => deviceProceduresRead(k)); }
 export function getVendorProcedures(v: string, m: OwnershipMode) { return cachedProcedureRead(JSON.stringify(['vendor-procedures', v, m]), () => vendorProceduresRead(v, m)); }
 
-export interface PartMatch { part_number: string; match: string; number: string; brand: string | null; in_distribution: boolean | null; device_name: string | null; company: string | null; vendor_id: string | null }
-export interface PartSearch { query: string; key: string; note: string | null; results: PartMatch[]; source: string | null }
+export interface PartMatch { part_number: string; match: string; number: string | null; brand: string | null; in_distribution: boolean | null; device_name: string | null; company: string | null; vendor_id: string | null; on_site?: boolean; fda_number_note?: string | null; product_code?: string | null; product_code_name?: string | null; device_ids?: number | null; units_per_package?: number | null; sterile?: string | null; mri_safety?: string | null }
+export interface PartCounts { shown: number; on_site: number; other_fda_number: number; fda_number_not_found: number }
+export interface PartSearch { query: string; key: string; note: string | null; results: PartMatch[]; source: string | null; counts: PartCounts | null }
 const partSearches = new Map<string, Promise<PartSearch>>();
 const partRead = resilient(async (q: string, lim: number): Promise<PartSearch> => {
-  const { data, error } = await researchClient.rpc('pc_part_search', { q, lim });
+  const { data, error } = await researchClient.rpc('pc_part_search', { q, lim, scope: 'all' });
   if (error) throw error;
   const d = (data ?? {}) as Partial<PartSearch>;
-  return { query: d.query ?? q, key: d.key ?? q, note: d.note ?? null, results: d.results ?? [], source: d.source ?? null };
+  return { query: d.query ?? q, key: d.key ?? q, note: d.note ?? null, results: d.results ?? [], source: d.source ?? null, counts: d.counts ?? null };
 });
 /** Read-only GUDID part-number lookup, cached per query and limit for the session. */
 export function searchParts(q: string, lim = 25) {
@@ -395,3 +397,21 @@ const correctionsRead = resilient(async (): Promise<Correction[]> => { const {da
 const releaseNotesRead = resilient(async (): Promise<ReleaseNote[]> => { const {data, error} = await researchClient.from('pc_release_notes').select('id, released_on, title, summary, data_release, url').order('released_on', {ascending: false}); if (error) throw error; return (data ?? []) as ReleaseNote[]; });
 export function getCorrections() { return cachedTeamRead('corrections', correctionsRead); }
 export function getReleaseNotes() { return cachedTeamRead('release-notes', releaseNotesRead); }
+
+// Phase 9 reads: grouped product search, establishment sites and multi-company compare, cached per session.
+const phase9Reads = new Map<string, Promise<unknown>>();
+function cachedPhase9<T>(key: string, read: () => Promise<T>): Promise<T> {
+  const existing = phase9Reads.get(key); if (existing) return existing as Promise<T>;
+  const pending = read(); phase9Reads.set(key, pending); pending.catch(() => phase9Reads.delete(key)); return pending;
+}
+export function getSearchGroups(q: string) {
+  const t = q.trim();
+  return cachedPhase9(`groups:${t.toLowerCase()}`, resilient(async (): Promise<SearchGroups> => { const {data, error} = await researchClient.rpc('pc_search_groups', {q: t, lim: 50}); if (error) throw error; return data as unknown as SearchGroups; }));
+}
+export function getCodeSites(code: string) {
+  const c = code.trim().toUpperCase();
+  return cachedPhase9(`sites:${c}`, resilient(async (): Promise<CodeSites> => { const {data, error} = await researchClient.rpc('pc_code_sites', {code: c}); if (error) throw error; return data as unknown as CodeSites; }));
+}
+export function getVendorCompareMany(ids: string[]) {
+  return cachedPhase9(`many:${ids.join(',')}`, resilient(async (): Promise<VendorCompareMany> => { const {data, error} = await researchClient.rpc('pc_vendor_compare_many', {ids, m: 'current'}); if (error) throw error; return data as unknown as VendorCompareMany; }));
+}
