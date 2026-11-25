@@ -266,21 +266,42 @@ export type Database = {
       pc_catalog: {
         Row: {
           brand_id: number | null
+          company_id: number | null
+          exempt: boolean | null
           ident: string
           in_dist: boolean | null
-          n: string
+          mri: number | null
+          n: string | null
+          n_di: number | null
+          pc: string | null
+          sterile: boolean | null
+          units: number | null
         }
         Insert: {
           brand_id?: number | null
+          company_id?: number | null
+          exempt?: boolean | null
           ident: string
           in_dist?: boolean | null
-          n: string
+          mri?: number | null
+          n?: string | null
+          n_di?: number | null
+          pc?: string | null
+          sterile?: boolean | null
+          units?: number | null
         }
         Update: {
           brand_id?: number | null
+          company_id?: number | null
+          exempt?: boolean | null
           ident?: string
           in_dist?: boolean | null
-          n?: string
+          mri?: number | null
+          n?: string | null
+          n_di?: number | null
+          pc?: string | null
+          sterile?: boolean | null
+          units?: number | null
         }
         Relationships: []
       }
@@ -296,6 +317,21 @@ export type Database = {
         Update: {
           brand?: string | null
           brand_id?: number
+        }
+        Relationships: []
+      }
+      pc_catalog_company: {
+        Row: {
+          company: string | null
+          company_id: number
+        }
+        Insert: {
+          company?: string | null
+          company_id: number
+        }
+        Update: {
+          company?: string | null
+          company_id?: number
         }
         Relationships: []
       }
@@ -1972,6 +2008,10 @@ export type Database = {
       pc_brand_family: { Args: { k: string }; Returns: Json }
       pc_brief: { Args: { k: string }; Returns: Json }
       pc_brief_live: { Args: { k: string }; Returns: Json }
+      pc_cache_warm: {
+        Args: { n_products?: number; n_vendors?: number }
+        Returns: Json
+      }
       pc_card: {
         Args: {
           ask: string
@@ -1985,12 +2025,14 @@ export type Database = {
         }
         Returns: Json
       }
+      pc_catalog_after_import: { Args: never; Returns: Json }
       pc_category: { Args: { code: string }; Returns: Json }
       pc_class_label: { Args: { c: string }; Returns: string }
       pc_clean_blanks: { Args: never; Returns: string }
       pc_clean_ifu: { Args: { t: string }; Returns: string }
       pc_co: { Args: { n: string }; Returns: string }
       pc_code_procedures: { Args: { code: string }; Returns: Json }
+      pc_code_sites: { Args: { code: string }; Returns: Json }
       pc_code_vendors: { Args: { code: string; lim?: number }; Returns: Json }
       pc_compare: { Args: { a: string; b: string }; Returns: Json }
       pc_count: {
@@ -2063,10 +2105,14 @@ export type Database = {
       pc_maude_notes: { Args: never; Returns: Json }
       pc_mode: { Args: { m: string }; Returns: string }
       pc_money: { Args: { x: number }; Returns: string }
+      pc_mri_label: { Args: { m: number }; Returns: string }
       pc_num: { Args: { n: number }; Returns: string }
       pc_owner_at: { Args: { d: string; v: string }; Returns: string }
       pc_part_key: { Args: { t: string }; Returns: string }
-      pc_part_search: { Args: { lim?: number; q: string }; Returns: Json }
+      pc_part_search: {
+        Args: { lim?: number; q: string; scope?: string }
+        Returns: Json
+      }
       pc_pathway: { Args: { k: string }; Returns: string }
       pc_pay_range: {
         Args: { compact?: boolean; hi: number; lo: number }
@@ -2081,6 +2127,7 @@ export type Database = {
         Args: { fid: string; vendors_per_code?: number }
         Returns: Json
       }
+      pc_procedure_asc_summary: { Args: { fam: string }; Returns: Json }
       pc_procedure_list: { Args: never; Returns: Json }
       pc_procedure_notes: { Args: never; Returns: Json }
       pc_procedure_worksheet: { Args: { fam?: string }; Returns: Json }
@@ -2118,6 +2165,7 @@ export type Database = {
           segment: string
         }[]
       }
+      pc_search_groups: { Args: { lim?: number; q: string }; Returns: Json }
       pc_short_name: { Args: { n: string }; Returns: string }
       pc_signals: { Args: { k: string }; Returns: Json }
       pc_signals_live: { Args: { k: string }; Returns: Json }
@@ -2145,6 +2193,10 @@ export type Database = {
       pc_vendor_brief_live: { Args: { m?: string; v: string }; Returns: Json }
       pc_vendor_compare: {
         Args: { a: string; b: string; m?: string }
+        Returns: Json
+      }
+      pc_vendor_compare_many: {
+        Args: { ids: string[]; m?: string }
         Returns: Json
       }
       pc_vendor_coverage: { Args: never; Returns: Json }
